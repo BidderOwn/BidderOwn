@@ -16,5 +16,11 @@ import javax.persistence.Entity;
 @Entity
 public class Users extends BaseEntity {
     @Column(unique = true)
-    private String name;
+    private String username;
+
+    public static Users of(String username) {
+        return Users.builder()
+                .username(username)
+                .build();
+    }
 }
