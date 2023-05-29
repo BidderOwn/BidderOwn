@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import site.bidderown.server.base.exception.NotFoundException;
-import site.bidderown.server.bounded_context.users.Controller.dto.UsersResponse;
+import site.bidderown.server.bounded_context.users.controller.dto.UsersResponse;
 import site.bidderown.server.bounded_context.users.entity.Users;
 import site.bidderown.server.bounded_context.users.repository.UsersRepository;
 

@@ -1,4 +1,4 @@
-package site.bidderown.server.bounded_context.users.Controller.dto;
+package site.bidderown.server.bounded_context.users.controller.dto;
 
 import lombok.*;
 import site.bidderown.server.bounded_context.users.entity.Users;
