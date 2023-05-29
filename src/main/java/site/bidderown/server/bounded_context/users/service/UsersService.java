@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.bounded_context.users.Controller.dto.UsersResponse;
 import site.bidderown.server.bounded_context.users.entity.Users;
 import site.bidderown.server.bounded_context.users.repository.UsersRepository;
 
@@ -18,17 +21,25 @@ public class UsersService {
 
     @Transactional
     public Users join(String username) {
-        Optional<Users> opUser = findByUsername(username);
-        return opUser.orElseGet(() -> usersRepository.save(Users.of(username)));
+        Assert.hasText(username, "Username must be provided");
+        return findOpByUsername(username)
+                .orElseGet(() -> usersRepository.save(Users.of(username)));
     }
 
-    private Optional<Users> findByUsername(String username) {
+    public UsersResponse findByUsername(String username) {
+        Users user = findOpByUsername(username)
+                .orElseThrow(() -> new NotFoundException("Not Found -> " + username));
+        return UsersResponse.from(user);
+    }
+
+    private Optional<Users> findOpByUsername(String username) {
         return usersRepository.findByUsername(username);
     }
 
+
     @Transactional
     public Users loginAsSocial(String username) {
-        Optional<Users> opUser = findByUsername(username);
-        return opUser.orElseGet(() -> join(username));
+        return findOpByUsername(username)
+                .orElseGet(() -> join(username));
     }
 }
