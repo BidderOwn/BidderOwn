@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public class NotFoundException extends RuntimeException implements Serializable {
     public NotFoundException(String message) {
-        super(message);
+        super("Not Found -> " + message);
     }
 }

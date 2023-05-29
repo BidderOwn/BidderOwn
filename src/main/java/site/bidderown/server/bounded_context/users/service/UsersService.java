@@ -28,7 +28,7 @@ public class UsersService {
 
     public UsersResponse findByUsername(String username) {
         Users user = findOpByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Not Found -> " + username));
+                .orElseThrow(() -> new NotFoundException(username));
         return UsersResponse.from(user);
     }
 
