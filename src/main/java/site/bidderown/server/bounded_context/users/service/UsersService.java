@@ -36,7 +36,6 @@ public class UsersService {
         return usersRepository.findByUsername(username);
     }
 
-
     @Transactional
     public Users loginAsSocial(String username) {
         return findOpByUsername(username)

@@ -29,7 +29,7 @@ public class SecurityConfig {
                     .logout(
                             logout -> logout
                                     .logoutUrl("/users/logout")
-                                    .logoutSuccessUrl("/login-test") // TODO logout url 변경해야됨
+                                    .logoutSuccessUrl("/login") // TODO logout url 변경해야됨
                     );
 
         return http.build();
