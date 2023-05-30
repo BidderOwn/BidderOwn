@@ -5,15 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import site.bidderown.server.base.base_entity.BaseEntity;
-import site.bidderown.server.bounded_context.item.Controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.users.entity.Users;
-
 import javax.persistence.*;
 import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter @Setter
+@Getter
 @Entity
 @NoArgsConstructor
 @SuperBuilder

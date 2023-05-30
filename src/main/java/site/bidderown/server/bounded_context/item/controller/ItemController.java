@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import site.bidderown.server.bounded_context.item.Controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 
@@ -19,6 +18,8 @@ import java.util.Optional;
 @Controller
 @RequiredArgsConstructor
 public class ItemController {
+
+    private final ItemService itemService;
     @GetMapping("/login")
     public String testLogin() {
         return "/usr/login";
@@ -29,8 +30,6 @@ public class ItemController {
         log.info(user.getUsername());
         return "/usr/item/home";
     }
-
-    private final ItemService itemService;
 
     @GetMapping("/{id}")
     @ResponseBody
