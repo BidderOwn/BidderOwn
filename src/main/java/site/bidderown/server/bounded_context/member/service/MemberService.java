@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class MemberService {
 
@@ -41,6 +42,10 @@ public class MemberService {
     public Member findByName(String name) {
         return memberRepository.findByName(name)
                 .orElseThrow(() -> new NotFoundException(name));
+    }
+
+    public void clear() {
+        memberRepository.deleteAll();
     }
 
     private Optional<Member> findOpByName(String name) {

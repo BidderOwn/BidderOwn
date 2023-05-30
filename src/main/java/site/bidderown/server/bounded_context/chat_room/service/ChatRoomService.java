@@ -65,4 +65,8 @@ public class ChatRoomService {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(chatRoomId));
     }
+
+    public void clear() {
+        chatRoomRepository.deleteAll();
+    }
 }
