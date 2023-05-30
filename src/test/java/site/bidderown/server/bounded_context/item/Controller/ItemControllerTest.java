@@ -1,21 +1,17 @@
 package site.bidderown.server.bounded_context.item.Controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.bounded_context.item.Controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class ItemControllerTest {
