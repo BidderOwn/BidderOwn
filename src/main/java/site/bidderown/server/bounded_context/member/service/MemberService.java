@@ -10,6 +10,7 @@ import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.repository.MemberRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -32,9 +33,14 @@ public class MemberService {
     }
 
     public MemberDetail findMemberDetailById(Long memberId) {
-        Member member =  memberRepository.findById(memberId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(memberId + ""));
         return MemberDetail.from(member);
+    }
+
+    public Member findByName(String name) {
+        return memberRepository.findByName(name)
+                .orElseThrow(() -> new NotFoundException(name));
     }
 
     private Optional<Member> findOpByName(String name) {

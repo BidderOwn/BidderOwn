@@ -24,10 +24,10 @@ public class ChatRoomService {
     private final MemberService memberService;
 
     @Transactional
-    public void create(ChatRoomRequest chatRoomRequest) {
+    public ChatRoom create(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        chatRoomRepository.save(ChatRoom.of(seller, buyer));
+        return chatRoomRepository.save(ChatRoom.of(seller, buyer));
     }
 
     public List<ChatRoomResponse> findAllByMemberId(Long memberId) {
