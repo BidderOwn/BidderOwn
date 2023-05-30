@@ -1,4 +1,4 @@
-package site.bidderown.server.bounded_context.users.entity;
+package site.bidderown.server.bounded_context.member.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +14,13 @@ import javax.persistence.Entity;
 @ToString(callSuper = true)
 @SuperBuilder
 @Entity
-public class Users extends BaseEntity {
+public class Member extends BaseEntity {
     @Column(unique = true)
-    private String username;
+    private String name;
 
-    public static Users of(String username) {
-        return Users.builder()
-                .username(username)
+    public static Member of(String name) {
+        return Member.builder()
+                .name(name)
                 .build();
     }
 }
