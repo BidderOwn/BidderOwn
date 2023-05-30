@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import site.bidderown.server.base.exception.NotFoundException;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberResponse;
+import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.repository.MemberRepository;
 
@@ -26,10 +26,15 @@ public class MemberService {
                 .orElseGet(() -> memberRepository.save(Member.of(name)));
     }
 
-    public MemberResponse findByName(String name) {
-        Member member = findOpByName(name)
-                .orElseThrow(() -> new NotFoundException(name));
-        return MemberResponse.from(member);
+    public Member findById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(memberId + ""));
+    }
+
+    public MemberDetail findMemberDetailById(Long memberId) {
+        Member member =  memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(memberId + ""));
+        return MemberDetail.from(member);
     }
 
     private Optional<Member> findOpByName(String name) {

@@ -6,11 +6,11 @@ import site.bidderown.server.bounded_context.member.entity.Member;
 @Getter @Setter
 @AllArgsConstructor
 @Builder
-public class MemberResponse {
+public class MemberDetail {
     private String name;
 
-    public static MemberResponse from(Member member) {
-        return MemberResponse.builder()
+    public static MemberDetail from(Member member) {
+        return MemberDetail.builder()
                 .name(member.getName())
                 .build();
     }

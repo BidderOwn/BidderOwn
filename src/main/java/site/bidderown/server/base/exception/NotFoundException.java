@@ -6,4 +6,8 @@ public class NotFoundException extends RuntimeException implements Serializable 
     public NotFoundException(String message) {
         super("Not Found -> " + message);
     }
+
+    public NotFoundException(Long message) {
+        super("Not Found -> " + message);
+    }
 }
