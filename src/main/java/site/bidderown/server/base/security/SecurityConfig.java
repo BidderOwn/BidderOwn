@@ -24,11 +24,11 @@ public class SecurityConfig {
                 .and()
                     .oauth2Login(
                         oauth2Login -> oauth2Login
-                                .loginPage("/users/login")
+                                .loginPage("/member/login")
                     )
                     .logout(
                             logout -> logout
-                                    .logoutUrl("/users/logout")
+                                    .logoutUrl("/member/logout")
                                     .logoutSuccessUrl("/login") // TODO logout url 변경해야됨
                     );
 

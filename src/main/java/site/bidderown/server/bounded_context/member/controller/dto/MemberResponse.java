@@ -1,18 +1,17 @@
-package site.bidderown.server.bounded_context.users.controller.dto;
+package site.bidderown.server.bounded_context.member.controller.dto;
 
 import lombok.*;
-import site.bidderown.server.bounded_context.users.entity.Users;
+import site.bidderown.server.bounded_context.member.entity.Member;
 
 @Getter @Setter
 @AllArgsConstructor
 @Builder
-public class UsersResponse {
-    private String username;
+public class MemberResponse {
+    private String name;
 
-    public static UsersResponse from(Users user) {
-        return UsersResponse.builder()
-                .username(user.getUsername())
+    public static MemberResponse from(Member member) {
+        return MemberResponse.builder()
+                .name(member.getName())
                 .build();
     }
-
 }

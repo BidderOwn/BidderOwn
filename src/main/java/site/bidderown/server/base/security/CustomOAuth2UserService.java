@@ -11,8 +11,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.bounded_context.users.entity.Users;
-import site.bidderown.server.bounded_context.users.service.UsersService;
+import site.bidderown.server.bounded_context.member.entity.Member;
+import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.Map;
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final UsersService usersService;
+    private final MemberService memberService;
 
     @Override
     @Transactional
@@ -31,15 +31,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String oauthId = oAuth2User.getName();
         String providerTypeCode = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
-        String username = providerTypeCode + "_" + oauthId;
-        Users user = usersService.loginAsSocial(username);
-        return new CustomOAuth2User(user.getUsername(), "", List.of(new SimpleGrantedAuthority("user")));
+        String name = providerTypeCode + "_" + oauthId;
+        Member member = memberService.loginAsSocial(name);
+        return new CustomOAuth2User(member.getName(), "", List.of(new SimpleGrantedAuthority("user")));
     }
 
     static class CustomOAuth2User extends User implements OAuth2User {
 
-        public CustomOAuth2User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
-            super(username, password, authorities);
+        public CustomOAuth2User(String name, String password, Collection<? extends GrantedAuthority> authorities) {
+            super(name, password, authorities);
         }
 
         @Override
