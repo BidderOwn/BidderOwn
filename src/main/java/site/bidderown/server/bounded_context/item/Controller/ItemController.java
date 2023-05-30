@@ -1,4 +1,4 @@
-package site.bidderown.server.bounded_context.item.Controller;
+package site.bidderown.server.bounded_context.item.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
