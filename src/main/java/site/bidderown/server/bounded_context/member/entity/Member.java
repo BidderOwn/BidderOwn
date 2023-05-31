@@ -4,11 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import site.bidderown.server.base.base_entity.BaseEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -17,6 +19,10 @@ import javax.persistence.Entity;
 public class Member extends BaseEntity {
     @Column(unique = true)
     private String name;
+
+    public List<? extends GrantedAuthority> getGrantedAuthorities() {
+        return List.of(new SimpleGrantedAuthority("member"));
+    }
 
     @Builder
     private Member(String name) {
