@@ -13,7 +13,7 @@ public class ChatRoomResponse {
     @Builder
     public ChatRoomResponse(Long chatRoomId, String toName, String toProfileImageName){
         this.chatRoomId = chatRoomId;
-        this.toName= toName;
+        this.toName = toName;
         this.toProfileImageName = toProfileImageName;
     }
 

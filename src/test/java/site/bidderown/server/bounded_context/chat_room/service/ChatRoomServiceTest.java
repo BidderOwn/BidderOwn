@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
+import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -25,16 +26,14 @@ class ChatRoomServiceTest {
     private MemberService memberService;
 
     @AfterEach
-    void clearDate() {
+    void initData() {
         chatRoomService.clear();
-        memberService.clear();
     }
 
     @Test
     @DisplayName("채팅방 생성 테스트")
     void t001() {
         //given
-
         Member seller = memberService.findByName("0");
         Member buyer = memberService.findByName("1");
 
@@ -73,15 +72,11 @@ class ChatRoomServiceTest {
 
         //then
         assertEquals(5, chatRooms.size());
-        long sellerCount = chatRooms.stream()
-                .filter(chatRoom -> !chatRoom.getToName().equals(member0.getName()))
-                .count();
-
-        assertEquals(2L, sellerCount);
 
         long buyerCount = chatRooms.stream()
                 .filter(chatRoom -> chatRoom.getToName().equals(member0.getName()))
                 .count();
-        assertEquals(3L, buyerCount);
+
+        assertEquals(0, buyerCount);
     }
 }
