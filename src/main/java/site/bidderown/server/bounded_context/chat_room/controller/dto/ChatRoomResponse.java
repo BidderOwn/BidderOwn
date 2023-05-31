@@ -27,7 +27,7 @@ public class ChatRoomResponse {
     
     public static String getToName(ChatRoom chatRoom, Long fromId) {
         return chatRoom.getBuyer().getId().equals(fromId) ?
-                chatRoom.getBuyer().getName():
-                chatRoom.getSeller().getName();
+                chatRoom.getSeller().getName():
+                chatRoom.getBuyer().getName();
     }
 }
