@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.chat.entity.Chat;
+import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
 import javax.persistence.*;
@@ -18,8 +18,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 public class ChatRoom extends BaseEntity {
-    // TODO private Items item;
-
     @ManyToOne
     @JoinColumn(nullable = false)
     private Member seller;
@@ -31,16 +29,23 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom")
     private List<Chat> chatList = new ArrayList<>();
 
+    @OneToOne
+    @JoinColumn
+    // nullable 추가해야됨
+    private Item item;
+
     @Builder
-    private ChatRoom(Member seller, Member buyer) {
+    private ChatRoom(Member seller, Member buyer, Item item) {
         this.seller = seller;
         this.buyer = buyer;
+        this.item = item;
     }
 
-    public static ChatRoom of(Member seller, Member buyer) {
+    public static ChatRoom of(Member seller, Member buyer, Item item) {
         return ChatRoom.builder()
                 .seller(seller)
                 .buyer(buyer)
+                .item(item)
                 .build();
     }
 }
