@@ -33,8 +33,8 @@ class ChatRoomServiceTest {
     @DisplayName("채팅방 생성 테스트")
     void t001() {
         //given
-        Member seller = memberService.findByName("0");
-        Member buyer = memberService.findByName("1");
+        Member seller = memberService.findByName("user_0");
+        Member buyer = memberService.findByName("user_1");
 
         // when
         ChatRoom savedChatRoom = chatRoomService.create(
@@ -51,11 +51,11 @@ class ChatRoomServiceTest {
     @DisplayName("member0이 속한 모든 채팅방 가져오기 테스트")
     void t002() {
         //given
-        Member member0 = memberService.findByName("0");
-        Member member1 = memberService.findByName("1");
-        Member member2 = memberService.findByName("2");
-        Member member3 = memberService.findByName("3");
-        Member member4 = memberService.findByName("4");
+        Member member0 = memberService.findByName("user_0");
+        Member member1 = memberService.findByName("user_1");
+        Member member2 = memberService.findByName("user_2");
+        Member member3 = memberService.findByName("user_3");
+        Member member4 = memberService.findByName("user_4");
 
         //member0가 seller
         chatRoomService.create(ChatRoomRequest.from(member0.getId(), member1.getId(), 0L));
@@ -83,8 +83,8 @@ class ChatRoomServiceTest {
     @DisplayName("채팅방 조회 테스트")
     void t003() {
         //given
-        Member seller = memberService.findByName("0");
-        Member buyer = memberService.findByName("1");
+        Member seller = memberService.findByName("user_0");
+        Member buyer = memberService.findByName("user_1");
 
         // when
         ChatRoom saveChatRoom = chatRoomService.create(

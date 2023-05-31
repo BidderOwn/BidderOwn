@@ -78,6 +78,23 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
+    public List<ChatRoomResponse> findAllByMemberName(String memberName) {
+        /**
+         * 내가 속한 모든 채팅방 가져오기 (본인이 구매자, 판매자일 경우)
+         * @param memberId: 내 아이디
+         * @return List<ChatRoomResponse>: 채팅방 목록
+         * TODO Paging 처리, QueryDsl 적용 여부
+         */
+
+        Member member = memberService.findByName(memberName);
+        return chatRoomRepository
+                // 본인이 구매자와 판매자일 경우의 모든 채팅방을 찾음
+                .findChatRoomsBySellerOrBuyer(member, member)
+                .stream()
+                .map(chatRoom -> ChatRoomResponse.from(chatRoom, member.getName()))
+                .collect(Collectors.toList());
+    }
+
     private List<ChatResponse> findChatListByChatRoomId(Long chatRoomId) {
         /**
          * 채팅방의 모든 채팅 기록 가져오기

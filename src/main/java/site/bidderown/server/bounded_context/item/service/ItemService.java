@@ -16,7 +16,7 @@ import java.util.Optional;
 @Transactional
 public class ItemService {
 
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
     public List<Item> findAllByDescription(String description) {
         List<Item> itemList = itemRepository.findAllByDescription(description);
