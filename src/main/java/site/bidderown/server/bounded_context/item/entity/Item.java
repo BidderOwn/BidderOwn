@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
-@SuperBuilder
 public class Item extends BaseEntity {
 
     @Column(length = 30)

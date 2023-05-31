@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.member.entity;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -12,11 +13,15 @@ import javax.persistence.Entity;
 @Getter
 @NoArgsConstructor
 @ToString(callSuper = true)
-@SuperBuilder
 @Entity
 public class Member extends BaseEntity {
     @Column(unique = true)
     private String name;
+
+    @Builder
+    private Member(String name) {
+        this.name = name;
+    }
 
     public static Member of(String name) {
         return Member.builder()

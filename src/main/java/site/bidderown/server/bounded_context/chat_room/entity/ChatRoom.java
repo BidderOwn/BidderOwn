@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.chat_room.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +16,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
 @Entity
 public class ChatRoom extends BaseEntity {
     // TODO private Items item;
@@ -30,6 +30,12 @@ public class ChatRoom extends BaseEntity {
 
     @OneToMany(mappedBy = "chatRoom")
     private List<Chat> chatList = new ArrayList<>();
+
+    @Builder
+    private ChatRoom(Member seller, Member buyer) {
+        this.seller = seller;
+        this.buyer = buyer;
+    }
 
     public static ChatRoom of(Member seller, Member buyer) {
         return ChatRoom.builder()
