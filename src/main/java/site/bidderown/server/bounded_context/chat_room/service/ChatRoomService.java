@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 public class ChatRoomService {
 
@@ -61,7 +60,7 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-    private ChatRoom findById(Long chatRoomId) {
+    public ChatRoom findById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(chatRoomId));
     }

@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
-import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -51,6 +50,7 @@ class ChatRoomServiceTest {
     @Test
     @DisplayName("member0이 속한 모든 채팅방 가져오기 테스트")
     void t002() {
+
         //given
         Member member0 = memberService.findByName("0");
         Member member1 = memberService.findByName("1");
@@ -78,5 +78,21 @@ class ChatRoomServiceTest {
                 .count();
 
         assertEquals(0, buyerCount);
+    }
+    @Test
+    @DisplayName("채팅방 조회 테스트")
+    void t003() {
+        //given
+        Member seller = memberService.findByName("0");
+        Member buyer = memberService.findByName("1");
+
+        // when
+        ChatRoom saveChatRoom = chatRoomService.create(
+                ChatRoomRequest.from(seller.getId(), buyer.getId()));
+
+
+        ChatRoom findChatRoom = chatRoomService.findById(saveChatRoom.getId());
+        //then
+        assertEquals(saveChatRoom.getId() ,findChatRoom.getId());
     }
 }
