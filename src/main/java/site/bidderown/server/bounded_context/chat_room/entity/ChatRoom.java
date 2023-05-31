@@ -20,11 +20,11 @@ import java.util.List;
 public class ChatRoom extends BaseEntity {
     // TODO private Items item;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Member seller;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Member buyer;
 

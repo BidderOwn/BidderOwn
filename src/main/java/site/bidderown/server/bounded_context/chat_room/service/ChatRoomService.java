@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 public class ChatRoomService {
 
@@ -24,10 +23,10 @@ public class ChatRoomService {
     private final MemberService memberService;
 
     @Transactional
-    public void create(ChatRoomRequest chatRoomRequest) {
+    public ChatRoom create(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        chatRoomRepository.save(ChatRoom.of(seller, buyer));
+        return chatRoomRepository.save(ChatRoom.of(seller, buyer));
     }
 
     public List<ChatRoomResponse> findAllByMemberId(Long memberId) {
@@ -61,8 +60,12 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-    private ChatRoom findById(Long chatRoomId) {
+    public ChatRoom findById(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(chatRoomId));
+    }
+
+    public void clear() {
+        chatRoomRepository.deleteAll();
     }
 }
