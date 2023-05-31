@@ -10,7 +10,6 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SuperBuilder
 @Entity
 public class Chat extends BaseEntity {
     @ManyToOne
@@ -25,7 +24,7 @@ public class Chat extends BaseEntity {
     private String message;
 
     @Builder
-    public Chat(String message, Member sender){
+    private Chat(String message, Member sender){
         this.message = message;
         this.sender = sender;
     }
