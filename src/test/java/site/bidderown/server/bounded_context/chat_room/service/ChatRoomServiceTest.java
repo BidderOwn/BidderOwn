@@ -38,7 +38,7 @@ class ChatRoomServiceTest {
 
         // when
         ChatRoom savedChatRoom = chatRoomService.create(
-                ChatRoomRequest.from(seller.getId(), buyer.getId()));
+                ChatRoomRequest.from(seller.getId(), buyer.getId(), 0L));
 
         //then
         assertNotNull(savedChatRoom);
@@ -50,7 +50,6 @@ class ChatRoomServiceTest {
     @Test
     @DisplayName("member0이 속한 모든 채팅방 가져오기 테스트")
     void t002() {
-
         //given
         Member member0 = memberService.findByName("0");
         Member member1 = memberService.findByName("1");
@@ -59,13 +58,13 @@ class ChatRoomServiceTest {
         Member member4 = memberService.findByName("4");
 
         //member0가 seller
-        chatRoomService.create(ChatRoomRequest.from(member0.getId(), member1.getId()));
-        chatRoomService.create(ChatRoomRequest.from(member0.getId(), member2.getId()));
+        chatRoomService.create(ChatRoomRequest.from(member0.getId(), member1.getId(), 0L));
+        chatRoomService.create(ChatRoomRequest.from(member0.getId(), member2.getId(), 0L));
 
         //member0가 buyer
-        chatRoomService.create(ChatRoomRequest.from(member3.getId(), member0.getId()));
-        chatRoomService.create(ChatRoomRequest.from(member1.getId(), member0.getId()));
-        chatRoomService.create(ChatRoomRequest.from(member4.getId(), member0.getId()));
+        chatRoomService.create(ChatRoomRequest.from(member3.getId(), member0.getId(), 0L));
+        chatRoomService.create(ChatRoomRequest.from(member1.getId(), member0.getId(), 0L));
+        chatRoomService.create(ChatRoomRequest.from(member4.getId(), member0.getId(), 0L));
 
         //when
         List<ChatRoomResponse> chatRooms = chatRoomService.findAllByMemberId(member0.getId());
@@ -79,6 +78,7 @@ class ChatRoomServiceTest {
 
         assertEquals(0, buyerCount);
     }
+
     @Test
     @DisplayName("채팅방 조회 테스트")
     void t003() {
@@ -88,7 +88,7 @@ class ChatRoomServiceTest {
 
         // when
         ChatRoom saveChatRoom = chatRoomService.create(
-                ChatRoomRequest.from(seller.getId(), buyer.getId()));
+                ChatRoomRequest.from(seller.getId(), buyer.getId(), 0L));
 
 
         ChatRoom findChatRoom = chatRoomService.findById(saveChatRoom.getId());
