@@ -17,16 +17,16 @@ public class ChatRoomResponse {
         this.toProfileImageName = toProfileImageName;
     }
 
-    public static ChatRoomResponse from(ChatRoom chatRoom, Long fromId) {
+    public static ChatRoomResponse from(ChatRoom chatRoom, String fromName) {
         //TODO 프로필 이미지 추가
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
-                .toName(getToName(chatRoom, fromId))
+                .toName(getToName(chatRoom, fromName))
                 .build();
     }
     
-    public static String getToName(ChatRoom chatRoom, Long fromId) {
-        return chatRoom.getBuyer().getId().equals(fromId) ?
+    public static String getToName(ChatRoom chatRoom, String fromName) {
+        return chatRoom.getBuyer().getName().equals(fromName) ?
                 chatRoom.getSeller().getName():
                 chatRoom.getBuyer().getName();
     }

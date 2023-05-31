@@ -42,7 +42,7 @@ public class ChatRoomService {
                 // 본인이 구매자와 판매자일 경우의 모든 채팅방을 찾음
                 .findChatRoomsBySellerOrBuyer(member, member)
                 .stream()
-                .map(chatRoom -> ChatRoomResponse.from(chatRoom, memberId))
+                .map(chatRoom -> ChatRoomResponse.from(chatRoom, member.getName()))
                 .collect(Collectors.toList());
     }
 
