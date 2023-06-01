@@ -33,7 +33,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String providerTypeCode = userRequest.getClientRegistration().getRegistrationId().toUpperCase();
         String name = providerTypeCode + "_" + oauthId;
         Member member = memberService.loginAsSocial(name);
-        return new CustomOAuth2User(member.getName(), "", List.of(new SimpleGrantedAuthority("user")));
+        return new CustomOAuth2User(member.getName(), "", member.getGrantedAuthorities());
     }
 
     static class CustomOAuth2User extends User implements OAuth2User {
