@@ -105,7 +105,7 @@ public class ChatRoomService {
         return findById(chatRoomId)
                 .getChatList()
                 .stream()
-                .map(ChatResponse::from)
+                .map(ChatResponse::of)
                 .collect(Collectors.toList());
     }
 
