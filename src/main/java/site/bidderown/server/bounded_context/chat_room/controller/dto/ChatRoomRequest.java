@@ -1,10 +1,9 @@
 package site.bidderown.server.bounded_context.chat_room.controller.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomRequest {
     private Long sellerId;
     private Long buyerId;
