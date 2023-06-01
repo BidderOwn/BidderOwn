@@ -1,10 +1,174 @@
 <!DOCTYPE html>
 <html lang="ko">
-<div th:replace="/header::head"></div>
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
+<div th:replace="header::head"></div>
+<body class="flex justify-center h-screen">
+<!--  채팅 박스  -->
+<div class="flex flex-col w-7/12 min-w-[800px] max-w-[900px] mt-6" id="app">
+    <div class="text-3xl font-semibold">채팅</div>
+    <!--   가로선   -->
+    <div class="border border-inherit mt-4"></div>
+    <div class="flex justify-start h-5/6 w-full">
+        <!--   세로선 시작선    -->
+        <div class="border border-inherit h-full"></div>
+        <!--   채팅방     -->
+        <div class="flex flex-col w-2/6 justify-between">
+            <div class="flex flex-col">
+                <!--     채팅방 아이템     -->
+                <button class="flex p-3 hover:bg-zinc-200" :class="{'bg-zinc-200': chatRoom.checked}"
+                        v-for="chatRoom in chatRooms" :key="chatRoom.roomId"
+                        v-on:click="connectRoom(chatRoom.roomId)">
+                    <!--      아바타      -->
+                    <div class="inline-block w-11 h-11 min-w-[44px] rounded-full bg-zinc-300"></div>
+                    <!--      사용자 이름, 시간, 마지막 채팅      -->
+                    <div class="flex flex-col items-start ml-2">
+                        <!--       사용자 이름, 시간       -->
+                        <div class="flex items-baseline">
+                            <div class="font-semibold">{{ chatRoom.toName }}</div>
+                            <div class="ml-2 text-xs text-zinc-500">2분전</div>
+                        </div>
+                        <!--       마지막 채팅       -->
+                        <div class="truncate text-sm text-zinc-700 w-8/12"> {{ chatRoom.message }}</div>
+                    </div>
+                </button>
+            </div>
+            <button>방 만들기</button>
+        </div>
+
+        <!--   세로선 채팅방 오른쪽     -->
+        <div class="border border-inherit"></div>
+
+        <!--    채팅 내용    -->
+        <div class="flex flex-col-reverse justify-start w-full overflow-y-scroll">
+            <!--     채팅 입력 input     -->
+            <div class="mb-3 mt-5">
+                <div class="flex justify-between">
+                    <label class="w-full ml-3">
+                        <input type="text" placeholder="메시지를 입력해주세요" class="w-full" v-model="message"
+                               @keyup.enter="sendMessage"/>
+                    </label>
+                    <button class="min-w-[8%]" @click="sendMessage">전송</button>
+                </div>
+            </div>
+            <!--    채팅 내역        -->
+            <div class="my-1" v-for="(recv, i) in messages" v-bind:key="i">
+                <div v-if="recv.isMe">
+                    <div class="flex justify-end px-5">
+                        <div class="border border-blue-100 py-1 px-3 bg-blue-100 rounded-md">
+                            {{ recv.message }}
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <div class="flex justify-start px-5">
+                        <div class="border border-zinc-100 py-1 px-3 bg-zinc-100 rounded-md">
+                            {{ recv.message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--   세로선 채팅창 오른쪽     -->
+        <div class="border border-inherit"></div>
+    </div>
+    <div class="border border-inherit"></div>
+</div>
 </body>
+
+<script>
+    let socket;
+    let ws;
+    new Vue({
+        el: '#app',
+        data: {
+            chatRooms: [],
+            messages: [],
+            belongedRooms: [],
+            roomId: "",
+            message: "",
+            sender: "",
+        },
+        created() {
+            this.sender = localStorage.getItem('username');
+            axios.get('/api/v1/chat/list', {
+                auth: {
+                    username: this.sender,
+                    password: ""
+                }
+            })
+            .then(response => {
+                const res = response.data;
+                res.forEach(item => {
+                    this.chatRooms.push({
+                        roomId: item.chatRoomId,
+                        toName: item.toName,
+                        toProfileImageName: item.toProfileImageName
+                    })
+                })
+            });
+        },
+        methods: {
+            addMessage(recv) {
+                recv.isMe = recv.sender === this.sender;
+                this.messages.unshift(recv);
+            },
+            connectRoom(roomId) {
+                if (roomId !== this.roomId) {
+                    this.messages = [];
+                    this.updateCheck(roomId);
+                    this.roomId = roomId;
+                    this.connect();
+                }
+            },
+            recvMessage(recv) {
+                this.addMessage(recv);
+            },
+            sendMessage() {
+                if (this.message === "") return;
+                ws.send("/pub/chat/message", {},
+                    JSON.stringify({
+                        messageType: 'TALK',
+                        roomId: this.roomId,
+                        sender: this.sender,
+                        message: this.message
+                    }));
+                this.message = '';
+            },
+            updateCheck(roomId) {
+                this.chatRooms.forEach(room => {
+                    if (room.roomId === this.roomId) {
+                        room.checked = false;
+                    } else if (room.roomId === roomId) {
+                        room.checked = true;
+                    }
+                })
+            },
+            connect() {
+                if (this.belongedRooms.includes(this.roomId)) return;
+
+                this.belongedRooms.push(this.roomId);
+
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+                let reconnect = 0;
+
+                ws.connect({}, (frame) => {
+                    ws.subscribe("/sub/chat/room/" + this.roomId,
+                    (message) => {
+                        let recv = JSON.parse(message.body);
+                        this.recvMessage(recv);
+                    });
+                }, (error) => {
+                    if (reconnect++ <= 5) {
+                        setTimeout(function () {
+                            socket = new SockJS("/ws-stomp");
+                            ws = Stomp.over(socket);
+                            this.connect();
+                        }, 10 * 100);
+                    }
+                });
+            }
+        }
+    });
+</script>
 </html>
