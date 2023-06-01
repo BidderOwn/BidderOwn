@@ -25,12 +25,17 @@ public class BidService {
     public void create(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
         Member member = memberService.getMember(username);
-        Bid.of(bidRequest, member, item);
+        Bid bid = Bid.of(bidRequest, member, item);
+        bidRepository.save(bid);
     }
 
     public List<BidResponse> getBids(Long itemId) {
         Item item = itemService.getItem(itemId);
         return bidRepository.findByItem(item).stream()
                 .map(bid -> BidResponse.of(bid, item)).collect(Collectors.toList());
+    }
+
+    public void clear() {
+        bidRepository.deleteAll();
     }
 }
