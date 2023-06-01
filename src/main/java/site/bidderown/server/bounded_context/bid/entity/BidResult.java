@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum BidResult {
-    SUCCESS, WAIT, FAIL;
-
+    SUCCESS, WAIT, FAIL
 }

@@ -35,12 +35,6 @@ public class MemberService {
                 .orElseThrow(() -> new NotFoundException(name));
     }
 
-    public MemberDetail getMemberDetail(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException(memberId + ""));
-        return MemberDetail.of(member);
-    }
-
     public void clear() {
         memberRepository.deleteAll();
     }
