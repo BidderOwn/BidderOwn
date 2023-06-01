@@ -33,8 +33,7 @@ public class ChatRoomController {
 
     @GetMapping("/api/v1/chat/list")
     @ResponseBody
-    public List<ChatRoomResponse> findChatRoomList(
-            @AuthenticationPrincipal User user) {
+    public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
         return chatRoomService.getChatRooms(user.getUsername());
     }
 

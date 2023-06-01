@@ -6,9 +6,32 @@
     <title>Home</title>
 </head>
 <body>
-<div>
+<div id="app">
+    <input type="hidden" id="username" th:value="${username}">
+    <div>{{ username }}</div>
+
+    <div>
+        <a href="/chat/list">
+            채팅하기
+        </a>
+    </div>
+
     <a href="javascript:"  onclick="$(this).next().submit();">로그아웃</a>
     <form hidden th:action="|/member/logout|" method="POST"></form>
 </div>
 </body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            username: '',
+        },
+        created() {
+            this.username = document.getElementById('username').value;
+            localStorage.setItem("username", this.username);
+        },
+        methods: {}
+    })
+</script>
 </html>

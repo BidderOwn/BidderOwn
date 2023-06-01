@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRequest {
-
     private Long roomId;
     private String message;
     private LocalDateTime createAt;
-
+    private String sender;
 }
