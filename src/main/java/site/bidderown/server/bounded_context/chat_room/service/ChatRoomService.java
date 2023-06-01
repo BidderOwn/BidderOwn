@@ -11,6 +11,7 @@ import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRe
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ItemRepository itemRepository;
     private final MemberService memberService;
     private final ItemService itemService;
 
@@ -31,8 +33,9 @@ public class ChatRoomService {
     public ChatRoom create(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemService.findById(chatRoomRequest.getItemId())
+        Item item = itemRepository.findById(chatRoomRequest.getItemId())
                 .orElseThrow(() -> new NotFoundException(chatRoomRequest.getItemId()));
+
         return chatRoomRepository.save(ChatRoom.of(seller, buyer, item));
     }
 
@@ -40,7 +43,7 @@ public class ChatRoomService {
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemService.findById(chatRoomRequest.getItemId())
+        Item item = itemRepository.findById(chatRoomRequest.getItemId())
                 .orElseThrow(() -> new NotFoundException(chatRoomRequest.getItemId()));
 
         Optional<ChatRoom> chatRoom = chatRoomRepository
