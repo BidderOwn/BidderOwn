@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
-import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -44,14 +43,13 @@ public class ItemController {
     @GetMapping("/{id}")
     @ResponseBody
     public ItemResponse getItem(@PathVariable Long id) {
-        return itemService.findById(id);
+        return ItemResponse.of(itemService.getItem(id));
     }
 
     @GetMapping("/list")
     @ResponseBody
     public List<ItemResponse> getItemList() {
-        List<ItemResponse> itemList = itemService.findAll();
-        return itemList;
+        return itemService.getAll();
     }
 
 
@@ -60,13 +58,13 @@ public class ItemController {
     @ResponseBody
     public ItemResponse createItem(@RequestBody @Valid ItemRequest itemRequest, Member member) {
         //member를 Authentication에서 받아오는 것으로 수정
-        return itemService.create(itemRequest, member.getId());
+        return ItemResponse.of(itemService.create(itemRequest, member.getId()));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteItem(@PathVariable Long id, Principal principal) {
-        MemberDetail memberDetail = memberService.findMemberDetailById(id);
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
 
         if (!memberDetail.getName().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");

@@ -11,9 +11,9 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Bid extends BaseEntity
-{
 
+public class Bid extends BaseEntity {
+  
     private int price;
 
     @Enumerated(value = EnumType.STRING)

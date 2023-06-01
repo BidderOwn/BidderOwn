@@ -62,8 +62,8 @@ class ItemControllerTest {
         Member member = new Member();
         member = Member.of("홍길동");
         ItemRequest itemRequest = new ItemRequest("title", "body", 2000, List.of(new Image()), LocalDateTime.now());
-
-        ItemResponse itemResponse = itemService.create(itemRequest, member.getId());
+        Item item = itemService.create(itemRequest, member.getId());
+      
         assertEquals("title", itemRepository.findById(1L).get().getTitle());
     }
 
@@ -77,8 +77,8 @@ class ItemControllerTest {
         ItemRequest itemRequest1 = new ItemRequest("title1", "body1", 2000, List.of(new Image()), LocalDateTime.now());
         ItemRequest itemRequest2 = new ItemRequest("title2", "body2", 3000, List.of(new Image()), LocalDateTime.now());
 
-        ItemResponse itemResponse1 = itemService.create(itemRequest1, member.getId());
-        ItemResponse itemResponse2 = itemService.create(itemRequest2, member.getId());
+        Item itemResponse1 = itemService.create(itemRequest1, member.getId());
+        Item itemResponse2 = itemService.create(itemRequest2, member.getId());
 
         assertThat(itemRepository.findAll().size()).isEqualTo(2);
     }
@@ -93,8 +93,8 @@ class ItemControllerTest {
         ItemRequest itemRequest1 = new ItemRequest("title1", "body1", 2000, List.of(new Image()), LocalDateTime.now());
         ItemRequest itemRequest2 = new ItemRequest("title2", "body2", 3000, List.of(new Image()), LocalDateTime.now());
 
-        ItemResponse itemResponse1 = itemService.create(itemRequest1, member.getId());
-        ItemResponse itemResponse2 = itemService.create(itemRequest2, member.getId());
+        Item itemResponse1 = itemService.create(itemRequest1, member.getId());
+        Item itemResponse2 = itemService.create(itemRequest2, member.getId());
 
         assertEquals("title2", itemRepository.findById(2L).get().getTitle());
     }
@@ -109,8 +109,8 @@ class ItemControllerTest {
         ItemRequest itemRequest1 = new ItemRequest("title1", "body1", 2000, List.of(new Image()), LocalDateTime.now());
         ItemRequest itemRequest2 = new ItemRequest("title2", "body2", 3000, List.of(new Image()), LocalDateTime.now());
 
-        ItemResponse itemResponse1 = itemService.create(itemRequest1, member.getId());
-        ItemResponse itemResponse2 = itemService.create(itemRequest2, member.getId());
+        Item itemResponse1 = itemService.create(itemRequest1, member.getId());
+        Item itemResponse2 = itemService.create(itemRequest2, member.getId());
 
         assertEquals("title2", itemRepository.findById(2L).get().getTitle());
     }

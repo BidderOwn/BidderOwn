@@ -15,16 +15,16 @@ import java.util.List;
 @RequestMapping("/bid")
 @RequiredArgsConstructor
 public class BidController {
-
-    private BidService bidService;
+  
+    private final BidService bidService;
 
     @PostMapping
     public void registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
-        bidService.resister(bidRequest, user.getUsername());
+        bidService.create(bidRequest, user.getUsername());
     }
+
     @GetMapping("/list")
     public List<BidResponse> bidList(@RequestParam Long itemId){
-        return bidService.findList(itemId);
-
+        return bidService.getBids(itemId);
     }
 }

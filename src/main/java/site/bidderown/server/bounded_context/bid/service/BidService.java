@@ -22,14 +22,14 @@ public class BidService {
     private final MemberService memberService;
     private final ItemService itemService;
 
-    public void resister(BidRequest bidRequest, String username) {
-        Item item = itemService.findById(bidRequest.getItemId());
-        Member member = memberService.findByUsername(username);
+    public void create(BidRequest bidRequest, String username) {
+        Item item = itemService.getItem(bidRequest.getItemId());
+        Member member = memberService.getMember(username);
         Bid.of(bidRequest, member, item);
     }
 
-    public List<BidResponse> findList(Long itemId) {
-        Item item = itemService.findById(itemId);
+    public List<BidResponse> getBids(Long itemId) {
+        Item item = itemService.getItem(itemId);
         return bidRepository.findByItem(item).stream()
                 .map(bid -> BidResponse.of(bid, item)).collect(Collectors.toList());
     }

@@ -17,7 +17,7 @@ public class ChatRoomResponse {
         this.toProfileImageName = toProfileImageName;
     }
 
-    public static ChatRoomResponse from(ChatRoom chatRoom, String fromName) {
+    public static ChatRoomResponse of(ChatRoom chatRoom, String fromName) {
         //TODO 프로필 이미지 추가
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
