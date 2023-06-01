@@ -20,11 +20,10 @@ import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRe
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.chat_room.service.ChatRoomService;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.service.ItemService;
+import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +49,7 @@ class ChatRoomControllerTest {
     private MemberService memberService;
 
     @Autowired
-    private ItemService itemService;
+    private ItemRepository itemRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -91,13 +90,14 @@ class ChatRoomControllerTest {
         Member seller = memberService.findByName("user_0");
         Member buyer = memberService.findByName("user_1");
 
-        Item givenItem = itemService.create(Item
-                .builder()
-                .title("test1")
-                .description("desc1")
-                .expireAt(LocalDateTime.now())
-                .minimumPrice(1000)
-                .build());
+        Item givenItem = itemRepository.save(
+                Item.builder()
+                        .title("title1")
+                        .description("desc1")
+                        .minimumPrice(10000)
+                        .member(seller)
+                        .build()
+        );
 
         String jsonString = new ObjectMapper().writeValueAsString(
                 ChatRoomRequest.from(
@@ -135,16 +135,16 @@ class ChatRoomControllerTest {
 
         String title = "title1";
         String desc = "desc1";
-        LocalDateTime now = LocalDateTime.now();
-        int price = 1000;
+        int price = 10000;
 
-        Item givenItem = itemService.create(Item
-                .builder()
-                .title(title)
-                .description(desc)
-                .expireAt(now)
-                .minimumPrice(price)
-                .build());
+        Item givenItem = itemRepository.save(
+                Item.builder()
+                        .title(title)
+                        .description(desc)
+                        .minimumPrice(price)
+                        .member(seller)
+                        .build()
+        );
 
         ChatRoom savedChatRoom = chatRoomService.create(
                 ChatRoomRequest.from(
@@ -184,13 +184,14 @@ class ChatRoomControllerTest {
         Member seller = memberService.findByName("user_0");
         Member buyer = memberService.findByName("user_1");
 
-        Item givenItem = itemService.create(Item
-                .builder()
-                .title("test1")
-                .description("desc1")
-                .expireAt(LocalDateTime.now())
-                .minimumPrice(1000)
-                .build());
+        Item givenItem = itemRepository.save(
+                Item.builder()
+                        .title("title")
+                        .description("desc")
+                        .minimumPrice(1000)
+                        .member(seller)
+                        .build()
+        );
 
         chatRoomService.create(new ChatRoomRequest(seller.getId(), buyer.getId(), givenItem.getId()));
 
