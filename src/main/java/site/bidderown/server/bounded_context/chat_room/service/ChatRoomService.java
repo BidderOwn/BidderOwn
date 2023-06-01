@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ItemRepository itemRepository;
     private final MemberService memberService;
     private final ItemService itemService;
 
@@ -33,8 +32,7 @@ public class ChatRoomService {
     public ChatRoom create(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemRepository.findById(chatRoomRequest.getItemId())
-                .orElseThrow(() -> new NotFoundException(chatRoomRequest.getItemId()));
+        Item item = itemService.findById(chatRoomRequest.getItemId());
 
         return chatRoomRepository.save(ChatRoom.of(seller, buyer, item));
     }
@@ -43,8 +41,7 @@ public class ChatRoomService {
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
         Member seller = memberService.findById(chatRoomRequest.getSellerId());
         Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemRepository.findById(chatRoomRequest.getItemId())
-                .orElseThrow(() -> new NotFoundException(chatRoomRequest.getItemId()));
+        Item item = itemService.findById(chatRoomRequest.getItemId());
 
         Optional<ChatRoom> chatRoom = chatRoomRepository
                 .findChatRoomBySellerAndBuyerAndItem(seller, buyer, item);
