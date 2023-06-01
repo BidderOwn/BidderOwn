@@ -1,19 +1,20 @@
 package site.bidderown.server.bounded_context.item.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
+import site.bidderown.server.bounded_context.member.entity.Member;
+
 import javax.persistence.*;
-import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseEntity {
+    //경매 기간 3일 (임시)
+    public static final int PERIOD_OF_BIDDING = 3;
 
     @Column(length = 30)
     private String title;
@@ -23,37 +24,41 @@ public class Item extends BaseEntity {
 
     private int minimumPrice;
 
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    private Users user;
-
-//    @OneToMany(mappedBy = "image")
-//    private List<Image> imageList;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Member member;
 
     private LocalDateTime expireAt;
 
-//    @OneToMany(mappedBy = "comment")
-//    private List<Comment> commentList;
+    @OneToMany(mappedBy = "item")
+    private List<Image> images;
 
-    public static Item createItem(Item items) {
-
-
-        Item item = new Item();
-
-        item.title = items.getTitle();
-
-        item.description = items.getDescription();
-
-        item.minimumPrice = items.getMinimumPrice();
-
-//        item.imageList = itemRequest.getImageList();
-
-//        item.expireAt = itemRequest.getExpireAt();
-
-        return item;
+    @Builder
+    public Item(
+            String title,
+            String description,
+            int minimumPrice,
+            Member member,
+            List<Image> images
+    ) {
+        this.title = title;
+        this.description = description;
+        this.minimumPrice = minimumPrice;
+        this.member = member;
+        this.images = images;
+        this.expireAt = LocalDateTime.now().plusDays(PERIOD_OF_BIDDING);
     }
 
 
+    public static Item of(ItemRequest request, Member member) {
+        return Item.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .minimumPrice(request.getMinimumPrice())
+                .member(member)
+                .images(request.getImages())
+                .build();
+    }
 }
 
 
