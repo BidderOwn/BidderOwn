@@ -9,7 +9,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
+
+@Getter @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseEntity {
@@ -24,17 +25,20 @@ public class Item extends BaseEntity {
 
     private int minimumPrice;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(nullable = false)
     private Member member;
 
     private LocalDateTime expireAt;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Image> images;
 
+    @Enumerated(EnumType.STRING)
+    private ItemStatus itemStatus;
+
     @Builder
-    public Item(
+    private Item(
             String title,
             String description,
             int minimumPrice,
@@ -47,8 +51,8 @@ public class Item extends BaseEntity {
         this.member = member;
         this.images = images;
         this.expireAt = LocalDateTime.now().plusDays(PERIOD_OF_BIDDING);
+        this.itemStatus = ItemStatus.BIDDING;
     }
-
 
     public static Item of(ItemRequest request, Member member) {
         return Item.builder()
@@ -59,6 +63,7 @@ public class Item extends BaseEntity {
                 .images(request.getImages())
                 .build();
     }
+
 }
 
 

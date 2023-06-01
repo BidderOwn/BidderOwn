@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @AutoConfigureMockMvc
 class ItemControllerTest {
@@ -64,13 +64,13 @@ class ItemControllerTest {
         ItemRequest itemRequest = new ItemRequest("title", "body", 2000, List.of(new Image()), LocalDateTime.now());
 
         ItemResponse itemResponse = itemService.create(itemRequest, member.getId());
-        assertThat(itemRepository.findAll().size()).isEqualTo(1);
+        assertEquals("title", itemRepository.findById(1L).get().getTitle());
     }
 
     @Rollback(value = false)
     @Test
     @Transactional
-    @DisplayName("전체 상품 불러오기")
+    @DisplayName("전체 상품 가져오기")
     void t03() {
         Member member = new Member();
         member = Member.of("홍길동");
@@ -83,6 +83,37 @@ class ItemControllerTest {
         assertThat(itemRepository.findAll().size()).isEqualTo(2);
     }
 
+    @Rollback(value = false)
+    @Test
+    @Transactional
+    @DisplayName("id로 한개의 상품 가져오기")
+    void t04() {
+        Member member = new Member();
+        member = Member.of("홍길동");
+        ItemRequest itemRequest1 = new ItemRequest("title1", "body1", 2000, List.of(new Image()), LocalDateTime.now());
+        ItemRequest itemRequest2 = new ItemRequest("title2", "body2", 3000, List.of(new Image()), LocalDateTime.now());
+
+        ItemResponse itemResponse1 = itemService.create(itemRequest1, member.getId());
+        ItemResponse itemResponse2 = itemService.create(itemRequest2, member.getId());
+
+        assertEquals("title2", itemRepository.findById(2L).get().getTitle());
+    }
+
+    @Rollback(value = false)
+    @Test
+    @Transactional
+    @DisplayName("상품작성자일때 id로 상품 삭제하기")
+    void t05() {
+        Member member = new Member();
+        member = Member.of("홍길동");
+        ItemRequest itemRequest1 = new ItemRequest("title1", "body1", 2000, List.of(new Image()), LocalDateTime.now());
+        ItemRequest itemRequest2 = new ItemRequest("title2", "body2", 3000, List.of(new Image()), LocalDateTime.now());
+
+        ItemResponse itemResponse1 = itemService.create(itemRequest1, member.getId());
+        ItemResponse itemResponse2 = itemService.create(itemRequest2, member.getId());
+
+        assertEquals("title2", itemRepository.findById(2L).get().getTitle());
+    }
 
 
 
