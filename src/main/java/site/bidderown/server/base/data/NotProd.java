@@ -19,7 +19,7 @@ public class NotProd {
     ) {
         return args -> {
             IntStream.range(0, 10)
-                    .forEach(i -> memberService.join("user_" + i));
+                    .forEach(i -> memberService.loginAsSocial("user_" + i));
         };
     }
 }

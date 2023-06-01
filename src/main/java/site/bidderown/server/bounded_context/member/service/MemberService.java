@@ -21,39 +21,32 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Member join(String name) {
-        Assert.hasText(name, "Member's name must be provided");
-        return findOpByName(name)
+    public Member loginAsSocial(String name) {
+        return getOptionalMember(name)
                 .orElseGet(() -> memberRepository.save(Member.of(name)));
     }
 
-    public Member findById(Long memberId) {
+    public Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(memberId + ""));
     }
 
-    public MemberDetail findMemberDetailById(Long memberId) {
+    public Member getMember(String name) {
+        return memberRepository.findByName(name)
+                .orElseThrow(() -> new NotFoundException(name));
+    }
+
+    public MemberDetail getMemberDetail(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(memberId + ""));
         return MemberDetail.of(member);
-    }
-
-    public Member findByName(String name) {
-        return memberRepository.findByName(name)
-                .orElseThrow(() -> new NotFoundException(name));
     }
 
     public void clear() {
         memberRepository.deleteAll();
     }
 
-    private Optional<Member> findOpByName(String name) {
+    private Optional<Member> getOptionalMember(String name) {
         return memberRepository.findByName(name);
-    }
-
-    @Transactional
-    public Member loginAsSocial(String name) {
-        return findOpByName(name)
-                .orElseGet(() -> join(name));
     }
 }

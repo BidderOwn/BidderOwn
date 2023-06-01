@@ -22,9 +22,9 @@ public class ChatService {
     private final ChatRoomService chatRoomService;
     private final MemberService memberService;
 
-    public ChatResponse save(ChatRequest chatRequest, String  username) {
-        ChatRoom chatRoom = chatRoomService.findById(chatRequest.getRoomId());
-        Member member = memberService.findByName(username);
+    public ChatResponse create(ChatRequest chatRequest, String  username) {
+        ChatRoom chatRoom = chatRoomService.getChatRoom(chatRequest.getRoomId());
+        Member member = memberService.getMember(username);
 
         Chat chat = chatRepository.save(Chat.of(chatRequest.getMessage(), member, chatRoom));
         return ChatResponse.of(chat);

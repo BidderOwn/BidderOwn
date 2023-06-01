@@ -11,7 +11,6 @@ import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRe
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -28,20 +27,25 @@ public class ChatRoomService {
     private final MemberService memberService;
     private final ItemService itemService;
 
+    public ChatRoom getChatRoom(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NotFoundException(chatRoomId));
+    }
+
     @Transactional
     public ChatRoom create(ChatRoomRequest chatRoomRequest) {
-        Member seller = memberService.findById(chatRoomRequest.getSellerId());
-        Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemService.findById(chatRoomRequest.getItemId());
+        Member seller = memberService.getMember(chatRoomRequest.getSellerId());
+        Member buyer = memberService.getMember(chatRoomRequest.getBuyerId());
+        Item item = itemService.getItem(chatRoomRequest.getItemId());
 
         return chatRoomRepository.save(ChatRoom.of(seller, buyer, item));
     }
 
     @Transactional
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
-        Member seller = memberService.findById(chatRoomRequest.getSellerId());
-        Member buyer = memberService.findById(chatRoomRequest.getBuyerId());
-        Item item = itemService.findById(chatRoomRequest.getItemId());
+        Member seller = memberService.getMember(chatRoomRequest.getSellerId());
+        Member buyer = memberService.getMember(chatRoomRequest.getBuyerId());
+        Item item = itemService.getItem(chatRoomRequest.getItemId());
 
         Optional<ChatRoom> chatRoom = chatRoomRepository
                 .findChatRoomBySellerAndBuyerAndItem(seller, buyer, item);
@@ -53,15 +57,15 @@ public class ChatRoomService {
         return chatRoomRepository.save(ChatRoom.of(seller, buyer, item)).getId();
     }
 
-    public ChatRoomDetail findChatRoomDetailById(Long id) {
+    public ChatRoomDetail getChatRoomDetail(Long id) {
         ChatRoom chatRoom = chatRoomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id));
-        List<ChatResponse> chatList = findChatListByChatRoomId(id);
+        List<ChatResponse> chatList = getChatList(id);
         // TODO 상품의 첫 이미지 이름 가져오기 chatRoom.getItem().getImages().get(0)
         return ChatRoomDetail.of(chatRoom.getItem(), chatList);
     }
 
-    public List<ChatRoomResponse> findAllByMemberId(Long memberId) {
+    public List<ChatRoomResponse> getChatRooms(Long memberId) {
         /**
          * 내가 속한 모든 채팅방 가져오기 (본인이 구매자, 판매자일 경우)
          * @param memberId: 내 아이디
@@ -69,7 +73,7 @@ public class ChatRoomService {
          * TODO Paging 처리, QueryDsl 적용 여부
          */
 
-        Member member = memberService.findById(memberId);
+        Member member = memberService.getMember(memberId);
         return chatRoomRepository
                 // 본인이 구매자와 판매자일 경우의 모든 채팅방을 찾음
                 .findChatRoomsBySellerOrBuyer(member, member)
@@ -78,7 +82,7 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-    public List<ChatRoomResponse> findAllByMemberName(String memberName) {
+    public List<ChatRoomResponse> getChatRooms(String memberName) {
         /**
          * 내가 속한 모든 채팅방 가져오기 (본인이 구매자, 판매자일 경우)
          * @param memberId: 내 아이디
@@ -86,7 +90,7 @@ public class ChatRoomService {
          * TODO Paging 처리, QueryDsl 적용 여부
          */
 
-        Member member = memberService.findByName(memberName);
+        Member member = memberService.getMember(memberName);
         return chatRoomRepository
                 // 본인이 구매자와 판매자일 경우의 모든 채팅방을 찾음
                 .findChatRoomsBySellerOrBuyer(member, member)
@@ -94,24 +98,19 @@ public class ChatRoomService {
                 .map(chatRoom -> ChatRoomResponse.of(chatRoom, member.getName()))
                 .collect(Collectors.toList());
     }
-
-    private List<ChatResponse> findChatListByChatRoomId(Long chatRoomId) {
+//findChatListByChatRoomId
+    private List<ChatResponse> getChatList(Long chatRoomId) {
         /**
          * 채팅방의 모든 채팅 기록 가져오기
          * @param chatRoomId: 방 ID
          * @return List<ChatResponse>: 채팅 목록
          * TODO Paging 처리, QueryDsl 적용 여부
          */
-        return findById(chatRoomId)
+        return getChatRoom(chatRoomId)
                 .getChatList()
                 .stream()
                 .map(ChatResponse::of)
                 .collect(Collectors.toList());
-    }
-
-    public ChatRoom findById(Long chatRoomId) {
-        return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(chatRoomId));
     }
 
     public void clear() {

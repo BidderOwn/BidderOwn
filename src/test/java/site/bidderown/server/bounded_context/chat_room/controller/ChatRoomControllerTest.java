@@ -87,8 +87,8 @@ class ChatRoomControllerTest {
     @DisplayName("채팅방이 없으면 생성하고 그 방으로 리다이렉팅")
     void t003() throws Exception {
         //given
-        Member seller = memberService.findByName("user_0");
-        Member buyer = memberService.findByName("user_1");
+        Member seller = memberService.getMember("user_0");
+        Member buyer = memberService.getMember("user_1");
 
         Item givenItem = itemRepository.save(
                 Item.builder()
@@ -130,8 +130,8 @@ class ChatRoomControllerTest {
     @DisplayName("채팅방 아이템 정보, 채팅 내역 가져오는 테스트")
     void t004() throws Exception {
         //given
-        Member seller = memberService.findByName("user_0");
-        Member buyer = memberService.findByName("user_1");
+        Member seller = memberService.getMember("user_0");
+        Member buyer = memberService.getMember("user_1");
 
         String title = "title1";
         String desc = "desc1";
@@ -181,8 +181,8 @@ class ChatRoomControllerTest {
     @WithUserDetails(value = "user_0")
     void t005() throws Exception {
         //given
-        Member seller = memberService.findByName("user_0");
-        Member buyer = memberService.findByName("user_1");
+        Member seller = memberService.getMember("user_0");
+        Member buyer = memberService.getMember("user_1");
 
         Item givenItem = itemRepository.save(
                 Item.builder()

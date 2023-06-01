@@ -35,7 +35,7 @@ public class ChatRoomController {
     @ResponseBody
     public List<ChatRoomResponse> findChatRoomList(
             @AuthenticationPrincipal User user) {
-        return chatRoomService.findAllByMemberName(user.getUsername());
+        return chatRoomService.getChatRooms(user.getUsername());
     }
 
 
@@ -50,6 +50,6 @@ public class ChatRoomController {
     @GetMapping("/api/v1/chat/{chatRoomId}")
     @ResponseBody
     public ChatRoomDetail joinChat(@PathVariable Long chatRoomId){
-        return chatRoomService.findChatRoomDetailById(chatRoomId);
+        return chatRoomService.getChatRoomDetail(chatRoomId);
     }
 }

@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 import site.bidderown.server.bounded_context.chat.controller.dto.ChatRequest;
 import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
@@ -20,7 +19,7 @@ public class ChatController {
     @MessageMapping("/chat/message")
     public void sendMessage(ChatRequest chatRequest, @AuthenticationPrincipal User user) {
 
-        ChatResponse chatResponse = chatService.save(chatRequest, user.getUsername());
+        ChatResponse chatResponse = chatService.create(chatRequest, user.getUsername());
 
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatResponse.getRoomId(), chatResponse);
     }
