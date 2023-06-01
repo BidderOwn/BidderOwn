@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/bid")
 @RequiredArgsConstructor
 public class BidController {
-
+  
     private final BidService bidService;
 
     @PostMapping
@@ -26,6 +26,5 @@ public class BidController {
     @GetMapping("/list")
     public List<BidResponse> bidList(@RequestParam Long itemId){
         return bidService.getBids(itemId);
-
     }
 }

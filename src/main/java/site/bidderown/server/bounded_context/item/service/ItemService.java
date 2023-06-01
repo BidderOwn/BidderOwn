@@ -26,6 +26,7 @@ public class ItemService {
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
+
         Item item = Item.of(request, member);
         return itemRepository.save(item);
     }

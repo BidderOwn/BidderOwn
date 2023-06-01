@@ -62,8 +62,8 @@ class ItemControllerTest {
         Member member = new Member();
         member = Member.of("홍길동");
         ItemRequest itemRequest = new ItemRequest("title", "body", 2000, List.of(new Image()), LocalDateTime.now());
-
         Item item = itemService.create(itemRequest, member.getId());
+      
         assertEquals("title", itemRepository.findById(1L).get().getTitle());
     }
 

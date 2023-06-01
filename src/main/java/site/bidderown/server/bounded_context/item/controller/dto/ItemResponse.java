@@ -1,6 +1,8 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
 import lombok.*;
+
+import site.bidderown.server.bounded_context.item.entity.Image;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.time.LocalDateTime;
