@@ -100,7 +100,7 @@ class ChatRoomControllerTest {
         );
 
         String jsonString = new ObjectMapper().writeValueAsString(
-                ChatRoomRequest.from(
+                ChatRoomRequest.of(
                         seller.getId(),
                         buyer.getId(),
                         givenItem.getId())
@@ -147,7 +147,7 @@ class ChatRoomControllerTest {
         );
 
         ChatRoom savedChatRoom = chatRoomService.create(
-                ChatRoomRequest.from(
+                ChatRoomRequest.of(
                         seller.getId(),
                         buyer.getId(),
                         givenItem.getId()

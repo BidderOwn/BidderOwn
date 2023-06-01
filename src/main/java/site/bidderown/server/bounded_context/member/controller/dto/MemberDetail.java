@@ -9,7 +9,7 @@ import site.bidderown.server.bounded_context.member.entity.Member;
 public class MemberDetail {
     private String name;
 
-    public static MemberDetail from(Member member) {
+    public static MemberDetail of(Member member) {
         return MemberDetail.builder()
                 .name(member.getName())
                 .build();

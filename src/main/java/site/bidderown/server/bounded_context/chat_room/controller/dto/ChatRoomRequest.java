@@ -16,7 +16,7 @@ public class ChatRoomRequest {
         this.itemId = itemId;
     }
 
-    public static ChatRoomRequest from(Long sellerId, Long buyerId, Long itemId) {
+    public static ChatRoomRequest of(Long sellerId, Long buyerId, Long itemId) {
         return ChatRoomRequest
                 .builder()
                 .sellerId(sellerId)
