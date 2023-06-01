@@ -12,7 +12,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     //이름, 판매자, 내용
     List<Item> findAllByTitleContaining(String title, Pageable pageable);
 
-    //List<Item> findAllByUser(User user);
+    List<Item> findAllByMemberId(Long memberId);
 
     List<Item> findAllByDescription(String description);
 
