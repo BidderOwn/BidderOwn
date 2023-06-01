@@ -1,6 +1,9 @@
 package site.bidderown.server.bounded_context.member.controller.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
 @Getter @Setter

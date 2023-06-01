@@ -25,12 +25,12 @@ public class ItemService {
     private final MemberService memberService;
 
     public Item create(ItemRequest request, Long memberId) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.getMember(memberId);
         Item item = Item.of(request, member);
         return itemRepository.save(item);
     }
 
-    public List<ItemResponse> findAllByDescription(String description) {
+    public List<ItemResponse> getItems(String description) {
         return itemRepository
                 .findAllByDescription(description)
                 .stream()
@@ -38,7 +38,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemResponse> findAllByTitle(String title, Pageable pageable) {
+    public List<ItemResponse> getItems(String title, Pageable pageable) {
         return itemRepository
                 .findAllByTitleContaining(title, pageable)
                 .stream()
@@ -46,7 +46,7 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemResponse> findAllByMemberId(Long memberId) {
+    public List<ItemResponse> getItems(Long memberId) {
         return itemRepository
                 .findAllByMemberId(memberId)
                 .stream()
@@ -54,12 +54,12 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public Item findById(Long id) {
+    public Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id));
     }
 
-    public List<ItemResponse> findAll() {
+    public List<ItemResponse> getAll() {
         return itemRepository
                 .findAll()
                 .stream()
