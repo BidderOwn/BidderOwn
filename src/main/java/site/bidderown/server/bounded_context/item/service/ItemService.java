@@ -25,11 +25,10 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public ItemResponse create(ItemRequest request, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException(memberId+""));
+        Member member = memberService.findById(memberId);
         Item item = Item.of(request, member);
         return ItemResponse.from(itemRepository.save(item));
     }
@@ -58,14 +57,14 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemResponse findById(Long itemId) {
-        return ItemResponse.from(itemRepository.findById(itemId)
-                .orElseThrow(()-> new NotFoundException(itemId + "")));
+    public Item findById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(itemId));
     }
 
     public ItemResponse findByItemResponseId(Long itemId) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(itemId + ""));
+                .orElseThrow(() -> new NotFoundException(itemId));
         return ItemResponse.from(item);
     }
 
@@ -79,7 +78,7 @@ public class ItemService {
 
     public void delete(Long itemId) {
         Item findItem = itemRepository.findById(itemId)
-                        .orElseThrow(() -> new NotFoundException(itemId+""));
+                        .orElseThrow(() -> new NotFoundException(itemId));
         itemRepository.delete(findItem);
     }
 
