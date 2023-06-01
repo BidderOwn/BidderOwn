@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.NotFoundException;
@@ -11,8 +12,10 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.repository.MemberRepository;
+import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -28,14 +31,14 @@ public class ItemService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(memberId+""));
         Item item = Item.of(request, member);
-        return ItemResponse.of(itemRepository.save(item));
+        return ItemResponse.from(itemRepository.save(item));
     }
 
     public List<ItemResponse> findAllByDescription(String description) {
         return itemRepository
                 .findAllByDescription(description)
                 .stream()
-                .map(item -> ItemResponse.of(item))
+                .map(item -> ItemResponse.from(item))
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +46,7 @@ public class ItemService {
         return itemRepository
                 .findAllByTitleContaining(title, pageable)
                 .stream()
-                .map(item -> ItemResponse.of(item))
+                .map(item -> ItemResponse.from(item))
                 .collect(Collectors.toList());
     }
 
@@ -51,26 +54,26 @@ public class ItemService {
         return itemRepository
                 .findAllByMemberId(memberId)
                 .stream()
-                .map(item -> ItemResponse.of(item))
+                .map(item -> ItemResponse.from(item))
                 .collect(Collectors.toList());
     }
 
     public ItemResponse findById(Long itemId) {
-        return ItemResponse.of(itemRepository.findById(itemId)
+        return ItemResponse.from(itemRepository.findById(itemId)
                 .orElseThrow(()-> new NotFoundException(itemId + "")));
     }
 
     public ItemResponse findByItemResponseId(Long itemId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(itemId + ""));
-        return ItemResponse.of(item);
+        return ItemResponse.from(item);
     }
 
     public List<ItemResponse> findAll() {
         return itemRepository
                 .findAll()
                 .stream()
-                .map(item -> ItemResponse.of(item))
+                .map(item -> ItemResponse.from(item))
                 .collect(Collectors.toList());
     }
 

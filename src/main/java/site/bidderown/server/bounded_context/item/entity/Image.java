@@ -11,10 +11,7 @@ import javax.persistence.ManyToOne;
 public class Image extends BaseEntity {
 
     @ManyToOne
-    @JoinColumn
     private Item item;
-
-    private String url;
 
     private String name;
 
