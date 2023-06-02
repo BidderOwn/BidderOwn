@@ -12,18 +12,19 @@ import site.bidderown.server.bounded_context.bid.service.BidService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/bid")
 @RequiredArgsConstructor
 public class BidController {
   
     private final BidService bidService;
 
-    @PostMapping
-    public void registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
+    @PostMapping("/bid")
+    public String registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
         bidService.create(bidRequest, user.getUsername());
+        return "usr/item/home";
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/v1/bid/list")
+    @ResponseBody
     public List<BidResponse> bidList(@RequestParam Long itemId){
         return bidService.getBids(itemId);
     }
