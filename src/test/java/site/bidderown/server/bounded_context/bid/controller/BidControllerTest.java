@@ -68,13 +68,13 @@ class BidControllerTest {
     @WithUserDetails(value = "user_0")
     void t001() throws Exception {
 
-        Member buyer = memberService.getMember("user_1");
+        Member seller = memberService.getMember("user_1");
         Item bidItem = itemRepository.save(
                 Item.builder()
                         .title("title1")
                         .description("desc1")
                         .minimumPrice(10000)
-                        .member(buyer)
+                        .member(seller)
                         .build()
         );
         String jsonString = new ObjectMapper().writeValueAsString(
@@ -101,13 +101,15 @@ class BidControllerTest {
     @DisplayName("입찰 목록 조회")
     void t002() throws Exception {
         //given
-        Member buyer = memberService.getMember("user_1");
+        Member seller = memberService.getMember("user_1");
+        Member buyer = memberService.getMember("user_2");
+
         Item bidItem = itemRepository.save(
                 Item.builder()
                         .title("title1")
                         .description("desc1")
                         .minimumPrice(10000)
-                        .member(buyer)
+                        .member(seller)
                         .build()
         );
         bidService.create(
