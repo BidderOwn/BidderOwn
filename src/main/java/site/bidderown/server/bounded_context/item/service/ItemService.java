@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.util.ImageUtils;
+import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -12,7 +15,12 @@ import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -23,13 +31,20 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final MemberService memberService;
+    private final ImageService imageService;
+    private final ImageUtils imageUtils;
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
-
-        Item item = Item.of(request, member);
-        return itemRepository.save(item);
+        return _create(request, member);
     }
+
+
+    public Item create(ItemRequest request, String memberString) {
+        Member member = memberService.getMember(memberString);
+        return _create(request, member);
+    }
+
 
     public List<ItemResponse> getItems(String description) {
         return itemRepository
@@ -74,4 +89,10 @@ public class ItemService {
         itemRepository.delete(findItem);
     }
 
+    private Item _create(ItemRequest request, Member member) {
+        Item item = itemRepository.save(Item.of(request, member));
+        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
+        imageService.create(item, fileNames);
+        return item;
+    }
 }

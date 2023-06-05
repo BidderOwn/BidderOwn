@@ -2,15 +2,18 @@ package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
+import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
-@Getter @Setter
+@Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseEntity {
@@ -32,7 +35,7 @@ public class Item extends BaseEntity {
     private LocalDateTime expireAt;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
@@ -42,14 +45,12 @@ public class Item extends BaseEntity {
             String title,
             String description,
             int minimumPrice,
-            Member member,
-            List<Image> images
+            Member member
     ) {
         this.title = title;
         this.description = description;
         this.minimumPrice = minimumPrice;
         this.member = member;
-        this.images = images;
         this.expireAt = LocalDateTime.now().plusDays(PERIOD_OF_BIDDING);
         this.itemStatus = ItemStatus.BIDDING;
     }
@@ -60,10 +61,15 @@ public class Item extends BaseEntity {
                 .description(request.getDescription())
                 .minimumPrice(request.getMinimumPrice())
                 .member(member)
-                .images(request.getImages())
                 .build();
     }
 
+    public void update(ItemUpdateDto itemUpdateDto){
+
+        this.title = itemUpdateDto.getTitle();
+        this.description = itemUpdateDto.getDescription();
+        this.setUpdatedAt(LocalDateTime.now());
+    }
 }
 
 
