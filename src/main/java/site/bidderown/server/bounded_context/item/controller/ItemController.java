@@ -9,19 +9,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
-import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
-import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.security.Principal;
 import java.util.List;
 
@@ -48,13 +43,12 @@ public class ItemController {
 
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-//    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @ResponseBody
-    public ItemResponse createItem(@Valid ItemRequest itemRequest){//, Member member) {
-        //member를 Authentication에서 받아오는 것으로 수정
-        Member member1 = memberService.getMember("user_1");
-//        return ItemResponse.of(itemService.create(itemRequest, member.getId()));
-        return ItemResponse.of(itemService.create(itemRequest, member1.getId()));
+    public ItemResponse createItem(
+            @Valid ItemRequest itemRequest,
+            @AuthenticationPrincipal User user) {
+        return ItemResponse.of(itemService.create(itemRequest, user.getUsername()));
     }
 
 

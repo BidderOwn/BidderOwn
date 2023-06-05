@@ -19,14 +19,14 @@ public class ImageController {
 
     private final ImageUtils imageUtils;
 
-    @GetMapping(value = "/{kind}/{filename}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{kind}/{fileName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public Resource downloadImageFile(
             @PathVariable String kind,
-            @PathVariable String filename) {
+            @PathVariable String fileName) {
         try {
-            return imageUtils.download(filename, kind);
+            return imageUtils.download(kind, fileName);
         } catch (IOException e) {
-            throw new NotFoundException(kind + "/" + filename);
+            throw new NotFoundException(kind + "/" + fileName);
         }
     }
 }
