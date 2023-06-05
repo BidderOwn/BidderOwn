@@ -39,7 +39,7 @@ public class ItemController {
         return "/usr/login";
     }
 
-    @GetMapping("/")
+    @GetMapping
     public String home(@AuthenticationPrincipal User user) {
         log.info(user.getUsername());
         return "/usr/item/home";
@@ -59,14 +59,11 @@ public class ItemController {
 
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ItemResponse createItem(@RequestBody @Valid ItemRequest itemRequest, Member member) {
         //member를 Authentication에서 받아오는 것으로 수정
         return ItemResponse.of(itemService.create(itemRequest, member.getId()));
     }
-
-
 
 
     @DeleteMapping("/{id}")
