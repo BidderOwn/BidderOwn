@@ -3,20 +3,25 @@ package site.bidderown.server.bounded_context.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
+import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.security.Principal;
 import java.util.List;
 
@@ -53,13 +58,16 @@ public class ItemController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public ItemResponse createItem(@RequestBody @Valid ItemRequest itemRequest, Member member) {
         //member를 Authentication에서 받아오는 것으로 수정
         return ItemResponse.of(itemService.create(itemRequest, member.getId()));
     }
+
+
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")

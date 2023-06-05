@@ -1,8 +1,8 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import org.apache.catalina.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.util.List;
