@@ -37,7 +37,7 @@ public class ItemService {
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
         Item item = itemRepository.save(Item.of(request, member));
-        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "items");
+        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
 
         return item;

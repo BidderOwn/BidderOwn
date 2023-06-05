@@ -1,8 +1,9 @@
 package site.bidderown.server.base.util;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,12 +16,9 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Component
 public class ImageUtils {
-
-    @Value("${custom.file.path}")
-    private String filePath;
-
     public String upload(MultipartFile file, String kind) {
         try {
             String originalFileName = file.getOriginalFilename();
@@ -28,9 +26,14 @@ public class ImageUtils {
             long nowDate = System.currentTimeMillis();
             long timeStamp = new Timestamp(nowDate).getTime();
             String fileName = kind + "_" + timeStamp + ext;
-            file.transferTo(new File(filePath+fileName));
-            return fileName;
-        } catch (Exception e){
+
+            Path path = Paths.get("src", "main", "resources", "images", kind, fileName);
+            String filePath = new UrlResource(path.toUri()).getURI().getPath();
+
+            file.transferTo(new File(filePath));
+
+            return filePath;
+        } catch (Exception e) {
 
         }
         return null;
@@ -42,14 +45,17 @@ public class ImageUtils {
                 .collect(Collectors.toList());
     }
 
-
     public Resource download(String fileName, String kind) throws IOException {
-        Path path = Paths.get(filePath + kind + "/" + fileName);
+        Path path = Paths.get("src", "main", "resources", "images", kind, fileName);
         return new InputStreamResource(Files.newInputStream(path));
     }
 
-    public void delete(String fileName, String kind) {
-        File file = new File(filePath + kind + "/" + fileName);
+    public void delete(String fileName, String kind) throws IOException {
+        Path path = Paths.get("src", "main", "resources", "images", kind, fileName);
+        String filePath = new UrlResource(path.toUri()).getURI().getPath();
+
+        File file = new File(filePath);
+
         if (file.exists()) {
             file.delete();
         }

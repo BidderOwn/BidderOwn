@@ -24,7 +24,7 @@ public class ImageController {
             @PathVariable String kind,
             @PathVariable String filename) {
         try {
-            return imageUtils.download(kind, filename);
+            return imageUtils.download(filename, kind);
         } catch (IOException e) {
             throw new NotFoundException(kind + "/" + filename);
         }

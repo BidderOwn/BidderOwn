@@ -34,17 +34,6 @@ public class ItemController {
     private final ItemService itemService;
     private final MemberService memberService;
 
-    @GetMapping("/login")
-    public String testLogin() {
-        return "/usr/login";
-    }
-
-    @GetMapping
-    public String home(@AuthenticationPrincipal User user) {
-        log.info(user.getUsername());
-        return "/usr/item/home";
-    }
-
     @GetMapping("/{id}")
     @ResponseBody
     public ItemResponse getItem(@PathVariable Long id) {
@@ -59,10 +48,13 @@ public class ItemController {
 
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+//    @PreAuthorize("isAuthenticated()")
     @ResponseBody
-    public ItemResponse createItem(@RequestBody @Valid ItemRequest itemRequest, Member member) {
+    public ItemResponse createItem(@Valid ItemRequest itemRequest){//, Member member) {
         //member를 Authentication에서 받아오는 것으로 수정
-        return ItemResponse.of(itemService.create(itemRequest, member.getId()));
+        Member member1 = memberService.getMember("user_1");
+//        return ItemResponse.of(itemService.create(itemRequest, member.getId()));
+        return ItemResponse.of(itemService.create(itemRequest, member1.getId()));
     }
 
 

@@ -21,12 +21,7 @@ public class ItemRequest {
     @Column(length = 500)
     private String description;
 
-    @NotBlank
-    private int minimumPrice;
+    private Integer minimumPrice;
 
     private List<MultipartFile> images;
-
-    @NotBlank
-    private LocalDateTime expireAt;
-
 }
