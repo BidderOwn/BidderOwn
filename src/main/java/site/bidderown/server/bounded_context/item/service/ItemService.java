@@ -36,12 +36,15 @@ public class ItemService {
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
-        Item item = itemRepository.save(Item.of(request, member));
-        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "items");
-        imageService.create(item, fileNames);
-
-        return item;
+        return _create(request, member);
     }
+
+
+    public Item create(ItemRequest request, String memberString) {
+        Member member = memberService.getMember(memberString);
+        return _create(request, member);
+    }
+
 
     public List<ItemResponse> getItems(String description) {
         return itemRepository
@@ -86,4 +89,10 @@ public class ItemService {
         itemRepository.delete(findItem);
     }
 
+    private Item _create(ItemRequest request, Member member) {
+        Item item = itemRepository.save(Item.of(request, member));
+        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
+        imageService.create(item, fileNames);
+        return item;
+    }
 }

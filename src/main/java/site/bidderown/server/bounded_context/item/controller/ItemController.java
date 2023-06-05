@@ -47,7 +47,8 @@ public class ItemController {
     @ResponseBody
     public ItemResponse createItem(
             @Valid ItemRequest itemRequest,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal User user
+    ) {
         return ItemResponse.of(itemService.create(itemRequest, user.getUsername()));
     }
 
