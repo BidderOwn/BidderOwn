@@ -18,9 +18,6 @@ public class NotificationEventHandler {
 
     @EventListener
     public void listen(EventItemNotification eventItemNotification) {
-
-        log.info("EventItemNotification listen");
-
         notificationService.create(eventItemNotification);
         messagingTemplate.convertAndSend(
                 "/sub/notification/item/" + eventItemNotification.getItem().getId(), "");
