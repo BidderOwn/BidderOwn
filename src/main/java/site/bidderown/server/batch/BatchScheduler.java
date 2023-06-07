@@ -7,10 +7,11 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import site.bidderown.server.batch.hello.config.HelloJobConfiguration;
+import site.bidderown.server.batch.item.config.ItemJobConfiguration;
 
 @RequiredArgsConstructor
 @Component
@@ -18,12 +19,13 @@ import site.bidderown.server.batch.hello.config.HelloJobConfiguration;
 public class BatchScheduler {
 
     private final JobLauncher jobLauncher;
-    private final HelloJobConfiguration helloJobConfiguration;
+    private final ItemJobConfiguration itemJobConfiguration;
+    private final CommandLineRunner initData;
 
     @Scheduled(cron = "10 * * * * *")
-    public void helloJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+    public void bidEndScheduler() throws Exception {
         jobLauncher.run(
-                helloJobConfiguration.helloJob(),
+                itemJobConfiguration.bidEndJob(initData),
                 new JobParametersBuilder().addString("testKey", "testValue").toJobParameters());
     }
 }
