@@ -50,7 +50,6 @@ public class ItemJobConfiguration {
                 .build();
     }
 
-
     @Bean
     @JobScope
     public Step bidEndStep() throws Exception {
