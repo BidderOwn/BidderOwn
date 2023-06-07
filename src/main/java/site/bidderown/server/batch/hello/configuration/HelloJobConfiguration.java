@@ -1,4 +1,4 @@
-package site.bidderown.server.batch.hello.config;
+package site.bidderown.server.batch.hello.configuration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +7,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import site.bidderown.server.batch.hello.step.HelloStepTasklet;
@@ -15,7 +14,7 @@ import site.bidderown.server.batch.hello.step.HelloStepTasklet;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration
-public class HelloConfiguration {
+public class HelloJobConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
