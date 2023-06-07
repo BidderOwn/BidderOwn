@@ -1,13 +1,14 @@
 package site.bidderown.server.bounded_context.comment.controller.dto;
 
 import lombok.*;
+import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommentResponse {
+public class CommentResponse extends BaseEntity {
 
     private String content;
     private Item item;
@@ -21,7 +22,7 @@ public class CommentResponse {
     ) {
         this.content = content;
         this.item = item;
-        this.writer =writer;
+        this.writer = writer;
     }
 
     public static CommentResponse of (Comment comment) {
