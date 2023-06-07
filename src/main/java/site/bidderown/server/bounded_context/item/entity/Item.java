@@ -70,6 +70,11 @@ public class Item extends BaseEntity {
         this.description = itemUpdateDto.getDescription();
         this.setUpdatedAt(LocalDateTime.now());
     }
+
+    public void updateStatus(ItemStatus status) {
+        this.itemStatus = status;
+    }
+
 }
 
 

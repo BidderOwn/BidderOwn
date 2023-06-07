@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -52,6 +53,18 @@ public class ItemController {
         return ItemResponse.of(itemService.create(itemRequest, user.getUsername()));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/update/{id}")
+    @ResponseBody
+    public ItemUpdateDto updateItem(@PathVariable Long id, @RequestBody @Valid ItemUpdateDto itemUpdateDto, Principal principal){
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
+
+        if (!memberDetail.getName().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+
+        return itemService.updateById(id, itemUpdateDto);
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
@@ -64,5 +77,7 @@ public class ItemController {
         itemService.delete(id);
         return "redirect:/item/list";
     }
+
+
 
 }
