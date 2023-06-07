@@ -10,8 +10,10 @@ import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -33,6 +35,7 @@ public class ItemService {
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
+
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
@@ -81,6 +84,15 @@ public class ItemService {
                 .stream()
                 .map(ItemResponse::of)
                 .collect(Collectors.toList());
+    }
+
+    public ItemUpdateDto updateById(Long itemId, ItemUpdateDto itemUpdateDto) {
+        Item findItem = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(itemId));
+
+        findItem.update(itemUpdateDto);
+
+        return new ItemUpdateDto(findItem.getTitle(), findItem.getDescription());
     }
 
     public void delete(Long itemId) {

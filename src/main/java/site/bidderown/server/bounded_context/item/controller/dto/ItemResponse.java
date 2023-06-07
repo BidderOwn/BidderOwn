@@ -6,8 +6,7 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemResponse {
     private String title;
