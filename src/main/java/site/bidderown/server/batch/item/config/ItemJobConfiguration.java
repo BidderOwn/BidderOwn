@@ -18,6 +18,7 @@ import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilde
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
@@ -42,6 +43,7 @@ public class ItemJobConfiguration {
         return jobBuilderFactory.get("bidEndJob")
                 .incrementer(new RunIdIncrementer())
                 .start(bidEndStep())
+                .listener(new BidEndJobListener())
                 .build();
     }
 
@@ -57,7 +59,6 @@ public class ItemJobConfiguration {
                 .build();
     }
 
-    @Bean
     @StepScope
     public ItemReader<Item> bidEndStepItemReader() throws Exception {
         LocalDateTime now = LocalDateTime.now();
@@ -73,11 +74,9 @@ public class ItemJobConfiguration {
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString(
-                        "SELECT i " +
-                                "FROM Item i " +
-                                "WHERE i.expireAt >= :startDateTime AND i.expireAt < :endDateTime")
-                .pageSize(CHUNK_SIZE)
+                        "SELECT i FROM Item i WHERE i.expireAt >= :startDateTime AND i.expireAt < :endDateTime")
                 .parameterValues(parameters)
+                .pageSize(CHUNK_SIZE)
                 .build();
 
         itemReader.afterPropertiesSet();
@@ -85,7 +84,6 @@ public class ItemJobConfiguration {
         return itemReader;
     }
 
-    @Bean
     @StepScope
     public ItemProcessor<Item, Item> bidEndStepItemProcessor(){
         return item -> {
@@ -94,7 +92,8 @@ public class ItemJobConfiguration {
         };
     }
 
-    private JpaItemWriter<Item> bidEndStepItemWriter() throws Exception {
+    @StepScope
+    public JpaItemWriter<Item> bidEndStepItemWriter() throws Exception {
         JpaItemWriter<Item> itemWriter = new JpaItemWriterBuilder<Item>()
                 .entityManagerFactory(entityManagerFactory)
                 .build();
