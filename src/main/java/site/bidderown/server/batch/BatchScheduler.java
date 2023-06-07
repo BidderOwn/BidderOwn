@@ -1,7 +1,6 @@
 package site.bidderown.server.batch;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -11,7 +10,7 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import site.bidderown.server.batch.hello.configuration.HelloJobConfiguration;
+import site.bidderown.server.batch.hello.config.HelloJobConfiguration;
 
 @RequiredArgsConstructor
 @Component

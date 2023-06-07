@@ -1,4 +1,4 @@
-package site.bidderown.server.batch.hello.configuration;
+package site.bidderown.server.batch.hello.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
