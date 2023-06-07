@@ -18,10 +18,11 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/notifications")
-    public List<NotificationDto> notificationList(@AuthenticationPrincipal User user){
-        List<Notification> list = notificationService.list(user.getUsername());
+//    @GetMapping("/notifications")
+//    public List<NotificationDto> notificationList(@AuthenticationPrincipal User user){
+//        List<Notification> list = notificationService.list(user.getUsername());
+//        return list;
         // return dto 변환 코드 작성해야함
-    }
+//    }
 
 }
