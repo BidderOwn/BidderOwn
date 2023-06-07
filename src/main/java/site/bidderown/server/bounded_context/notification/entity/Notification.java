@@ -2,11 +2,11 @@ package site.bidderown.server.bounded_context.notification.entity;
 
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
 import javax.persistence.Entity;
@@ -22,13 +22,28 @@ public class Notification extends BaseEntity {
 
     private LocalDateTime readDate;
 
-    @Enumerated(EnumType.STRING)
-    private NotificationType notificationType;
+    @ManyToOne
+    private Item item;
 
     @ManyToOne
     private Member receiver;
 
-    @ManyToOne
-    private Item item;
+    @Enumerated(EnumType.STRING)
+    private NotificationType notificationType;
+
+    @Builder
+    public Notification(Item item, Member receiver, NotificationType notificationType) {
+        this.item = item;
+        this.receiver = receiver;
+        this.notificationType = notificationType;
+    }
+
+    public static Notification of(Item item, Member receiver, NotificationType notificationType) {
+        return Notification.builder()
+                .item(item)
+                .receiver(receiver)
+                .notificationType(notificationType)
+                .build();
+    }
 
 }

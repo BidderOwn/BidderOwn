@@ -16,8 +16,10 @@ import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import site.bidderown.server.batch.item.listener.BidEndItemWriterListener;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
@@ -34,6 +36,7 @@ public class ItemJobConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
+    private final ApplicationEventPublisher publisher;
     
     private final int CHUNK_SIZE = 20;
 
@@ -47,7 +50,6 @@ public class ItemJobConfiguration {
                 .build();
     }
 
-
     @Bean
     @JobScope
     public Step bidEndStep() throws Exception {
@@ -56,6 +58,7 @@ public class ItemJobConfiguration {
                 .reader(bidEndStepItemReader())
                 .processor(bidEndStepItemProcessor())
                 .writer(bidEndStepItemWriter())
+                .listener(new BidEndItemWriterListener(publisher))
                 .build();
     }
 
@@ -74,7 +77,7 @@ public class ItemJobConfiguration {
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString(
-                        "SELECT i FROM Item i WHERE i.expireAt >= :startDateTime AND i.expireAt < :endDateTime")
+                        "SELECT i FROM Item i WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .build();

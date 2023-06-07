@@ -4,6 +4,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
+import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.chat_room.service.ChatRoomService;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
@@ -22,7 +24,8 @@ public class NotProd {
             MemberService memberService,
             ChatRoomService chatRoomService,
             ItemService itemService,
-            ItemRepository itemRepository
+            ItemRepository itemRepository,
+            BidService bidService
     ) {
         return args -> {
             if (initDataDone) return;
@@ -36,11 +39,17 @@ public class NotProd {
 
             // 아이템 등록
             for (int i = 1; i <= 100; i++){
-                itemRepository.save(Item.builder()
+                Item item = itemRepository.save(Item.builder()
                         .title("item_" + i)
                         .description("testDescription")
                         .minimumPrice(10000)
                         .member(member1).build());
+                bidService.create(
+                        BidRequest.builder()
+                                .itemId(item.getId())
+                                .itemPrice(10000)
+                                .build(),
+                       "user_1" );
             }
 
         };
