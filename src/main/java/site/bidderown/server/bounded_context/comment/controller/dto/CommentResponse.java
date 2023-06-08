@@ -8,7 +8,7 @@ import site.bidderown.server.bounded_context.member.entity.Member;
 
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommentResponse extends BaseEntity {
+public class CommentResponse {
 
     private String content;
     private Item item;
@@ -32,4 +32,5 @@ public class CommentResponse extends BaseEntity {
                 .writer(comment.getWriter())
                 .build();
     }
+
 }

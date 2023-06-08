@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class CommentRequest extends BaseEntity{
+public class CommentRequest {
 
     @NotBlank
     @Length(max = 500)

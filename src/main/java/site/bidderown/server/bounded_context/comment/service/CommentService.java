@@ -58,6 +58,6 @@ public class CommentService {
 
         findComment.update(commentRequest);
 
-        return new CommentResponse(findComment.getContent(), findComment.getItem(), findComment.getWriter());
+        return CommentResponse.of(findComment);
     }
 }
