@@ -8,6 +8,7 @@ import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -17,7 +18,7 @@ import javax.persistence.ManyToOne;
 @Entity
 public class Image extends BaseEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Item item;
 

@@ -29,7 +29,7 @@ public class Item extends BaseEntity {
 
     private int minimumPrice;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(nullable = false)
     private Member member;
 
