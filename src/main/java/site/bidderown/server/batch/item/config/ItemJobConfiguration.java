@@ -11,6 +11,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
@@ -23,10 +24,12 @@ import site.bidderown.server.batch.item.listener.BidEndItemWriterListener;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 
 import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -37,8 +40,10 @@ public class ItemJobConfiguration {
     private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
     private final ApplicationEventPublisher publisher;
+
+    private final ItemRepository itemRepository;
     
-    private final int CHUNK_SIZE = 20;
+    private final int CHUNK_SIZE = 1000;
 
     @Bean
     public Job bidEndJob(CommandLineRunner initData) throws Exception{
@@ -56,8 +61,9 @@ public class ItemJobConfiguration {
         return stepBuilderFactory.get("bidEndStep")
                 .<Item, Item>chunk(CHUNK_SIZE)
                 .reader(bidEndStepItemReader())
-                .processor(bidEndStepItemProcessor())
-                .writer(bidEndStepItemWriter())
+//                .processor(bidEndStepItemProcessor())
+//                .writer(bidEndStepItemWriter())
+                .writer(itemWriter())
                 .listener(new BidEndItemWriterListener(publisher))
                 .build();
     }
@@ -77,7 +83,9 @@ public class ItemJobConfiguration {
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString(
-                        "SELECT i FROM Item i WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "SELECT i " +
+                                "FROM Item i " +
+                                "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .build();
@@ -96,7 +104,24 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
+    public ItemWriter<Item> itemWriter() {
+        return items -> {
+            List<Long> ids = items.stream()
+                    .map(Item::getId)
+                    .toList();
+
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startDateTime = LocalDateTime
+                    .of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
+            LocalDateTime endDateTime = startDateTime.plusHours(1);
+
+            itemRepository.updateItemStatus(ItemStatus.BID_END, startDateTime, endDateTime, ids);
+        };
+    }
+
+    @StepScope
     public JpaItemWriter<Item> bidEndStepItemWriter() throws Exception {
+
         JpaItemWriter<Item> itemWriter = new JpaItemWriterBuilder<Item>()
                 .entityManagerFactory(entityManagerFactory)
                 .build();

@@ -21,7 +21,7 @@ public class BatchScheduler {
     private final ItemJobConfiguration itemJobConfiguration;
     private final CommandLineRunner initData;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(fixedRate = 300000)//cron = "0 * * * * *") TODO cron
     public void bidEndScheduler() throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()

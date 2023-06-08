@@ -35,21 +35,30 @@ public class NotProd {
             IntStream.rangeClosed(1, 10)
                     .forEach(i -> memberService.loginAsSocial("user_" + i));
             Member member1 = memberService.getMember("user_1");
+            Member member2 = memberService.getMember("user_2");
             Member kakaoMember1 = memberService.loginAsSocial("KAKAO_2810203532");
-
+            Item item;
             // 아이템 등록
-            for (int i = 1; i <= 100; i++){
-                Item item = itemRepository.save(Item.builder()
-                        .title("item_" + i)
-                        .description("testDescription")
-                        .minimumPrice(10000)
-                        .member(member1).build());
+            for (int i = 1; i <= 100000; i++){
+                if (i % 2 == 0) {
+                    item = itemRepository.save(Item.builder()
+                            .title("item_" + i)
+                            .description("testDescription")
+                            .minimumPrice(10000)
+                            .member(member1).build());
+                } else {
+                    item = itemRepository.save(Item.builder()
+                            .title("item_" + i)
+                            .description("testDescription")
+                            .minimumPrice(10000)
+                            .member(member2).build());
+                }
                 bidService.create(
                         BidRequest.builder()
                                 .itemId(item.getId())
                                 .itemPrice(10000)
                                 .build(),
-                       "user_1" );
+                        "user_1" );
             }
 
         };
