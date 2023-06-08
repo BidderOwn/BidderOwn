@@ -19,11 +19,11 @@ public class Bid extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private BidResult bidResult;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Member bidder;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Item item;
 
