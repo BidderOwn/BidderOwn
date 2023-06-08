@@ -78,6 +78,10 @@ public class ItemController {
         return "redirect:/item/list";
     }
 
-
+    /** 판매완료 버튼 클릭 시
+     * 1. ItemStatus.BID_END -> SOLDOUT
+     * 2. getBids : bid.BidResult.WAITING -> FINISHED
+     * 작성 중
+     */
 
 }
