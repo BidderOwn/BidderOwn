@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
@@ -36,6 +37,11 @@ public class Item extends BaseEntity {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Image> images = new ArrayList<>();
+
+    // 높은 가격순으로 정렬
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    @OrderBy(value = "price desc")
+    private List<Bid> bids = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
@@ -74,6 +80,20 @@ public class Item extends BaseEntity {
     public void updateStatus(ItemStatus status) {
         this.itemStatus = status;
     }
+
+    // 낙찰 받은 사람
+    private Member getWinner() {
+        if(bids.isEmpty()) return null;
+        Bid bid = bids.get(0); //최고가
+        return bid.getBidder();
+    }
+
+//    private void itemSoldOut() {
+//        updateStatus(ItemStatus.SOLDOUT);
+//        for(Bid bid : bids) {
+//
+//        }
+//    }
 
 }
 

@@ -12,7 +12,7 @@ public class BidResponse {
     private int price; // 최소 희망 금액
     private int bidPrice; // 입찰 금액
     private Long itemId;
-    // img도 들어가야할 것 같습니다.
+      // img도 들어가야할 것 같습니다.
     //private Long maxPrice;
     //private Long minPrice;
     //private Long avgPrice;

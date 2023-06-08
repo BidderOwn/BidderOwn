@@ -7,11 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -107,4 +110,15 @@ public class ItemService {
         imageService.create(item, fileNames);
         return item;
     }
+
+    public void bidend (Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(itemId));
+        item.updateStatus(ItemStatus.BID_END);
+        item.getBids()
+                .stream()
+                .map(Bid::getBidResult)
+                .collect(Collectors.toList());
+    }
+
 }
