@@ -13,9 +13,11 @@ import site.bidderown.server.bounded_context.comment.controller.dto.CommentReque
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -49,10 +51,23 @@ public class CommentController {
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(comment.getWriter().getId()));
 
         if (!memberDetail.getName().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "댓글 삭제권한이 없습니다.");
         }
 
         commentService.delete(commentId);
+    }
+
+    @PostMapping("/api/v1/itme/{id}")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public CommentResponse updateComment(@PathVariable Long id, @RequestBody @Valid CommentRequest commentRequest, Principal principal){
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
+
+        if (!memberDetail.getName().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "댓글 수정권한이 없습니다.");
+        }
+
+        return commentService.updateById(id, commentRequest, memberDetail.getName());
     }
 
 }

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
+import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
@@ -13,6 +15,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -51,6 +54,11 @@ public class Comment extends BaseEntity {
                 .item(item)
                 .writer(writer)
                 .build();
+    }
+
+    public void update(CommentRequest commentRequest){
+        this.content = commentRequest.getContent();
+        this.setUpdatedAt(LocalDateTime.now());
     }
 
 }

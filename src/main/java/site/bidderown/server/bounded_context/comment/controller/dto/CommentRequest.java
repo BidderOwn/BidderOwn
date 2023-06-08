@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+import site.bidderown.server.base.base_entity.BaseEntity;
 
 import javax.validation.constraints.NotBlank;
 
