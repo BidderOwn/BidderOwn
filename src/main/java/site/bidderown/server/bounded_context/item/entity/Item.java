@@ -3,6 +3,7 @@ package site.bidderown.server.bounded_context.item.entity;
 import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
@@ -18,8 +19,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseEntity {
-    //경매 기간 3일 (임시)
-    public static final int PERIOD_OF_BIDDING = 3;
 
     @Column(length = 30)
     private String title;
@@ -33,6 +32,8 @@ public class Item extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member member;
 
+    //private int period;
+
     private LocalDateTime expireAt;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
@@ -43,6 +44,9 @@ public class Item extends BaseEntity {
     @OrderBy(value = "price desc")
     private List<Bid> bids = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
@@ -51,13 +55,14 @@ public class Item extends BaseEntity {
             String title,
             String description,
             int minimumPrice,
-            Member member
+            Member member,
+            LocalDateTime expireAt
     ) {
         this.title = title;
         this.description = description;
         this.minimumPrice = minimumPrice;
         this.member = member;
-        this.expireAt = LocalDateTime.now().plusDays(PERIOD_OF_BIDDING);
+        this.expireAt = expireAt;
         this.itemStatus = ItemStatus.BIDDING;
     }
 
@@ -67,6 +72,7 @@ public class Item extends BaseEntity {
                 .description(request.getDescription())
                 .minimumPrice(request.getMinimumPrice())
                 .member(member)
+                .expireAt(LocalDateTime.now().plusDays(request.getPeriod()))
                 .build();
     }
 
@@ -88,12 +94,10 @@ public class Item extends BaseEntity {
         return bid.getBidder();
     }
 
-//    private void itemSoldOut() {
-//        updateStatus(ItemStatus.SOLDOUT);
-//        for(Bid bid : bids) {
-//
-//        }
-//    }
+    // 썸네일 이미지 얻기 (첫번째 사진)
+    public String getThumbnailImage() {
+        return images.get(0).getFileName();
+    }
 
 }
 

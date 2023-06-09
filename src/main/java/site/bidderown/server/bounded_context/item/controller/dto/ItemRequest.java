@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +25,12 @@ public class ItemRequest {
     @Length(max = 500)
     private String description;
 
+    @NotNull
     private Integer minimumPrice;
+
+    // 3,5,7
+    @NotNull
+    private Integer period;
 
     private List<MultipartFile> images;
 }

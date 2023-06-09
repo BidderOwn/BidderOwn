@@ -111,14 +111,4 @@ public class ItemService {
         return item;
     }
 
-    public void bidend (Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(itemId));
-        item.updateStatus(ItemStatus.BID_END);
-        item.getBids()
-                .stream()
-                .map(Bid::getBidResult)
-                .collect(Collectors.toList());
-    }
-
 }
