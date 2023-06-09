@@ -20,6 +20,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import site.bidderown.server.batch.item.listener.BidEndItemWriterListener;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -40,8 +41,8 @@ public class ItemJobConfiguration {
     private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
     private final ApplicationEventPublisher publisher;
-
     private final ItemRepository itemRepository;
+    private final TaskExecutor taskExecutor;
     
     private final int CHUNK_SIZE = 1000;
 
@@ -61,10 +62,12 @@ public class ItemJobConfiguration {
         return stepBuilderFactory.get("bidEndStep")
                 .<Item, Item>chunk(CHUNK_SIZE)
                 .reader(bidEndStepItemReader())
-//                .processor(bidEndStepItemProcessor())
-//                .writer(bidEndStepItemWriter())
-                .writer(itemWriter())
+//                .processor(bidEndStepJpaItemProcessor())
+//                .writer(bidEndStepJpaItemWriter())
+                .writer(jPQLItemWriter())
                 .listener(new BidEndItemWriterListener(publisher))
+                .taskExecutor(taskExecutor)
+                .throttleLimit(8)
                 .build();
     }
 
@@ -72,7 +75,8 @@ public class ItemJobConfiguration {
     public ItemReader<Item> bidEndStepItemReader() throws Exception {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime startDateTime = LocalDateTime
-                .of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
+                .of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
+                        now.getHour(), 0, 0);
         LocalDateTime endDateTime = startDateTime.plusHours(1);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -88,6 +92,7 @@ public class ItemJobConfiguration {
                                 "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
+                .saveState(false)
                 .build();
 
         itemReader.afterPropertiesSet();
@@ -96,7 +101,7 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemProcessor<Item, Item> bidEndStepItemProcessor(){
+    public ItemProcessor<Item, Item> bidEndStepJpaItemProcessor(){
         return item -> {
             item.updateStatus(ItemStatus.BID_END);
             return item;
@@ -104,7 +109,19 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemWriter<Item> itemWriter() {
+    public JpaItemWriter<Item> bidEndStepJpaItemWriter() throws Exception {
+
+        JpaItemWriter<Item> itemWriter = new JpaItemWriterBuilder<Item>()
+                .entityManagerFactory(entityManagerFactory)
+                .build();
+
+        itemWriter.afterPropertiesSet();
+
+        return itemWriter;
+    }
+
+    @StepScope
+    public ItemWriter<Item> jPQLItemWriter() {
         return items -> {
             List<Long> ids = items.stream()
                     .map(Item::getId)
@@ -117,17 +134,5 @@ public class ItemJobConfiguration {
 
             itemRepository.updateItemStatus(ItemStatus.BID_END, startDateTime, endDateTime, ids);
         };
-    }
-
-    @StepScope
-    public JpaItemWriter<Item> bidEndStepItemWriter() throws Exception {
-
-        JpaItemWriter<Item> itemWriter = new JpaItemWriterBuilder<Item>()
-                .entityManagerFactory(entityManagerFactory)
-                .build();
-
-        itemWriter.afterPropertiesSet();
-
-        return itemWriter;
     }
 }

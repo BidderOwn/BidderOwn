@@ -31,4 +31,8 @@ public class NotificationService {
                 eventItemNotification.getType()
         ));
     }
+
+    public void create(List<Notification> notifications) {
+        notificationRepository.saveAll(notifications);
+    }
 }
