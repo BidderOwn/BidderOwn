@@ -7,7 +7,7 @@
 <div id="app" class="flex flex-col items-center mt-12">
     <!--    <div clss="mr-5">{{ username }}</div>-->
     <!-- 선택 박스   -->
-    <div class="w-[1300px] text-end mr-[80px] mb-3">
+    <div class="w-[1230px] text-end mr-[80px] mb-3">
         <select class="bg-gray-200 rounded-sm px-1 py-1" :value="selected" @change="setSelect($event)">
             <option v-for="(item, index) in selectList"
                     :key="index"
@@ -18,7 +18,7 @@
     </div>
 
     <!-- 그리드 -->
-    <div class="grid grid-cols-3 place-items-center w-[1300px] snap-y">
+    <div class="grid grid-cols-3 place-items-center w-[1200px] snap-y">
         <div v-for="(item, index) in items" v-bind:key="index">
             <!--  아이템 하나  -->
             <div class="flex flex-col w-[350px] min-w-[350px] h-[350px]">
