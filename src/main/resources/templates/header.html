@@ -1,14 +1,14 @@
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>Chat Example</title>
-  <script src="/webjars/axios/0.21.1/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
-  <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+<div class="flex w-[900px] justify-between items-center mt-5 mr-5 ml-5">
+  <div>로고</div>
+
+  <div class="flex w-7/12 min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
+    <div class="pl-3 pr-5">검색</div>
+    <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[480px]"></input>
+  </div>
+
+  <div class="flex">
+    <div class="mr-2">채팅</div>
+    <div class="mr-2">알림</div>
+    <div>내프로필</div>
+  </div>
+</div>

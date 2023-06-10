@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
-<div th:replace="header::head"></div>
-<body class="flex justify-center h-screen">
+<div th:replace="import::head"></div>
+<body class="flex flex-col items-center justify-center h-screen">
+<div th:replace="header::div"></div>
 <!--  채팅 박스  -->
-<div class="flex flex-col w-7/12 min-w-[800px] max-w-[900px] mt-6" id="app">
+<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
     <div class="text-3xl font-semibold">채팅</div>
     <!--   가로선   -->
     <div class="border border-inherit mt-4"></div>
