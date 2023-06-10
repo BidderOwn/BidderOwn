@@ -23,9 +23,8 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(Model model){//, @AuthenticationPrincipal User user) {
-        Member user = memberService.getMember("user_1");
-        model.addAttribute("username", user.getName());
+    public String home(Model model, @AuthenticationPrincipal User user) {
+        model.addAttribute("username", user.getUsername());
         return "/usr/item/home";
     }
 }
