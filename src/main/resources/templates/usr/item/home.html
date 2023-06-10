@@ -4,8 +4,19 @@
 <div th:replace="header::div"></div>
 
 <body>
-<div id="app" class="flex justify-center mt-10">
+<div id="app" class="flex flex-col items-center mt-12">
     <!--    <div clss="mr-5">{{ username }}</div>-->
+    <!-- 선택 박스   -->
+    <div class="w-[1300px] text-end mr-[80px] mb-3">
+        <select class="bg-gray-200 rounded-sm px-1 py-1" :value="selected" @change="setSelect($event)">
+            <option v-for="(item, index) in selectList"
+                    :key="index"
+                    :value="item.value">
+                {{ item.name }}
+            </option>
+        </select>
+    </div>
+
     <!-- 그리드 -->
     <div class="grid grid-cols-3 place-items-center w-[1300px] snap-y">
         <div v-for="(item, index) in items" v-bind:key="index">
@@ -45,6 +56,12 @@
         el: '#app',
         data: {
             username: '',
+            selectList: [
+                { name: "최신순", value: "newest" },
+                { name: "인기순", value: "popularity" },
+                { name: "종료임박순", value: "soonToEnd" }
+            ],
+            selected: '',
             items: [
                 {
                     image: 'https://me2.kr/GrxWn',
@@ -58,7 +75,7 @@
                 },
                 {
                     image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
+                    title: '제목2',
                     bidCount: 10,
                     commentCount: 5,
                     price: '30000원',
@@ -68,7 +85,7 @@
                 },
                 {
                     image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
+                    title: '제목3',
                     bidCount: 10,
                     commentCount: 5,
                     price: '30000원',
@@ -78,7 +95,7 @@
                 },
                 {
                     image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
+                    title: '제목4',
                     bidCount: 10,
                     commentCount: 5,
                     price: '30000원',
@@ -88,7 +105,7 @@
                 },
                 {
                     image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
+                    title: '제목5',
                     bidCount: 10,
                     commentCount: 5,
                     price: '30000원',
@@ -98,7 +115,7 @@
                 },
                 {
                     image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
+                    title: '제목6',
                     bidCount: 10,
                     commentCount: 5,
                     price: '30000원',
@@ -111,8 +128,16 @@
         created() {
             this.username = document.getElementById('username').value;
             localStorage.setItem("username", this.username);
+            this.selected = this.selectList[0].value;
         },
-        methods: {}
+        methods: {
+            setSelect(event) {
+                const asisSelect = this.selected;
+                // 변경 적용
+                this.selected = event.target.value;
+                console.log(this.selected);
+            },
+        }
     })
 </script>
 </html>

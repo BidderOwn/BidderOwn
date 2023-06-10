@@ -10,13 +10,15 @@
     </div>
 
     <div class="flex">
-      <div class="mr-2">
-        <a href="/chat/list">
-          채팅
-        </a>
-      </div>
-      <div class="mr-2">알림</div>
-      <a href="javascript:"  onclick="$(this).next().submit();">로그아웃</a>
+      <a href="/chat/list" class="mr-2">
+        <img src="/image/chat.png" class="w-[25px] h-[25px]"/>
+      </a>
+      <a href="#" class="mr-2">
+        <img src="/image/notification.png" class="w-[25px] h-[25px]"/>
+      </a>
+      <a href="javascript:"  onclick="$(this).next().submit();">
+        <img src="/image/person.png" class="w-[25px] h-[25px]"/>
+      </a>
       <form hidden th:action="|/member/logout|" method="POST"></form>
     </div>
   </div>
