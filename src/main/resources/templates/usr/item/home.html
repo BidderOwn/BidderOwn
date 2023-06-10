@@ -1,31 +1,112 @@
 <!DOCTYPE html>
 <html lang="ko">
-<div th:replace="/import::head"></div>
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
+<div th:replace="import::head"></div>
+<div th:replace="header::div"></div>
+
 <body>
-<div id="app">
-    <input type="hidden" id="username" th:value="${username}">
-    <div>{{ username }}</div>
+<div id="app" class="flex justify-center mt-10">
+    <!--    <div clss="mr-5">{{ username }}</div>-->
+    <!-- 그리드 -->
+    <div class="grid grid-cols-3 place-items-center w-[1300px] snap-y">
+        <div v-for="(item, index) in items" v-bind:key="index">
+            <!--  아이템 하나  -->
+            <div class="flex flex-col w-[350px] min-w-[350px] h-[350px]">
+                <!--   이미지   -->
+                <div class="w-[350px] h-[212px] truncate rounded-lg">
+                    <img :src="item.image" width="350" height="212">
+                </div>
+                <!--   제목   -->
+                <div class="flex justify-between items-center mt-1">
+                    <div class="text-xl">{{ item.title }}</div>
+                    <div class="flex">
+                        <span class="flex mr-2">
+                            <img src="/image/person.png" class="w-[20px] h-[20px]">
+                            <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
+                        </span>
+                        <span class="flex items-center">
+                            <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
+                            <span class="text-sm text-gray-600">{{ item.commentCount }}</span>
+                        </span>
+                    </div>
+                </div>
 
-    <div>
-        <a href="/chat/list">
-            채팅하기
-        </a>
+                <div class="text-sm text-indigo-400">{{ item.price }}</div>
+                <div class="text-sm text-gray-600">최저가 {{ item.minPrice }} ~ 최고가 {{ item.maxPrice }}</div>
+                <div class="text-sm text-gray-600">{{ item.timeRemaining }}</div>
+            </div>
+        </div>
+        <input type="hidden" id="username" th:value="${username}">
+
     </div>
-
-    <a href="javascript:"  onclick="$(this).next().submit();">로그아웃</a>
-    <form hidden th:action="|/member/logout|" method="POST"></form>
 </div>
 </body>
-
 <script>
     new Vue({
         el: '#app',
         data: {
             username: '',
+            items: [
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                },
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                },
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                },
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                },
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                },
+                {
+                    image: 'https://me2.kr/GrxWn',
+                    title: '제목1',
+                    bidCount: 10,
+                    commentCount: 5,
+                    price: '30000원',
+                    minPrice: '27000원',
+                    maxPrice: '35000원',
+                    timeRemaining: '3일 2시간 남음'
+                }
+            ]
         },
         created() {
             this.username = document.getElementById('username').value;
