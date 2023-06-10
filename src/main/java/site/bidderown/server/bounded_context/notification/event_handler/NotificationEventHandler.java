@@ -11,8 +11,10 @@ import site.bidderown.server.base.event.EventItemNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
+import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import java.util.ArrayList;
@@ -26,6 +28,7 @@ public class NotificationEventHandler {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
     private final BidRepository bidRepository;
+    private final NotificationJdbcRepository notificationJdbcRepository;
 
     @EventListener
     @Async
@@ -36,8 +39,21 @@ public class NotificationEventHandler {
     }
 
     @EventListener
-    @Async
     public void listenBidEnd(EventBidEndNotification eventBidEndNotification) {
+
+
+        List<BulkInsertNotification> notifications = new ArrayList<>();
+        for (Item item : eventBidEndNotification.getItems()) {
+            messagingTemplate.convertAndSend("/sub/notification/item/" + item.getId(), "");
+            List<Bid> bids = bidRepository.findByItem(item);
+            bids.forEach(bid -> notifications.add(BulkInsertNotification.builder()
+                    .itemId(item.getId())
+                    .receiverId(bid.getBidder().getId()).build()));
+        }
+        //log.info(String.valueOf(notifications.size()));
+        notificationJdbcRepository.insertNotificationList(notifications);
+
+        /*
         List<Notification> notifications = new ArrayList<>();
         for (Item item : eventBidEndNotification.getItems()) {
             messagingTemplate.convertAndSend("/sub/notification/item/" + item.getId(), "");
@@ -45,5 +61,6 @@ public class NotificationEventHandler {
             bids.forEach(bid -> notifications.add(Notification.of(item, bid.getBidder(), NotificationType.BID_END)));
         }
         notificationService.create(notifications);
+        */
     }
 }
