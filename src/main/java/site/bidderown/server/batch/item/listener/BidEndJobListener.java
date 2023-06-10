@@ -21,6 +21,5 @@ public class BidEndJobListener implements JobExecutionListener {
                         .mapToInt(StepExecution::getWriteCount)
                         .sum()
         );
-
     }
 }

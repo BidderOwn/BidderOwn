@@ -13,6 +13,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+#    properties:
+#      hibernate:
+#        show_sql: true
+#        format_sql: true
   security:
     oauth2:
       client:
@@ -32,3 +36,5 @@ spring:
   batch:
     job:
       names: ${job.name:NONE}
+#    jdbc:
+#      initialize-schema: ALWAYS
