@@ -4,7 +4,7 @@
 <div th:replace="header::div"></div>
 
 <body>
-<div id="app" class="flex flex-col items-center mt-12">
+<div id="app" class="flex flex-col items-center mt-10">
     <!--    <div clss="mr-5">{{ username }}</div>-->
     <!-- 선택 박스   -->
     <div class="w-[1230px] text-end mr-[80px] mb-3">
@@ -21,7 +21,7 @@
     <div class="grid grid-cols-3 place-items-center w-[1200px] snap-y">
         <div v-for="(item, index) in items" v-bind:key="index">
             <!--  아이템 하나  -->
-            <div class="flex flex-col w-[350px] min-w-[350px] h-[350px]">
+            <div class="flex flex-col w-[350px] min-w-[350px] h-[350px]" v-on:click="clickItem(item.id)">
                 <!--   이미지   -->
                 <div class="w-[350px] h-[212px] truncate rounded-lg">
                     <img :src="item.image" width="350" height="212">
@@ -64,6 +64,7 @@
             selected: '',
             items: [
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목1',
                     bidCount: 10,
@@ -74,6 +75,7 @@
                     timeRemaining: '3일 2시간 남음'
                 },
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목2',
                     bidCount: 10,
@@ -84,6 +86,7 @@
                     timeRemaining: '3일 2시간 남음'
                 },
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목3',
                     bidCount: 10,
@@ -94,6 +97,7 @@
                     timeRemaining: '3일 2시간 남음'
                 },
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목4',
                     bidCount: 10,
@@ -104,6 +108,7 @@
                     timeRemaining: '3일 2시간 남음'
                 },
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목5',
                     bidCount: 10,
@@ -114,6 +119,7 @@
                     timeRemaining: '3일 2시간 남음'
                 },
                 {
+                    id: 0,
                     image: 'https://me2.kr/GrxWn',
                     title: '제목6',
                     bidCount: 10,
@@ -132,11 +138,12 @@
         },
         methods: {
             setSelect(event) {
-                const asisSelect = this.selected;
-                // 변경 적용
                 this.selected = event.target.value;
                 console.log(this.selected);
             },
+            clickItem(itemId) {
+                window.location.href = 'http://localhost:8080/item/detail/' + itemId;
+            }
         }
     })
 </script>
