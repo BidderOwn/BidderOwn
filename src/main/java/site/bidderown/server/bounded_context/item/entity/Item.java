@@ -32,8 +32,6 @@ public class Item extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member member;
 
-    //private int period;
-
     private LocalDateTime expireAt;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
@@ -96,6 +94,7 @@ public class Item extends BaseEntity {
 
     // 썸네일 이미지 얻기 (첫번째 사진)
     public String getThumbnailImage() {
+        if(images.isEmpty()) return null;
         return images.get(0).getFileName();
     }
 

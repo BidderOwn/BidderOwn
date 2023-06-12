@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
@@ -20,11 +21,10 @@ public class ItemDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime expireAt;
-    private int bidsCount;
     private int maxPrice;
     private int minPrice;
-    private int commentsCount;
     private List<Image> images;
+    private List<Comment> comments;
 
     @Builder
     private ItemDetailResponse (
@@ -35,11 +35,10 @@ public class ItemDetailResponse {
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             LocalDateTime expireAt,
-            int bidsCount,
             int maxPrice,
             int minPrice,
-            int commentsCount,
-            List<Image> images
+            List<Image> images,
+            List<Comment> comments
     ) {
         this.title = title;
         this.description = description;
@@ -48,11 +47,10 @@ public class ItemDetailResponse {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.expireAt = expireAt;
-        this.bidsCount = bidsCount;
         this.maxPrice = maxPrice;
         this.minPrice = minPrice;
-        this.commentsCount = commentsCount;
         this.images = images;
+        this.comments = comments;
     }
 
     public static ItemDetailResponse of (Item item) {
@@ -64,10 +62,10 @@ public class ItemDetailResponse {
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .expireAt(item.getExpireAt())
-                .bidsCount(item.getBids().size())
                 .maxPrice(item.getBids().get(0).getPrice())
                 .minPrice(item.getBids().get(item.getBids().size()-1).getPrice())
-                .commentsCount(item.getComments().size())
+                .images(item.getImages())
+                .comments(item.getComments())
                 .build();
     }
 }

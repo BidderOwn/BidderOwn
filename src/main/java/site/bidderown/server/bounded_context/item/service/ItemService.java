@@ -1,31 +1,22 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.image.service.ImageService;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemListResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -51,42 +42,9 @@ public class ItemService {
         return _create(request, member);
     }
 
-
-    public List<ItemResponse> getItems(String description) {
-        return itemRepository
-                .findAllByDescription(description)
-                .stream()
-                .map(ItemResponse::of)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemResponse> getItems(String title, Pageable pageable) {
-        return itemRepository
-                .findAllByTitleContaining(title, pageable)
-                .stream()
-                .map(ItemResponse::of)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemResponse> getItems(Long memberId) {
-        return itemRepository
-                .findAllByMemberId(memberId)
-                .stream()
-                .map(ItemResponse::of)
-                .collect(Collectors.toList());
-    }
-
     public Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id));
-    }
-
-    public List<ItemResponse> getAll() {
-        return itemRepository
-                .findAll()
-                .stream()
-                .map(ItemResponse::of)
-                .collect(Collectors.toList());
     }
 
     public ItemUpdateDto updateById(Long itemId, ItemUpdateDto itemUpdateDto) {
@@ -109,6 +67,28 @@ public class ItemService {
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
         return item;
+    }
+    //전체 리스트
+    public Page<ItemListResponse> getAll(Pageable pageable) {
+        return itemRepository.findAll(pageable).map(ItemListResponse::of);
+    }
+    //제목 검색
+    public Page<ItemListResponse> searchTitle(String keyword, Pageable pageable) {
+        return itemRepository.findByTitleContaining(keyword, pageable).map(ItemListResponse::of);
+    }
+
+    //내용 검색
+    public Page<ItemListResponse> searchDescription(String keyword, Pageable pageable) {
+        return itemRepository.findByDescriptionContaining(keyword, pageable).map(ItemListResponse::of);
+    }
+
+    //판매자 아이디 검색
+    public List<ItemResponse> getItems(Long memberId) {
+        return itemRepository
+                .findByMemberId(memberId)
+                .stream()
+                .map(ItemResponse::of)
+                .collect(Collectors.toList());
     }
 
 }
