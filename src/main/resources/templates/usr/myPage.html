@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<div th:replace="import::head"></div>
+<body class="flex flex-col items-center justify-start h-screen">
+<div th:replace="header::div"></div>
+<!--  채팅 박스  -->
+<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
+
+  <!--     사용자      -->
+  <div class="flex mb-5">
+    <div class="w-[60px] h-[60px] truncate rounded-lg ">
+      <img src="/banana.jpg">
+    </div>
+    <div class="flex flex-col justify-center ml-2">
+      <div class="text-3xl font-bold"> 사용자1 </div>
+    </div>
+
+
+  </div>
+
+
+
+  <div class="text-3xl my-2 font-semibold">판매한 상품</div>
+
+  <!--   가로선   -->
+  <div class="border border-inherit mt-4"></div>
+  <div class="flex justify-start h-2/6 w-full">
+    <!--   세로선 시작선    -->
+    <div class="border border-inherit h-full"></div>
+    <!--   채팅방     -->
+    <div class="flex flex-col justify-between w-full overflow-y-scroll">
+      <div class="flex flex-col">
+        <!--     채팅방 아이템     -->
+        <div class="flex px-3 py-5  items-center"
+             th:each ="notification: ${notifications}">
+          <!--      사진      -->
+          <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
+            <img src="/banana.jpg" alt="Item Image" class="object-cover h-full w-full" >
+          </div>
+          <!--      상품명, 가격, 남은시간     -->
+          <div class="flex flex-col items-start ml-2">
+            <!--       상품명       -->
+            <div class="flex items-baseline">
+              <div class="font-semibold" th:text ="${notification.getNotificationType().getType()}">  </div>
+            </div>
+            <!--       가격       -->
+            <div class="text-sm text-indigo-400">가격</div>
+            <!--       남은 시간       -->
+            <div class="truncate text-sm text-zinc-700" >2분전 </div>
+          </div>
+
+          <div class="inline-block w-[120px]   text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-center">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 items-center">입찰 내역 보기</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--   세로선 채팅창 오른쪽     -->
+    <div class="border border-inherit"></div>
+  </div>
+  <div class="border border-inherit"></div>
+
+
+  <div class="text-3xl my-2 font-semibold">입찰한 상품</div>
+
+  <!--   가로선   -->
+  <div class="border border-inherit mt-4"></div>
+  <div class="flex justify-start h-2/6 w-full">
+    <!--   세로선 시작선    -->
+    <div class="border border-inherit h-full"></div>
+    <!--   채팅방     -->
+    <div class="flex flex-col justify-between w-full overflow-y-scroll">
+      <div class="flex flex-col">
+        <!--     채팅방 아이템     -->
+        <div class="flex px-3 py-5  items-center"
+             th:each ="notification: ${notifications}">
+          <!--      사진      -->
+          <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
+            <img src="/banana.jpg" alt="Item Image" class="object-cover h-full w-full" >
+          </div>
+          <!--      상품명, 가격, 남은시간     -->
+          <div class="flex flex-col items-start ml-2">
+            <!--       상품명       -->
+            <div class="flex items-baseline">
+              <div class="font-semibold" th:text ="${notification.getNotificationType().getType()}">  </div>
+            </div>
+            <!--       가격       -->
+            <div class="text-sm text-indigo-400">가격</div>
+            <!--       남은 시간       -->
+            <div class="truncate text-sm text-zinc-700" >2분전 </div>
+          </div>
+
+          <div class="inline-block w-[120px]   text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-center">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 items-center">입찰 내역 보기</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--   세로선 채팅창 오른쪽     -->
+    <div class="border border-inherit"></div>
+  </div>
+  <div class="border border-inherit"></div>
+</div>
+</body>
+</html>
