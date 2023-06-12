@@ -39,6 +39,7 @@ public class NotificationEventHandler {
     }
 
     @EventListener
+    @Async
     public void listenBidEnd(EventBidEndNotification eventBidEndNotification) {
 
 
