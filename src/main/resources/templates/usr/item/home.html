@@ -135,15 +135,30 @@
             this.username = document.getElementById('username').value;
             localStorage.setItem("username", this.username);
             this.selected = this.selectList[0].value;
+            this.initDate();
         },
         methods: {
+            initDate() {
+                axio.get('/api/v1/item/list',{
+                    params: {
+                        page:0,
+                        size:12,
+                        sort: 'id.desc'
+                    }
+                }).then(response => {
+                    console.log(response.data);
+                }).catch(error => {
+                    console.log(error);
+                })
+
+            },
             setSelect(event) {
                 this.selected = event.target.value;
                 console.log(this.selected);
             },
             clickItem(itemId) {
                 window.location.href = 'http://localhost:8080/item/detail/' + itemId;
-            }
+            },
         }
     })
 </script>
