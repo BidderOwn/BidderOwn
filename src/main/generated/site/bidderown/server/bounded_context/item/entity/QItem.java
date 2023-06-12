@@ -26,6 +26,8 @@ public class QItem extends EntityPathBase<Item> {
 
     public final ListPath<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid> bids = this.<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid>createList("bids", site.bidderown.server.bounded_context.bid.entity.Bid.class, site.bidderown.server.bounded_context.bid.entity.QBid.class, PathInits.DIRECT2);
 
+    public final ListPath<site.bidderown.server.bounded_context.comment.entity.Comment, site.bidderown.server.bounded_context.comment.entity.QComment> comments = this.<site.bidderown.server.bounded_context.comment.entity.Comment, site.bidderown.server.bounded_context.comment.entity.QComment>createList("comments", site.bidderown.server.bounded_context.comment.entity.Comment.class, site.bidderown.server.bounded_context.comment.entity.QComment.class, PathInits.DIRECT2);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
