@@ -48,14 +48,21 @@ public class ItemListResponse {
     }
 
     public static ItemListResponse of(Item item) {
+        int maxPrice = -1;
+        int minPrice = -1;
+
+        if (item.getBids().size() > 0) {
+            maxPrice = item.getBids().get(0).getPrice();
+            minPrice = item.getBids().get(item.getBids().size() - 1).getPrice();
+        }
         return ItemListResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
                 .memberName(item.getMember().getName())
                 .minimumPrice(item.getMinimumPrice())
                 .expireAt(item.getExpireAt())
-                .maxPrice(item.getBids().get(0).getPrice())
-                .minPrice(item.getBids().get(item.getBids().size() - 1).getPrice())
+                .maxPrice(maxPrice)
+                .minPrice(minPrice)
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
                 .thumbnailImageName(item.getThumbnailImage())

@@ -29,8 +29,7 @@ public class ItemController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public String showCreateItem(@AuthenticationPrincipal User user) {
-
+    public String showCreateItem() {
         return "/usr/item/create";
     }
 

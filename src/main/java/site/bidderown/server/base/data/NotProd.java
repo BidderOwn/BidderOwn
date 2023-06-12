@@ -42,7 +42,8 @@ public class NotProd {
             ItemRepository itemRepository,
             BidRepository bidRepository,
             NotificationService notificationService,
-            NotificationJdbcRepository notificationJdbcRepository
+            NotificationJdbcRepository notificationJdbcRepository,
+            ItemService itemService
     ) {
         return args -> {
 
@@ -55,7 +56,7 @@ public class NotProd {
             Member member1 = memberService.getMember("user_1");
             Member member2 = memberService.getMember("user_2");
             Member kakaoMember1 = memberService.loginAsSocial("KAKAO_2810203532");
-
+            Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
 
             long startTime = System.currentTimeMillis();
 
@@ -93,7 +94,9 @@ public class NotProd {
                 bidJdbcRepository.insertBidList(bidList);
 
             }
-
+            Item item1 = itemService.getItem(1L);
+            for (int i = 0; i <= 10; i++)
+                notificationService.create(EventItemNotification.of(item1, kakaoMember1, NotificationType.BID));
             long endTime = System.currentTimeMillis();
             System.out.println(String.format("Init Data: %20dms", endTime - startTime));
 
