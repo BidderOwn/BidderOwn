@@ -1,19 +1,15 @@
 package site.bidderown.server.base.data;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.base.event.EventItemNotification;
-import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
-import site.bidderown.server.bounded_context.bid.service.BidService;
-import site.bidderown.server.bounded_context.chat_room.service.ChatRoomService;
+import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
+import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.item.controller.dto.BulkInsertItem;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
@@ -21,8 +17,6 @@ import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
-import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
@@ -43,7 +37,8 @@ public class NotProd {
             BidRepository bidRepository,
             NotificationService notificationService,
             NotificationJdbcRepository notificationJdbcRepository,
-            ItemService itemService
+            ItemService itemService,
+            CommentService commentService
     ) {
         return args -> {
 
@@ -62,22 +57,22 @@ public class NotProd {
 
             BulkInsertItem item;
             // 아이템 등록
-            long n = 1;
+            long n = 99;
             for (long i = 1; i <= 1; i++){
                 ArrayList<BulkInsertItem> itemList = new ArrayList<>();
                 ArrayList<BulkInsertBid> bidList = new ArrayList<>();
-                for(long j = 1; j <= 1000; j++) {
-                    if (n % 2 == 0) {
+                for(long j = 1; j <= 100; j++) {
+                    if (j % 2 == 0) {
                         itemList.add(BulkInsertItem.builder()
                                 .memberId(member1.getId())
-                                .title("testTitle")
+                                .title("testTitle_" + j)
                                 .description("testDescription")
                                 .minimumPrice(10000)
                                 .build());
                     } else {
                         itemList.add(BulkInsertItem.builder()
                                 .memberId(member2.getId())
-                                .title("testTitle")
+                                .title("testTitle_" + j)
                                 .description("testDescription")
                                 .minimumPrice(10000)
                                 .build());
@@ -92,6 +87,11 @@ public class NotProd {
                 n++;
                 itemJdbcRepository.insertItemList(itemList);
                 bidJdbcRepository.insertBidList(bidList);
+                commentService.create(CommentRequest.of("테스트 댓글1"), 100L, "user_1");
+                commentService.create(CommentRequest.of("테스트 댓글2"), 100L, "user_1");
+                commentService.create(CommentRequest.of("테스트 댓글3"), 100L, "user_1");
+                commentService.create(CommentRequest.of("테스트 댓글4"), 100L, "user_1");
+                commentService.create(CommentRequest.of("테스트 댓글5"), 100L, "user_1");
 
             }
             Item item1 = itemService.getItem(1L);

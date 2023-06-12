@@ -1,52 +1,72 @@
 <!DOCTYPE html>
 <html lang="ko">
 <div th:replace="import::head"></div>
-<div th:replace="header::div"></div>
 
 <body>
-<div id="app" class="flex flex-col items-center mt-10">
-    <!--    <div clss="mr-5">{{ username }}</div>-->
-    <!-- 선택 박스   -->
-    <div class="w-[1230px] text-end mr-[80px] mb-3">
-        <select class="bg-gray-200 rounded-sm px-1 py-1" :value="selected" @change="setSelect($event)">
-            <option v-for="(item, index) in selectList"
-                    :key="index"
-                    :value="item.value">
-                {{ item.name }}
-            </option>
-        </select>
-    </div>
+<div id="app">
+    <div th:replace="header::div"></div>
+    <div class="flex flex-col items-center mt-10">
+        <!--    <div clss="mr-5">{{ username }}</div>-->
+        <!-- 선택 박스   -->
+        <div class="w-[1230px] text-end mr-[80px] mb-3">
+            <select class="bg-gray-200 rounded-sm px-1 py-1" :value="selected" @change="setOrder($event)">
+                <option v-for="(item, index) in selectList"
+                        :key="index"
+                        :value="item.value">
+                    {{ item.name }}
+                </option>
+            </select>
+        </div>
 
-    <!-- 그리드 -->
-    <div class="grid grid-cols-3 place-items-center w-[1200px] snap-y">
-        <div v-for="(item, index) in items" v-bind:key="index">
-            <!--  아이템 하나  -->
-            <div class="flex flex-col w-[350px] min-w-[350px] h-[350px]" v-on:click="clickItem(item.id)">
-                <!--   이미지   -->
-                <div class="w-[350px] h-[212px] truncate rounded-lg">
-                    <img :src="item.image" width="350" height="212">
-                </div>
-                <!--   제목   -->
-                <div class="flex justify-between items-center mt-1">
-                    <div class="text-xl">{{ item.title }}</div>
-                    <div class="flex">
+        <!-- 그리드 -->
+        <div class="grid grid-cols-3 place-items-center w-[1200px] snap-y">
+            <div v-for="item in items" v-bind:key="item.id">
+                <!--  아이템 하나  -->
+                <div class="flex flex-col w-[350px] min-w-[350px] h-[300px] mb-[30px] cursor-pointer"
+                     v-on:click="clickItem(item.id)">
+                    <!--   이미지   -->
+                    <div class="w-[350px] h-[230px] truncate rounded-lg">
+                        <img class="object-cover h-full w-full" :src="item.thumbnailImageUrl" width="350" height="212">
+                    </div>
+                    <!--   제목   -->
+                    <div class="flex justify-between items-center mt-1">
+                        <div class="text-xl">{{ item.title }}</div>
+                        <div class="flex">
                         <span class="flex mr-2">
                             <img src="/image/person.png" class="w-[20px] h-[20px]">
                             <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                         </span>
-                        <span class="flex items-center">
+                            <span class="flex items-center">
                             <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
-                            <span class="text-sm text-gray-600">{{ item.commentCount }}</span>
+                            <span class="text-sm text-gray-600">{{ item.commentsCount }}</span>
                         </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="text-sm text-indigo-400">{{ item.price }}</div>
-                <div class="text-sm text-gray-600">최저가 {{ item.minPrice }} ~ 최고가 {{ item.maxPrice }}</div>
-                <div class="text-sm text-gray-600">{{ item.timeRemaining }}</div>
+                    <div class="text-sm text-indigo-400">₩{{ item.minimumPrice }}</div>
+                    <div class="flex">
+                        <span class="text-sm text-gray-600" v-if="isPriceShow(item.minPrice)">
+                            최저가 ₩{{ item.minPrice }} ~ &nbsp
+                        </span>
+                        <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최저가&nbsp₩&nbsp~&nbsp</span>
+
+                        <span class="text-sm text-gray-600" v-if="isPriceShow(item.maxPrice)">
+                            최고가 ₩{{ item.maxPrice }}
+                        </span>
+                        <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최고가&nbsp₩&nbsp</span>
+                    </div>
+                    <div class="text-sm text-gray-600">{{ item.expireAt }}</div>
+                </div>
             </div>
         </div>
         <input type="hidden" id="username" th:value="${username}">
+        <input type="hidden" id="searchText" th:value="${searchText}">
+        <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[35px] mr-[50px] fixed bottom-0 right-0">
+            <img src="/image/add_item.png">
+        </button>
+        <button class="mb-10" v-on:click="addData">
+            더 불러오기
+        </button>
 
     </div>
 </div>
@@ -57,108 +77,104 @@
         data: {
             username: '',
             selectList: [
-                { name: "최신순", value: "newest" },
-                { name: "인기순", value: "popularity" },
-                { name: "종료임박순", value: "soonToEnd" }
+                {name: "최신순", value: '1'},
+                {name: "인기순", value: '2'},
+                {name: "종료임박순", value: '3'}
             ],
             selected: '',
-            items: [
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목1',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                },
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목2',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                },
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목3',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                },
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목4',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                },
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목5',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                },
-                {
-                    id: 0,
-                    image: 'https://me2.kr/GrxWn',
-                    title: '제목6',
-                    bidCount: 10,
-                    commentCount: 5,
-                    price: '30000원',
-                    minPrice: '27000원',
-                    maxPrice: '35000원',
-                    timeRemaining: '3일 2시간 남음'
-                }
-            ]
+            items: [],
+            page: 0,
+            size: 9,
+            searchText: '',
+            prefix: '/api/v1/item/list',
         },
         created() {
             this.username = document.getElementById('username').value;
+            this.searchText = document.getElementById('searchText').value;
             localStorage.setItem("username", this.username);
             this.selected = this.selectList[0].value;
-            this.initDate();
+            this.addData();
         },
         methods: {
-            initDate() {
-                axios.get('/api/v1/item/list',{
+            addData() {
+                axios.get(this.prefix + this.getQuery(), {
                     params: {
-                        page:0,
-                        size:12
+                        page: this.page,
+                        size: this.size
                     }
                 }).then(response => {
-                    this.items = response.data;
-                    console.log(response.data.content);
+                    response.data.forEach(item => {
+                        this.items.push(
+                            {
+                                id: item.id,
+                                title: item.title,
+                                bidCount: item.bidCount,
+                                commentsCount: item.commentsCount,
+                                minimumPrice: item.minimumPrice,
+                                minPrice: item.minPrice,
+                                maxPrice: item.maxPrice,
+                                expireAt: this.getTimeAgo(new Date(item.expireAt)),
+                                memberName: item.memberName,
+                                // thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageUrl,
+                                thumbnailImageUrl: '/image/test_image.png',
+                            },
+                        )
+                    })
                 }).catch(error => {
                     console.log(error);
                 })
-
+                this.page++;
             },
-            setSelect(event) {
+            setOrder(event) {
+                this.page = 0;
+                this.items = [];
                 this.selected = event.target.value;
-                console.log(this.selected);
+                this.addData();
             },
             clickItem(itemId) {
-                window.location.href = 'http://localhost:8080/item/detail/' + itemId;
+                window.location.href = 'http://localhost:8080/item/' + itemId;
             },
+            getTimeAgo(date) {
+                const currentDate = new Date();
+                const timeDiff = currentDate - date;
+
+                const minuteDiff = Math.floor(timeDiff / 1000 / 60);
+                const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
+                const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
+
+                if (minuteDiff < 1) {
+                    return "방금 전";
+                } else if (hourDiff < 1) {
+                    return `${minuteDiff}분 전`;
+                } else if (dayDiff < 1) {
+                    return `${hourDiff}시간 전`;
+                } else {
+                    return `${dayDiff}일 전`;
+                }
+            },
+            isPriceShow(price) {
+                return price !== -1;
+            },
+            addItem() {
+                window.location.href = 'http://localhost:8080/item';
+            },
+            getQuery() {
+                let query = '';
+                if (this.selected !== '' || this.searchText !== '') {
+                    query += '?';
+                }
+                if (this.selected !== '') {
+                    query += "s=" + this.selected;
+                }
+
+                if (this.searchText !== '') {
+                    if (this.selected !== '') {
+                        query += '&';
+                    }
+                    query += 'q=' + this.searchText;
+                }
+                return query;
+            }
         }
     })
 </script>

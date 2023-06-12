@@ -1,68 +1,123 @@
 <!DOCTYPE html>
 <html lang="ko">
+<head>
+    <style>
+        .filebox .upload-name {
+            display: inline-block;
+            height: 40px;
+            padding: 0 10px;
+            vertical-align: middle;
+            border: 1px solid #dddddd;
+            border-radius: 0.5rem;
+            width: 500px;
+            color: #999999;
+        }
+        .filebox label {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            vertical-align: middle;
+            background-color: #9CA3AF;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            height: 40px;
+            margin-left: 10px;
+        }
+        .filebox input[type="file"] {
+            position: absolute;
+            width: 0;
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+            border: 0;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: solid 1px #9CA3AF;
+            border-radius: 5px;
+            font-size: 16px;
+            resize: both;
+        }
+    </style>
+</head>
 <div th:replace="import::head"></div>
 <body class="flex flex-col items-center justify-start h-screen">
 <div th:replace="header::div"></div>
 <!--  상품 등록  -->
 <div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
-        <form role="form" method="post" autocomplete="off">
-                <div class="text-3xl my-2 font-semibold">상품 등록</div>
-                <!--  제목 입력  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <input type="text" size=50 maxlength=30 placeholder="제목을 입력해주세요">
-                </div>
-                <!--  가격 입력  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <input type="text" size=50 placeholder="최소 희망 판매가격을 입력해주세요">
-                </div>
-                <!--  경매 기간 입력  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <p>경매 기간을 선택해 주세요     </p>
-                        <!-- 라벨을 클릭하면 라벨의 하위요소인 버튼(체크,라디오,일반 등)이 클릭되는 효과) -->
-                        <div class="flex justify-center gap-4">
-                                <label class="flex gap-2 items-center cursor-pointer">
-                                        <input type="radio" name="period" value="3" class="radio peer">
-                                        <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
+    <form action="create2.html" th:action th:object="${itemRequest}" method="post" enctype="multipart/form-data" >
+        <div class="text-3xl my-2 font-semibold">상품 등록</div>
+        <!--  제목 입력  -->
+        <div class="flex m-10 p-2 border-b border-indigo-200">
+            <input type="text" id="title" th:field="*{title}" class="form-control" style="width: 400px" maxlength=30 placeholder="제목을 입력해주세요">
+        </div>
+        <!--  가격 입력  -->
+        <div class="flex mt-10 mx-10 mb-7 p-2 border-b border-indigo-200">
+            <input type="number" id="price" th:field="*{minimumPrice}" class="form-control" style="width: 400px"  step="100" placeholder="최소 희망 가격 (백원 단위)">
+        </div>
+        <!--  경매 기간 입력  -->
+        <div class="flex flex-col mb-10 mx-10 p-2 border-b border-indigo-200">
+            <p class="text-gray-400">경매 기간을 선택해 주세요</p>
+            <!-- 라벨을 클릭하면 라벨의 하위요소인 버튼(체크,라디오,일반 등)이 클릭되는 효과) -->
+            <div class="flex justify-start gap-4 m-2">
+                <label class="flex gap-2 items-center cursor-pointer">
+                    <input type="radio" th:field="*{period}" value="3" class="radio peer">
+                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-solid fa-person-rays"></i>
                                 3일
                             </span>
-                                </label>
+                </label>
 
-                                <label class="flex gap-2 items-center cursor-pointer">
-                                        <input type="radio" name="period" value="5" class="radio peer">
-                                        <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
+                <label class="flex gap-2 items-center cursor-pointer">
+                    <input type="radio" th:field="*{period}" value="5" class="radio peer">
+                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-regular fa-face-smile"></i>
                                 5일
                             </span>
-                                </label>
+                </label>
 
-                                <label class="flex gap-2 items-center cursor-pointer">
-                                        <input type="radio" name="period" value="7" class="radio peer">
-                                        <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
+                <label class="flex gap-2 items-center cursor-pointer">
+                    <input type="radio" th:field="*{period}" value="7" class="radio peer">
+                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-solid fa-people-roof"></i>
                                 7일
                             </span>
-                                </label>
-                        </div>
-                </div>
-                <!--  거래 가능 지역 입력  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <input type="text" size=50 placeholder="거래 가능 지역을 입력해주세요">
-                </div>
-                <!--  이미지 등록  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <input type="file" size=50 class="custom-file-input" name="itemImgFile">
-                </div>
-                <!--  설명 입력  -->
-                <div class="flex m-10 border-b border-indigo-200">
-                        <textarea class="" rows="15" cols="100" id="des" name="des" placeholder="상품을 자세히 설명해주세요"></textarea>
-                </div>
-                <!--  등록 버튼  -->
-                <div class="justify-end flex mb-10 mr-10 ">
-                        <button class="py-2 px-8 rounded-lg bg-blue-300 border border-slate-300 hover:border-indigo-300" type="submit" id="register_Btn">작성완료</button>
-                </div>
+                </label>
+            </div>
+        </div>
+        <!--                &lt;!&ndash;  거래 가능 지역 입력  &ndash;&gt;-->
+        <!--                <div class="flex m-10 border-b border-indigo-200">-->
+        <!--                        <input type="text" v-model="itemRequest.region" size=50 placeholder="거래 가능 지역을 입력해주세요">-->
+        <!--                </div>-->
+        <!--  이미지 등록  -->
+        <div class="flex m-10 p-2 border-b border-indigo-200">
+            <div class="filebox">
+                <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled>
+                <label for="file">파일찾기</label>
+                <input type="file" name="images" multiple id="file">
+            </div>
+            <!--                        <input type="file" name="images" multiple size=50 class="form-control">-->
+        </div>
+        <!--  설명 입력  -->
+        <div class="flex m-10 p-2 border-b border-indigo-200">
+            <textarea th:field="*{description}" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"></textarea>
+        </div>
+        <!--  등록 버튼  -->
+        <div class="justify-end flex mb-10 mr-10 ">
+            <button class="py-2 px-8 rounded-lg bg-blue-300 border border-slate-300 hover:border-indigo-300" type="submit">작성완료</button>
+        </div>
 
-        </form>
+    </form>
 </div>
+<script>
+    // JavaScript 코드
+    $("#file").on('change', function() {
+        var fileName = $("#file").val();
+        $(".upload-name").val(fileName);
+    });
+</script>
 </body>
 </html>

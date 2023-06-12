@@ -6,78 +6,71 @@
 <!--  채팅 박스  -->
 <div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
 
-    <div class="text-3xl my-2 font-semibold">입찰하기</div>
-
-
-    <!-- 입찰하기 -->
-    <form action="/bid" method="POST" class="flex">
-
-        <div class="flex items-start ml-2 justify-center " >
-            <!--       알림 메시지       -->
-            <div class="flex items-baseline ">
-                <input class="w-80 p-2 font-semibold" type="text" placeholder="입찰할 가격을 입력해주세요.(단위 100원)"></input>
-            </div>
-        </div>
-        <!--      사진      -->
-        <div class="inline-block w-[100px]   text-indigo-400 font-bold ml-auto truncate items-center justify-center">
-            <button class="flex px-1 py-2 hover:bg-zinc-200 items-center">입찰하기</button>
-        </div>
-    </form>
-
-    <div class="border border-inherit mt-1"></div>
-
-    <div class="text-3xl my-2 font-semibold">입찰 내역</div>
-
-    <!--     상단 아이템       -->
-    <div class="flex m-2">
-        <div class="w-[100px] h-[70px] truncate rounded-lg">
-            <img src="/image/banana.jpg">
-        </div>
-        <div class="flex flex-col justify-center ml-2">
-            <div> 제목 </div>
-            <div class="text-sm text-indigo-400">가격</div>
-        </div>
-
-        <div class="flex flex-col justify-center ml-2 ml-auto">
-            <div class="text-indigo-400 font-bold"> 최저가 10000원</div>
-            <div class="text-indigo-400 font-bold"> 최고가 10000원</div>
-            <div class="text-indigo-400 font-bold"> 평균가 10000원</div>
-        </div>
-    </div>
+    <div class="text-3xl my-2 font-semibold">알림</div>
 
     <!--   가로선   -->
     <div class="border border-inherit mt-4"></div>
     <div class="flex justify-start h-5/6 w-full">
         <!--   세로선 시작선    -->
         <div class="border border-inherit h-full"></div>
-        <!--   채팅방     -->
+        <!--   알림창 시작     -->
         <div class="flex flex-col justify-between w-full overflow-y-scroll">
 
 
             <div class="flex flex-col">
-                <!--     채팅방 아이템     -->
-                <button class="flex px-3 py-5 hover:bg-zinc-200 items-center"
-                        th:each ="notification: ${notifications}">
-                    <!--      이모티콘      -->
-                    <div class="inline-block text-4xl">🙌</div>
-                    <!--      메시지, 시간      -->
-                    <div class="flex flex-col items-start ml-2">
-                        <!--       알림 메시지       -->
-                        <div class="flex items-baseline">
-                            <div class="font-semibold" th:text ="${notification.getNotificationType().getType()}">  </div>
-                        </div>
-                        <!--       알림 시간       -->
-                        <div class="truncate text-sm text-zinc-700" >2분전 </div>
-                    </div>
-                </button>
+                <!--     알림 아이템     -->
+                <th:block th:each="notification: ${notifications}">
+                    <a class="hover:bg-zinc-200" th:if="${notification.getNotificationType().name() == 'BID'}" th:href="@{/item}">
+                        <button class="flex px-3 py-5  items-center">
+                            <!-- 이모티콘 -->
+                            <div class="inline-block text-4xl">🙌</div>
+                            <!-- 메시지, 시간 -->
+                            <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
+                                <div class="flex items-baseline">
+                                    <div class="font-semibold">사용자님이 등록하신 상품에 가격을 제시하였습니다. 바로 확인해보세요!</div>
+                                </div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700">
+                                    <script th:inline="javascript">
+                                        /* 타임리프 변수를 자바스크립트 변수로 변환 */
+                                        var createdDate = /*[[${notification.getCreatedDate()}]]*/ '';
+                                        /* 자바스크립트 함수 호출 */
+                                        var timeAgo = getTimeAgo(createdDate);
+                                        /* 결과 출력 */
+                                        document.write(timeAgo);
+                                    </script>
+                                </div>
+                            </div>
+                        </button>
+                    </a>
+                    <a th:if="${notification.getNotificationType().name() == 'TypeB'}" th:href="@{/url-for-typeB}">
+                        <button class="flex px-3 py-5 hover:bg-zinc-200 items-center">
+                            <!-- 이모티콘 -->
+                            <div class="inline-block text-4xl">🙌</div>
+                            <!-- 메시지, 시간 -->
+                            <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
+                                <div class="flex items-baseline">
+                                    <div class="font-semibold" th:text="${notification.getNotificationType().getType()}"></div>
+                                </div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700" th:text="${notification.getCreatedDate()}"></div>
+                            </div>
+                        </button>
+                    </a>
+                    <!-- 나머지 알림 타입에 대한 분기 처리 -->
+                </th:block>
             </div>
         </div>
 
-        <!--   세로선 채팅방 오른쪽     -->
+        <!--   세로선 알림창 오른쪽     -->
         <div class="border border-inherit"></div>
 
 
-        <!--   세로선 채팅창 오른쪽     -->
+        <!--   세로선 알림창 오른쪽     -->
         <div class="border border-inherit"></div>
     </div>
     <div class="border border-inherit"></div>
@@ -88,5 +81,24 @@
     numberInput.addEventListener('focus', () => {
         numberInput.blur();
     });
+
+    function getTimeAgo(date) {
+        const currentDate = new Date();
+        const timeDiff = currentDate - date;
+
+        const minuteDiff = Math.floor(timeDiff / 1000 / 60);
+        const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
+        const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
+
+        if (minuteDiff < 1) {
+            return "방금 전";
+        } else if (hourDiff < 1) {
+            return `${minuteDiff}분 전`;
+        } else if (dayDiff < 1) {
+            return `${hourDiff}시간 전`;
+        } else {
+            return `${dayDiff}일 전`;
+        }
+    }
 </script>
 </html>

@@ -1,25 +1,40 @@
-<div class="flex justify-center w-full h-[70px] bg-white">
-  <div class="flex w-[1200px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
-    <a href="/">
-      <img src="/image/bidder_own_logo.png" width="50" height="50">
-    </a>
+<div>
+  <div th:replace="import::head"></div>
+  <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
+    <div class="flex w-[1200px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
+      <a href="/home">
+        <img src="/image/bidder_own_logo.png" width="50" height="50">
+      </a>
 
-    <div class="flex min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
-      <div class="pl-3 pr-5">검색</div>
-      <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[480px]"></input>
-    </div>
+      <div class="flex min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
+        <div class="pl-3 pr-5 text-indigo-500">검색</div>
+        <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
+        <button onclick="search()">
+          <img src="/image/submit.png" class="w-[25px] h-[25px]">
+        </button>
+      </div>
 
-    <div class="flex">
-      <a href="/chat/list" class="mr-2">
-        <img src="/image/chat.png" class="w-[25px] h-[25px]"/>
-      </a>
-      <a href="#" class="mr-2">
-        <img src="/image/notification.png" class="w-[25px] h-[25px]"/>
-      </a>
-      <a href="javascript:"  onclick="$(this).next().submit();">
-        <img src="/image/person2.png" class="w-[25px] h-[25px]"/>
-      </a>
-      <form hidden th:action="|/member/logout|" method="POST"></form>
+      <div class="flex">
+        <a href="/chat/list" class="mr-2">
+          <img src="/image/chat.png" class="w-[25px] h-[25px]"/>
+        </a>
+        <a href="#" class="mr-2">
+          <img src="/image/notification.png" class="w-[25px] h-[25px]"/>
+        </a>
+        <a href="javascript:"  onclick="$(this).next().submit();">
+          <img src="/image/person2.png" class="w-[25px] h-[25px]"/>
+        </a>
+        <form hidden th:action="|/member/logout|" method="POST"></form>
+      </div>
     </div>
   </div>
+
+  <script>
+    search = () => {
+      const searchText = document.getElementById('search-input').value;
+      if (searchText === '') return;
+      window.location.href = 'http://localhost:8080/home?q=' + searchText;
+    }
+  </script>
+
 </div>

@@ -20,6 +20,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -70,10 +71,20 @@ public class ItemRestController {
         return itemList;
     }
 
+//    @GetMapping("/list")
+//    public Page<ItemListResponse> showList(
+//            String filter,
+//            String q,
+//            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+//    ) {
+//        return itemService.getAll(pageable);
+//    }
     @GetMapping("/list")
-    public Page<ItemListResponse> showList(
-            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    public List<ItemListResponse> showList(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            Pageable pageable
     ) {
-        return itemService.getAll(pageable);
+        return itemService.getAllQueryDsl(sortCode, searchText, pageable);
     }
 }

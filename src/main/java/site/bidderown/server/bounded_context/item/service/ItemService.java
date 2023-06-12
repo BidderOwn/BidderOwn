@@ -13,9 +13,11 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemCustomRepository itemCustomRepository;
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
@@ -72,6 +75,11 @@ public class ItemService {
     public Page<ItemListResponse> getAll(Pageable pageable) {
         return itemRepository.findAll(pageable).map(ItemListResponse::of);
     }
+
+    public List<ItemListResponse> getAllQueryDsl(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findAll(sortCode, searchText, pageable);
+    }
+
     //제목 검색
     public Page<ItemListResponse> searchTitle(String keyword, Pageable pageable) {
         return itemRepository.findByTitleContaining(keyword, pageable).map(ItemListResponse::of);

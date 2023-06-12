@@ -8,8 +8,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
@@ -29,15 +31,22 @@ public class ItemController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public String showCreateItem() {
+    public String showCreateItem(Model model) {
+        model.addAttribute("itemRequest", new ItemRequest());
         return "/usr/item/create";
+    }
+
+    @GetMapping("/{id}")
+    public String showItemDetail(Model model,  @PathVariable Long id) {
+        model.addAttribute("item", ItemDetailResponse.of(itemService.getItem(id)));
+        return "/usr/item/detail";
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public String createItem(
-                         @Valid ItemRequest itemRequest,
+            @Valid ItemRequest itemRequest,
             @AuthenticationPrincipal User user
     ) {
         itemService.create(itemRequest, user.getUsername());
