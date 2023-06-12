@@ -38,6 +38,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.batch:spring-batch-test'
 
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+  
 	// 2.7.X queryDSL 설정
 	implementation "com.querydsl:querydsl-jpa"
 	implementation "com.querydsl:querydsl-core"

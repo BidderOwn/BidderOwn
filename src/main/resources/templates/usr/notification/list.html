@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<div th:replace="import::head"></div>
+<body class="flex flex-col items-center justify-start h-screen">
+<div th:replace="header::div"></div>
+<!--  채팅 박스  -->
+<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
+
+    <div class="text-3xl my-2 font-semibold">입찰하기</div>
+
+
+    <!-- 입찰하기 -->
+    <form action="/bid" method="POST" class="flex">
+
+        <div class="flex items-start ml-2 justify-center " >
+            <!--       알림 메시지       -->
+            <div class="flex items-baseline ">
+                <input class="w-80 p-2 font-semibold" type="text" placeholder="입찰할 가격을 입력해주세요.(단위 100원)"></input>
+            </div>
+        </div>
+        <!--      사진      -->
+        <div class="inline-block w-[100px]   text-sky-500 font-bold ml-auto truncate items-center justify-center">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 items-center">입찰하기</button>
+        </div>
+    </form>
+
+    <div class="border border-inherit mt-1"></div>
+
+    <div class="text-3xl my-2 font-semibold">입찰 내역</div>
+
+    <!--     상단 아이템       -->
+    <div class="flex m-2">
+        <div class="w-[100px] h-[70px] truncate rounded-lg">
+            <img src="/banana.jpg">
+        </div>
+        <div class="flex flex-col justify-center ml-2">
+            <div> 제목 </div>
+            <div class="text-sm text-indigo-400">가격</div>
+        </div>
+
+        <div class="flex flex-col justify-center ml-2 ml-auto">
+            <div class="text-sky-500 font-bold"> 최저가 10000원</div>
+            <div class="text-sky-500 font-bold"> 최고가 10000원</div>
+            <div class="text-sky-500 font-bold"> 평균가 10000원</div>
+        </div>
+    </div>
+
+    <!--   가로선   -->
+    <div class="border border-inherit mt-4"></div>
+    <div class="flex justify-start h-5/6 w-full">
+        <!--   세로선 시작선    -->
+        <div class="border border-inherit h-full"></div>
+        <!--   채팅방     -->
+        <div class="flex flex-col justify-between w-full overflow-y-scroll">
+
+
+            <div class="flex flex-col">
+                <!--     채팅방 아이템     -->
+                <button class="flex px-3 py-5 hover:bg-zinc-200 items-center"
+                        th:each ="notification: ${notifications}">
+                    <!--      이모티콘      -->
+                    <div class="inline-block text-4xl">🙌</div>
+                    <!--      메시지, 시간      -->
+                    <div class="flex flex-col items-start ml-2">
+                        <!--       알림 메시지       -->
+                        <div class="flex items-baseline">
+                            <div class="font-semibold" th:text ="${notification.getNotificationType().getType()}">  </div>
+                        </div>
+                        <!--       알림 시간       -->
+                        <div class="truncate text-sm text-zinc-700" >2분전 </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!--   세로선 채팅방 오른쪽     -->
+        <div class="border border-inherit"></div>
+
+
+        <!--   세로선 채팅창 오른쪽     -->
+        <div class="border border-inherit"></div>
+    </div>
+    <div class="border border-inherit"></div>
+</div>
+</body>
+<script>
+    const numberInput = document.getElementById('myNumberInput');
+    numberInput.addEventListener('focus', () => {
+        numberInput.blur();
+    });
+</script>
+</html>

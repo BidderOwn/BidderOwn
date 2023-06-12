@@ -1,0 +1,78 @@
+<div th:replace="import::head"></div>
+<div th:replace="header::div"></div>
+
+<body>
+<div class="flex flex-col items-center mt-5 overflow-y-scroll">
+    <!--  이미지  -->
+    <div class="bg-slate-400 w-[550px] h-[305px] mb-2"></div>
+    <!--  설명  -->
+    <div class="flex flex-col">
+        <!--  사용자 프로필, 비더, 댓글  -->
+        <div class="flex items-center w-[550px] justify-between">
+            <!--   사용자 프로필   -->
+            <div class="flex items-center">
+                <div class="bg-slate-400 w-[40px] h-[40px] mr-1"></div>
+                <div class="">{{ item.username }}</div>
+            </div>
+            <!--    비더, 댓글    -->
+            <div class="flex">
+                <div class="mr-1">{{ item.bidderCount }}</div>
+                <div class="">{{ item.comment }}</div>
+            </div>
+        </div>
+        <!--   제목, 버튼   -->
+        <div class="flex justify-between items-center mt-1">
+            <div class="text-xl font-semibold">{{ item.title }}</div>
+            <!--    버튼    -->
+            <div class="flex">
+                <button class="border-solid border-[1px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100">채팅하기</button>
+                <button class="border-solid border-[1px] px-9 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white">입찰하기</button>
+            </div>
+        </div>
+        <div class="text-sm text-gray-600">{{ item.remainingTime }}</div>
+        <div class="text-lg text-indigo-400">{{ price }}</div>
+        <div class="text-sm text-gray-600">최저가 {{ item.minPrice }} ~ 최고가 {{ item.maxPrice }}</div>
+        <!--  본문  -->
+        <div class="mt-5">
+            {{ item.description }}
+        </div>
+    </div>
+
+    <!--  댓글  -->
+    <div class="w-[550px]">
+        <div class="border-t-[1px] border-inherit my-5"></div>
+        <div class="flex items-center mb-5">
+            <div class="text-lg font-medium justify-start mr-1">댓글</div>
+            <div class="text-lg font-medium text-indigo-400">{{ comment.count }}</div>
+        </div>
+
+        <!--   댓글 입력   -->
+        <div>
+            <div class="flex justify-between">
+                <div class="flex">
+                    <div class="bg-slate-400 w-[40px] h-[40px] mr-1"></div>
+                    <input class="w-[460px] ml-1" type="text" placeholder="댓글을 입력해주세요">
+                </div>
+                <div class="bg-slate-400 w-[35px] h-[35px]">전송</div>
+            </div>
+            <div class="border-t-[1px] border-inherit mt-1"></div>
+        </div>
+
+        <!--  댓글 리스트  -->
+        <div class="mt-5">
+            <div class="flex items-center">
+                <div class="bg-slate-400 w-[40px] h-[40px] mr-1"></div>
+                <div class="flex flex-col">
+                    <div class="text-base font-medium"> 이의찬 </div>
+                    <div class="text-sm text-gray-600"> 어디사시낭</div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="mt-10"></div>
+</div>
+
+</body>
+</html>
