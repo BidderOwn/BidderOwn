@@ -38,19 +38,18 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public String showItemDetail(Model model,  @PathVariable Long id) {
-        model.addAttribute("item", ItemDetailResponse.of(itemService.getItem(id)));
+        model.addAttribute("item", itemService.getItemDetail(id));
         return "/usr/item/detail";
     }
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @PreAuthorize("isAuthenticated()")
-    @ResponseBody
     public String createItem(
             @Valid ItemRequest itemRequest,
             @AuthenticationPrincipal User user
     ) {
         itemService.create(itemRequest, user.getUsername());
-        return "redirect:/item/list";
+        return "redirect:/home";
     }
 
     @DeleteMapping("/{id}")

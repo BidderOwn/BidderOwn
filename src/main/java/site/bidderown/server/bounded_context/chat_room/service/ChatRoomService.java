@@ -98,7 +98,11 @@ public class ChatRoomService {
                 .map(chatRoom -> ChatRoomResponse.of(chatRoom, member.getName()))
                 .collect(Collectors.toList());
     }
-//findChatListByChatRoomId
+
+//    public List<Long> getChatRoomIdsAsBuyer(String memberName) {
+//
+//    }
+
     private List<ChatResponse> getChatList(Long chatRoomId) {
         /**
          * 채팅방의 모든 채팅 기록 가져오기

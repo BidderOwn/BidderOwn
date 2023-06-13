@@ -23,10 +23,9 @@ public class ItemDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime expireAt;
-    private int maxPrice;
-    private int minPrice;
+    private Integer maxPrice;
+    private Integer minPrice;
     private List<Image> images;
-    private List<Comment> comments;
     private List<Bid> bids;
 
     @Builder
@@ -39,8 +38,8 @@ public class ItemDetailResponse {
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             LocalDateTime expireAt,
-            int maxPrice,
-            int minPrice,
+            Integer minPrice,
+            Integer maxPrice,
             List<Image> images,
             List<Bid> bids
     ) {
@@ -52,20 +51,13 @@ public class ItemDetailResponse {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.expireAt = expireAt;
-        this.maxPrice = maxPrice;
         this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
         this.images = images;
         this.bids = bids;
     }
 
-    public static ItemDetailResponse of (Item item) {
-        int maxPrice = -1;
-        int minPrice = -1;
-
-        if (item.getBids().size() > 0) {
-            maxPrice = item.getBids().get(0).getPrice();
-            minPrice = item.getBids().get(item.getBids().size() - 1).getPrice();
-        }
+    public static ItemDetailResponse of (Item item, Integer minPrice, Integer maxPrice) {
         return ItemDetailResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
@@ -75,8 +67,8 @@ public class ItemDetailResponse {
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .expireAt(item.getExpireAt())
-                .maxPrice(maxPrice)
                 .minPrice(minPrice)
+                .maxPrice(maxPrice)
                 .images(item.getImages())
                 .bids(item.getBids())
                 .build();

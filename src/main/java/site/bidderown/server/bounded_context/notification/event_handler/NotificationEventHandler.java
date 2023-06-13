@@ -34,15 +34,15 @@ public class NotificationEventHandler {
     @Async
     public void listen(EventItemNotification eventItemNotification) {
         notificationService.create(eventItemNotification);
+        String senderName = eventItemNotification.getReceiver().getName();
+        System.out.println(eventItemNotification.getItem().getId());
         messagingTemplate.convertAndSend(
-                "/sub/notification/item/" + eventItemNotification.getItem().getId(), "");
+                "/sub/notification/item/" + eventItemNotification.getItem().getId(), senderName);
     }
 
     @EventListener
     @Async
     public void listenBidEnd(EventBidEndNotification eventBidEndNotification) {
-
-
         List<BulkInsertNotification> notifications = new ArrayList<>();
         for (Item item : eventBidEndNotification.getItems()) {
             messagingTemplate.convertAndSend("/sub/notification/item/" + item.getId(), "");

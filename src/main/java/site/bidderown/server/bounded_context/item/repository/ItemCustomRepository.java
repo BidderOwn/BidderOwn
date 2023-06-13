@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
 import static site.bidderown.server.bounded_context.item.entity.QItem.item;
 
 @RequiredArgsConstructor
@@ -32,8 +33,35 @@ public class ItemCustomRepository {
                 .fetch();
 
         return items.stream()
-                .map(ItemListResponse::of)
+                .map(item -> ItemListResponse.of(
+                        item,
+                        minItemPrice(item.getId()),
+                        maxItemPrice(item.getId()))
+                )
                 .collect(Collectors.toList());
+    }
+
+    public Integer minItemPrice(Long itemId) {
+        return jpaQueryFactory.select(bid.price.min())
+                .where(item.id.eq(itemId))
+                .from(bid)
+                .fetchOne();
+    }
+
+    public Integer maxItemPrice(Long itemId) {
+        return jpaQueryFactory.select(bid.price.max())
+                .where(item.id.eq(itemId))
+                .from(bid)
+                .fetchOne();
+    }
+
+    public Integer avgItemPrice(Long itemId) {
+        Double avg = jpaQueryFactory.select(bid.price.avg())
+                .where(item.id.eq(itemId))
+                .from(bid)
+                .fetchOne();
+        if (avg != null) return avg.intValue();
+        return null;
     }
 
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
@@ -43,6 +71,7 @@ public class ItemCustomRepository {
             case 3 -> orderSpecifiers.add(item.expireAt.asc());
         }
         orderSpecifiers.add(item.id.desc());
+        orderSpecifiers.add(item.itemStatus.desc());
         return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 

@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findByReceiver(Member receiver);
+    List<Notification> findByReceiverAndReadDateIsNullOrderByCreatedAtDesc(Member receiver);
+    List<Notification> findByReadDateIsNull();
 }

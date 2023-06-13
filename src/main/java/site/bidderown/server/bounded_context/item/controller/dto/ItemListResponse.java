@@ -16,8 +16,8 @@ public class ItemListResponse {
     String memberName;
     int minimumPrice;
     LocalDateTime expireAt;
-    int maxPrice;
-    int minPrice;
+    Integer maxPrice;
+    Integer minPrice;
     int commentsCount;
     int bidCount;
     String thumbnailImageName;
@@ -29,8 +29,8 @@ public class ItemListResponse {
             String memberName,
             int minimumPrice,
             LocalDateTime expireAt,
-            int maxPrice,
-            int minPrice,
+            Integer maxPrice,
+            Integer minPrice,
             int commentsCount,
             int bidCount,
             String thumbnailImageName
@@ -47,22 +47,15 @@ public class ItemListResponse {
         this.thumbnailImageName = thumbnailImageName;
     }
 
-    public static ItemListResponse of(Item item) {
-        int maxPrice = -1;
-        int minPrice = -1;
-
-        if (item.getBids().size() > 0) {
-            maxPrice = item.getBids().get(0).getPrice();
-            minPrice = item.getBids().get(item.getBids().size() - 1).getPrice();
-        }
+    public static ItemListResponse of(Item item, Integer minPrice, Integer maxPrice) {
         return ItemListResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
                 .memberName(item.getMember().getName())
                 .minimumPrice(item.getMinimumPrice())
                 .expireAt(item.getExpireAt())
-                .maxPrice(maxPrice)
                 .minPrice(minPrice)
+                .maxPrice(maxPrice)
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
                 .thumbnailImageName(item.getThumbnailImage())

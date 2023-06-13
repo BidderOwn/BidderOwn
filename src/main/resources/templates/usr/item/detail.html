@@ -1,3 +1,5 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <div th:replace="import::head"></div>
 <body>
 <div id="detail">
@@ -37,9 +39,7 @@
                     <button class="border-solid border-[1px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100">
                         채팅하기
                     </button>
-                    <button class="border-solid border-[1px] px-9 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white">
-                        입찰하기
-                    </button>
+                    <a class="border-solid border-[1px] px-9 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white" th:href="|@{'/bid/list?itemId='}| + ${item.id}">입찰하기</a>
                 </div>
             </div>
             <div class="text-sm text-gray-600">
@@ -73,10 +73,10 @@
             </div>
             <div class="text-lg text-indigo-400" th:text="|₩${item.minimumPrice}|"></div>
             <div class="flex">
-                <span class="text-sm text-gray-600" th:if="${item.minPrice != -1}" th:text="|최저가 ₩${item.minPrice} ~ &nbsp|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.minPrice == -1}" th:text= "|최저가&nbsp₩&nbsp~&nbsp|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.maxPrice != -1}" th:text="|최고가 ₩${item.maxPrice}|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.maxPrice == -1}" th:text="|최고가&nbsp₩|"></span>
+                <span class="text-sm text-gray-600" th:if="${item.minPrice != null}" th:text="|최저가 ₩${item.minPrice} ~ &nbsp|"></span>
+                <span class="text-sm text-gray-600" th:if="${item.minPrice == null}" th:text= "|최저가&nbsp₩&nbsp~&nbsp|"></span>
+                <span class="text-sm text-gray-600" th:if="${item.maxPrice != null}" th:text="|최고가 ₩${item.maxPrice}|"></span>
+                <span class="text-sm text-gray-600" th:if="${item.maxPrice == null}" th:text="|최고가&nbsp₩|"></span>
             </div>
             <!--  본문  -->
             <div class="mt-5" th:text="${item.description}"></div>
@@ -116,7 +116,7 @@
             </div>
         </div>
         <div class="mt-10"></div>
-        <input type="hidden" id="itemId" th:value="${ item.id }">
+        <input type="hidden" id="itemId" th:name="itemId" th:value="${ item.id }">
     </div>
 </div>
 <script>
@@ -130,7 +130,7 @@
         },
         created() {
             this.username = localStorage.getItem('username');
-            this.itemId = document.getElementById('itemId').value;
+            this.itemId = parseInt(document.getElementById('itemId').value);
             this.initData();
         },
         methods: {
@@ -146,6 +146,20 @@
                 if (this.commentMessage === '') {
                     return;
                 }
+                axios.get('/api/v1/comment-ids', {
+                    auth: {
+                        username: localStorage.getItem('username'),
+                        password: ''
+                    }
+                }).then(response => {
+                    const itemIds = response.data;
+                    if (!itemIds.includes(this.itemId)) {
+                        this.connect(this.itemId);
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });
+
                 axios.post('/api/v1/item/' + this.itemId + '/comment', {
                     auth: {
                         username: this.username,
@@ -154,11 +168,38 @@
                     content: this.commentMessage
                 }).then(response => {
                     this.comments.unshift(response.data);
-                    this.commentMessage = '';
-                }).catch(error => {
-                    console.log(error)
+                    this.commentMessage = ''
                 })
-            }
+            },
+            connect(itemId) {
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+                ws.connect({}, (frame) => {
+                    ws.subscribe("/sub/notification/item/" + itemId,
+                        (message) => {
+                            // const senderName = message.body;
+                            // if (this.username !== senderName) {
+                                console.log("icon 표시");
+                            // }
+                        });
+                }, (error) => {
+                    console.log(error);
+                });
+
+                axios.post('/api/v1/connection', {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    },
+                    connectionId: this.itemId,
+                    connectionType: 'ITEM'
+                }).then(response => {
+
+                }).catch(error => {
+
+                })
+            },
+            handleChat() {}
         }
     })
 </script>

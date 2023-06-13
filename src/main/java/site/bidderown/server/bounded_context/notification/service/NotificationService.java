@@ -20,7 +20,7 @@ public class NotificationService {
 
     public List<Notification> list(String username) {
         Member member = memberService.getMember(username);
-        return notificationRepository.findByReceiver(member);
+        return notificationRepository.findByReceiverAndReadDateIsNullOrderByCreatedAtDesc(member);
     }
 
     @Transactional
@@ -34,5 +34,11 @@ public class NotificationService {
 
     public void create(List<Notification> notifications) {
         notificationRepository.saveAll(notifications);
+    }
+
+    @Transactional
+    public void readAll() {
+        List<Notification> notifications = notificationRepository.findByReadDateIsNull();
+        notifications.stream().forEach(notification -> notification.read());
     }
 }

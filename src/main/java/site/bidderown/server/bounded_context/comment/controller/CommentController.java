@@ -70,4 +70,12 @@ public class CommentController {
         return commentService.updateById(id, commentRequest, memberDetail.getName());
     }
 
+    @GetMapping("/api/v1/comment-ids")
+    @ResponseBody
+    public List<Long> getBidItemIds(
+            @AuthenticationPrincipal User user
+    ) {
+        return commentService.getCommentItemIds(user.getUsername());
+    }
+
 }

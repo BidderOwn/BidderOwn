@@ -2,13 +2,9 @@ package site.bidderown.server.bounded_context.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
@@ -26,14 +22,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/item")
-public class ItemRestController {
+public class ItemApiController {
 
     private final ItemService itemService;
     private final MemberService memberService;
 
     @GetMapping("/{id}")
     public ItemDetailResponse getItem(@PathVariable Long id) {
-        return ItemDetailResponse.of(itemService.getItem(id));
+        return itemService.getItemDetail(id);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -48,43 +44,12 @@ public class ItemRestController {
         return itemService.updateById(id, itemUpdateDto);
     }
 
-    //제목, 내용 검색 (판매자ID는 추가 할 예정)
-    @GetMapping("/list/search")
-    public Page<ItemListResponse> searchTitle(String type, String keyword, Model model, @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<ItemListResponse> itemList = null;
-
-        if(keyword == null) {
-            itemList = itemService.getAll(pageable);
-        } else {
-            switch (type) {
-                case "title" :
-                    itemList = itemService.searchTitle(keyword, pageable);
-                    break;
-                case "description" :
-                    itemList = itemService.searchDescription(keyword, pageable);
-                    break;
-            }
-        }
-
-        model.addAttribute("itemList", itemList);
-
-        return itemList;
-    }
-
-//    @GetMapping("/list")
-//    public Page<ItemListResponse> showList(
-//            String filter,
-//            String q,
-//            @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable
-//    ) {
-//        return itemService.getAll(pageable);
-//    }
     @GetMapping("/list")
     public List<ItemListResponse> showList(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
-        return itemService.getAllQueryDsl(sortCode, searchText, pageable);
+        return itemService.getItems(sortCode, searchText, pageable);
     }
 }

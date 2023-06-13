@@ -79,7 +79,7 @@ public class NotProd {
                     }
                     bidList.add(BulkInsertBid.builder()
                             .price(10000)
-                            .bidderId(kakaoMember1.getId())
+                            .bidderId(member2.getId())
                             .itemId(n)
                             .build());
 
