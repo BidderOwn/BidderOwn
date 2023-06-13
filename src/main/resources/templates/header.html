@@ -29,8 +29,14 @@
   </div>
 
   <script>
-    let socket;
-    let ws;
+    let socketChat;
+    let wsChat;
+
+    let socketComment;
+    let wsComment
+
+    let socketBid;
+    let wsBid;
 
     $(document).ready(function (){
       $('#search-input').on('keypress', function (event){
@@ -75,27 +81,13 @@
       .then(response => {
         const connections = response.data;
         connections.forEach(connection => {
-          socket = new SockJS("/ws-stomp");
-          ws = Stomp.over(socket);
-          // let reconnect = 0;
 
-          console.log(connections);
 
-          if (connection.connectionType === 'BID') {
-            ws.connect({}, (frame) => {
-              ws.subscribe("/sub/notification/item/" + connection.connectionId,
-                      (message) => {
-                        const senderName = message.body;
-                        // if (this.username !== senderName) {
-                        $('#notification-icon').attr('src', '/image/notification_noti.png')
-                        // }
-                      });
-            }, (error) => {
-              console.log(error);
-            });
-          } else if (connection.connectionType === 'CHAT') {
-            ws.connect({}, (frame) => {
-              ws.subscribe("/sub/chat/room/" + connection.connectionId,
+          if (connection.connectionType === 'CHAT') {
+            socketChat = new SockJS("/ws-stomp");
+            wsChat = Stomp.over(socketChat);
+            wsChat.connect({}, (frame) => {
+              wsChat.subscribe("/sub/chat/room/" + connection.connectionId,
                 (message) => {
                   // let recv = JSON.parse(message.body);
                   // this.recvMessage(recv);
@@ -104,13 +96,32 @@
             }, (error) => {
               console.log(error);
             });
-          } else if (connection.connectionType === 'COMMENT') {
-            ws.connect({}, (frame) => {
-              ws.subscribe("/sub/item/comment/notification/" +  connection.connectionId,
+          }
+          if (connection.connectionType === 'COMMENT') {
+            socketComment = new SockJS("/ws-stomp");
+            wsComment = Stomp.over(socketComment);
+            wsComment.connect({}, (frame) => {
+              wsComment.subscribe("/sub/item/comment/notification/" +  connection.connectionId,
                       (message) => {
                         // let recv = JSON.parse(message.body);
                         // this.recvMessage(recv);
                         $('#notification-icon').attr('src', '/image/notification_noti.png')
+                      });
+            }, (error) => {
+              console.log(error);
+            });
+          }
+
+          if (connection.connectionType === 'BID') {
+            socketBid = new SockJS("/ws-stomp");
+            wsBid = Stomp.over(socketBid);
+            wsBid.connect({}, (frame) => {
+              wsBid.subscribe("/sub/notification/item/" + connection.connectionId,
+                      (message) => {
+                        // const senderName = message.body;
+                        // if (this.username !== senderName) {
+                        $('#notification-icon').attr('src', '/image/notification_noti.png')
+                        // }
                       });
             }, (error) => {
               console.log(error);

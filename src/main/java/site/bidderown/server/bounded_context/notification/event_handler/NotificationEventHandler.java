@@ -38,6 +38,7 @@ public class NotificationEventHandler {
         Item item = eventItemBidNotification.getItem();
         List<Notification> notifications = new ArrayList<>();
         item.getBids().stream()
+                .filter(bid -> !bid.getBidder().equals(eventItemBidNotification.getReceiver()))
                 .map(bid -> Notification.of(
                         eventItemBidNotification.getItem(),
                         bid.getBidder(),
@@ -45,6 +46,7 @@ public class NotificationEventHandler {
                 )).forEach(notifications::add);
 
         notifications.add(Notification.of(item, item.getMember(), NotificationType.BID));
+        System.out.println(item.getMember().getId());
 
         notificationService.createNotifications(notifications);
 
