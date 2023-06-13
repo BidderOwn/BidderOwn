@@ -21,6 +21,11 @@ public class HomeController {
         return "/usr/login";
     }
 
+    @GetMapping("/")
+    public String redirectHome(){
+        return "redirect:/home";
+    }
+
     @GetMapping("/home")
     public String home(
             Model model,

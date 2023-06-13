@@ -34,7 +34,7 @@ public class ImageUtils {
             String filePath = pathResolver.getImagePathString(kind, fileName);
             file.transferTo(new File(filePath));
 
-            return filePath;
+            return fileName;
         } catch (Exception e) {
             log.info(e.toString());
         }

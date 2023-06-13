@@ -36,10 +36,21 @@
                 <div class="text-xl font-semibold" th:text="${item.title}"></div>
                 <!--    버튼    -->
                 <div class="flex">
-                    <button class="border-solid border-[1px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100">
-                        채팅하기
-                    </button>
-                    <a class="border-solid border-[1px] px-9 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white" th:href="|@{'/bid/list?itemId='}| + ${item.id}">입찰하기</a>
+                    <div v-if="isMe()">
+                        <button class="border-solid border-[1px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100" v-on:click="deleteItem()">
+                            삭제하기
+                        </button>
+                    </div>
+                    <div v-else>
+                        <button class="border-solid border-[1px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100">
+                            채팅하기
+                        </button>
+                    </div>
+                    <a class="border-solid border-[1px] px-9 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white" th:href="|@{'/bid/list?itemId='}| + ${item.id}">
+                        <span v-if="isMe()">입찰내역</span>
+                        <span v-else>입찰하기</span>
+
+                    </a>
                 </div>
             </div>
             <div class="text-sm text-gray-600">
@@ -117,6 +128,7 @@
         </div>
         <div class="mt-10"></div>
         <input type="hidden" id="itemId" th:name="itemId" th:value="${ item.id }">
+        <input type="hidden" id="memberName" th:value="${ item.memberName }">
     </div>
 </div>
 <script>
@@ -146,19 +158,19 @@
                 if (this.commentMessage === '') {
                     return;
                 }
-                axios.get('/api/v1/comment-ids', {
-                    auth: {
-                        username: localStorage.getItem('username'),
-                        password: ''
-                    }
-                }).then(response => {
-                    const itemIds = response.data;
-                    if (!itemIds.includes(this.itemId)) {
-                        this.connect(this.itemId);
-                    }
-                }).catch(error => {
-                    console.log(error);
-                });
+                // axios.get('/api/v1/comment-ids', {
+                //     auth: {
+                //         username: localStorage.getItem('username'),
+                //         password: ''
+                //     }
+                // }).then(response => {
+                //     const itemIds = response.data;
+                //     if (!itemIds.includes(this.itemId)) {
+                //         this.connect();
+                //     }
+                // }).catch(error => {
+                //     console.log(error);
+                // });
 
                 axios.post('/api/v1/item/' + this.itemId + '/comment', {
                     auth: {
@@ -171,35 +183,23 @@
                     this.commentMessage = ''
                 })
             },
-            connect(itemId) {
-                socket = new SockJS("/ws-stomp");
-                ws = Stomp.over(socket);
-                ws.connect({}, (frame) => {
-                    ws.subscribe("/sub/notification/item/" + itemId,
-                        (message) => {
-                            // const senderName = message.body;
-                            // if (this.username !== senderName) {
-                                console.log("icon 표시");
-                            // }
-                        });
-                }, (error) => {
-                    console.log(error);
-                });
+            connect() {
 
-                axios.post('/api/v1/connection', {
+            },
+            handleChat() {},
+            isMe() {
+                return $('#memberName').val() === this.username;
+            },
+            deleteItem() {
+                axios.post('/api/v1/item/' + this.itemId, {
                     auth: {
                         username: this.username,
                         password: ''
-                    },
-                    connectionId: this.itemId,
-                    connectionType: 'ITEM'
+                    }
                 }).then(response => {
-
-                }).catch(error => {
-
-                })
-            },
-            handleChat() {}
+                    window.location.href = 'http://localhost:8080/home';
+                }).catch();
+            }
         }
     })
 </script>

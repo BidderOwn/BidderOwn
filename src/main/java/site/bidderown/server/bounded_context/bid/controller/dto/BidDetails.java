@@ -13,7 +13,7 @@ public class BidDetails {
     private Integer avgPrice;
     private String itemTitle;
     private String sellerName;
-    //private String imgName;
+    private String imgName;
 
     @Builder
     public BidDetails(String imgName, String sellerName, int desiredPrice, Integer maxPrice, Integer minPrice, Integer avgPrice, String itemTitle) {
@@ -23,10 +23,14 @@ public class BidDetails {
         this.avgPrice = avgPrice;
         this.itemTitle = itemTitle;
         this.sellerName = sellerName;
-        //this.imgName = imgName;
+        this.imgName = imgName;
     }
 
     public static BidDetails of(Item item, Integer maxPrice, Integer minPrice, Integer avgPrice) {
+        String image = "";
+        if (item.getImages().size() > 0) {
+            image = item.getImages().get(0).getFileName();
+        }
         return BidDetails.builder()
                 .sellerName(item.getMember().getName())
                 .desiredPrice(item.getMinimumPrice())
@@ -34,7 +38,7 @@ public class BidDetails {
                 .minPrice(minPrice)
                 .avgPrice(avgPrice)
                 .itemTitle(item.getTitle())
-                //.imgName(item.getImages().get(0).getFileName())
+                .imgName(image)
                 .build();
     }
 

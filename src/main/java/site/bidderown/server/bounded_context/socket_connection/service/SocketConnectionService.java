@@ -42,8 +42,11 @@ public class SocketConnectionService {
             case "CHAT" -> {
                 return ConnectionType.CHAT;
             }
+            case "COMMENT" -> {
+                return ConnectionType.COMMENT;
+            }
             default -> {
-                return ConnectionType.ITEM;
+                return ConnectionType.BID;
             }
         }
     }

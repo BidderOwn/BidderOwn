@@ -51,16 +51,4 @@ public class ItemController {
         itemService.create(itemRequest, user.getUsername());
         return "redirect:/home";
     }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public String deleteItem(@PathVariable Long id, Principal principal) {
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
-
-        if (!memberDetail.getName().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
-        itemService.delete(id);
-        return "redirect:/item/list";
-    }
 }

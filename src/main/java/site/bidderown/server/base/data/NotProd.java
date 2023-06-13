@@ -4,7 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import site.bidderown.server.base.event.EventItemNotification;
+import site.bidderown.server.base.event.EventItemBidNotification;
 import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
@@ -48,8 +48,8 @@ public class NotProd {
             // 유저 생성
             IntStream.rangeClosed(1, 10)
                     .forEach(i -> memberService.loginAsSocial("user_" + i));
-            Member member1 = memberService.getMember("user_1");
-            Member member2 = memberService.getMember("user_2");
+            Member member1 = memberService.join("user1", "1234");
+            Member member2 = memberService.join("user2", "1234");
             Member kakaoMember1 = memberService.loginAsSocial("KAKAO_2810203532");
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
 
@@ -96,7 +96,7 @@ public class NotProd {
             }
             Item item1 = itemService.getItem(1L);
             for (int i = 0; i <= 10; i++)
-                notificationService.create(EventItemNotification.of(item1, kakaoMember1, NotificationType.BID));
+                notificationService.create(EventItemBidNotification.of(item1, kakaoMember1, NotificationType.BID));
             long endTime = System.currentTimeMillis();
             System.out.println(String.format("Init Data: %20dms", endTime - startTime));
 

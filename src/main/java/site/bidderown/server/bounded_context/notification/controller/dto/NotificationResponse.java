@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class NotificationDto {
-
+public class NotificationResponse {
 
     private Long itemId;
     private String createdDate;
@@ -20,14 +19,14 @@ public class NotificationDto {
     private NotificationType notificationType;
 
     @Builder
-    private NotificationDto(Long itemId, String createdDate, LocalDateTime readDate, NotificationType notificationType) {
+    private NotificationResponse(Long itemId, String createdDate, LocalDateTime readDate, NotificationType notificationType) {
         this.itemId = itemId;
         this.createdDate = createdDate;
         this.readDate = readDate;
         this.notificationType = notificationType;
     }
 
-    public static NotificationDto of(Notification notification){
+    public static NotificationResponse of(Notification notification){
         Duration duration = Duration.between(notification.getCreatedAt(), LocalDateTime.now());
         String createdAt;
 
@@ -43,7 +42,7 @@ public class NotificationDto {
             createdAt = duration.toDays() + "일 전";
 
 
-        return NotificationDto.builder()
+        return NotificationResponse.builder()
                 .createdDate(createdAt)
                 .notificationType(notification.getNotificationType())
                 .readDate(notification.getReadDate())

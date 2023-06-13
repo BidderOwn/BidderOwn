@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
+import site.bidderown.server.bounded_context.bid.controller.dto.BidResponses;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 
 import java.util.List;
@@ -24,23 +25,25 @@ public class BidController {
         bidService.handleBid(bidRequest, user.getUsername());
         return "redirect:/bid/list?itemId=" + bidRequest.getItemId();
     }
+
+    @PostMapping("/api/v1/bid")
+    @ResponseBody
+    public Long createBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
+        return bidService.handleBid(bidRequest, user.getUsername());
+    }
+
     @GetMapping("/bid/list")
     public String bidList(@RequestParam Long itemId, Model model, @AuthenticationPrincipal User user){
-        String username = user.getUsername();
-        List<BidResponse> bids = bidService.getBids(itemId);
-        BidDetails bidDetails = bidService.getBidStatistics(itemId);
-
-        model.addAttribute("bids", bids);
-        model.addAttribute("bidDetails", bidDetails);
-        model.addAttribute("username", username);
         model.addAttribute("itemId", itemId);
         return "usr/bid/list";
     }
 
     @GetMapping("/api/v1/bid/list")
     @ResponseBody
-    public List<BidResponse> bidListApi(@RequestParam Long itemId){
-        return bidService.getBids(itemId);
+    public BidResponses bidListApi(@RequestParam Long itemId){
+        BidDetails bidDetails = bidService.getBidStatistics(itemId);
+        List<BidResponse> bids = bidService.getBids(itemId);
+        return BidResponses.of(bidDetails, bids);
     }
 
     @GetMapping("/api/v1/bid-ids")

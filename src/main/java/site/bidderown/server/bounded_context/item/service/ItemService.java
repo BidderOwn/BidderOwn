@@ -1,9 +1,11 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
@@ -14,6 +16,8 @@ import site.bidderown.server.bounded_context.item.repository.ItemCustomRepositor
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
+import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
+import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +33,7 @@ public class ItemService {
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
-
+    private final ApplicationEventPublisher publisher;
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
@@ -73,6 +77,12 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
+        publisher.publishEvent(EventSocketConnection.of(
+                member.getName(), SocketConnectionRequest.of(item.getId(), "COMMENT")));
+
+        publisher.publishEvent(EventSocketConnection.of(
+                member.getName(), SocketConnectionRequest.of(item.getId(), "BID")));
+
         return item;
     }
 

@@ -16,15 +16,14 @@
 
       <div class="flex">
         <a href="/chat/list" class="mr-2">
-          <img src="/image/chat.png" class="w-[25px] h-[25px]"/>
+          <img id="chat-icon" src="/image/chat.png" class="w-[25px] h-[25px]"/>
         </a>
-        <a href="#" class="mr-2">
-          <img src="/image/notification.png" class="w-[25px] h-[25px]"/>
+        <a href="/notifications" class="mr-2">
+          <img id="notification-icon" src="/image/notification.png" class="w-[25px] h-[25px]"/>
         </a>
-        <a href="javascript:"  onclick="$(this).next().submit();">
+        <a href="/my-page">
           <img src="/image/person2.png" class="w-[25px] h-[25px]"/>
         </a>
-        <form hidden th:action="|/member/logout|" method="POST"></form>
       </div>
     </div>
   </div>
@@ -47,6 +46,21 @@
       window.location.href = 'http://localhost:8080/home?q=' + searchText;
     }
 
+    checkNotRead = () => {
+      const username = localStorage.getItem('username');
+      if (username === null) return;
+      axios.get('/api/v1/notification-check', {
+        auth: {
+          username: username,
+          password: ''
+        }
+      }).then(response => {
+        if (response.data) {
+          $('#notification-icon').attr('src', '/image/notification_noti.png');
+        }
+      }).catch(error => {console.log(error)});
+    }
+
     socketConnect = () => {
       const username = localStorage.getItem('username');
 
@@ -65,13 +79,15 @@
           ws = Stomp.over(socket);
           // let reconnect = 0;
 
-          if (connection.connectionType === 'ITEM') {
+          console.log(connections);
+
+          if (connection.connectionType === 'BID') {
             ws.connect({}, (frame) => {
               ws.subscribe("/sub/notification/item/" + connection.connectionId,
                       (message) => {
                         const senderName = message.body;
                         // if (this.username !== senderName) {
-                        console.log("icon 표시");
+                        $('#notification-icon').attr('src', '/image/notification_noti.png')
                         // }
                       });
             }, (error) => {
@@ -79,12 +95,23 @@
             });
           } else if (connection.connectionType === 'CHAT') {
             ws.connect({}, (frame) => {
-              ws.subscribe("/sub/chat/room/" + this.roomId,
+              ws.subscribe("/sub/chat/room/" + connection.connectionId,
                 (message) => {
                   // let recv = JSON.parse(message.body);
                   // this.recvMessage(recv);
-                  console.log("icon 표시");
+                  $('#notification-icon').attr('src', '/image/notification_noti.png')
                 });
+            }, (error) => {
+              console.log(error);
+            });
+          } else if (connection.connectionType === 'COMMENT') {
+            ws.connect({}, (frame) => {
+              ws.subscribe("/sub/item/comment/notification/" +  connection.connectionId,
+                      (message) => {
+                        // let recv = JSON.parse(message.body);
+                        // this.recvMessage(recv);
+                        $('#notification-icon').attr('src', '/image/notification_noti.png')
+                      });
             }, (error) => {
               console.log(error);
             });
@@ -95,7 +122,7 @@
         console.log(error);
       });
     }
-
+    checkNotRead();
     socketConnect();
 
   </script>

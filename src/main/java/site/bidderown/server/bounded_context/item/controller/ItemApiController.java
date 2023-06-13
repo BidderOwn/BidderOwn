@@ -52,4 +52,18 @@ public class ItemApiController {
     ) {
         return itemService.getItems(sortCode, searchText, pageable);
     }
+
+    @PostMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    @ResponseBody
+    public String deleteItem(@PathVariable Long id, Principal principal) {
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(principal.getName()));
+
+        if (!memberDetail.getName().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+        }
+
+        itemService.delete(id);
+        return "ok";
+    }
 }

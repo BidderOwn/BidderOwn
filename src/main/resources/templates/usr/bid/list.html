@@ -1,152 +1,195 @@
-<!DOCTYPE html>
 <html lang="ko">
-<div th:replace="import::head"></div>
 <body class="flex flex-col items-center justify-start h-screen">
+<div th:replace="import::head"></div>
 <div th:replace="header::div"></div>
-<!--  채팅 박스  -->
-<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
 
-    <div class="text-3xl my-3 font-semibold"
-         th:if="${username != bidDetails.sellerName}">입찰하기</div>
+<div id="bid-list-app">
+    <!--  채팅 박스  -->
+    <div class="flex flex-col h-[800px] w-7/12 w-[550px] mt-6" id="app">
+<!--        <div class="text-3xl my-3 font-semibold" th:if="${username != bidDetails.sellerName}">입찰하기</div>-->
+        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName">입찰하기</div>
 
-    <!-- 입찰하기 -->
-    <form id="bidForm" class="flex justify-between" th:if="${username != bidDetails.sellerName}">
-        <div class="flex items-start justify-center ">
-            <!--       알림 메시지       -->
-            <div class="flex items-baseline ">
-                <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
-                <input type="text" id="itemPrice" name="itemPrice" class="w-80 font-semibold" placeholder="입찰할 가격을 입력해주세요.(단위 100원)"></input>
+        <!-- 입찰하기 -->
+<!--        <form id="bidForm" class="flex justify-between" th:if="${username != bidDetails.sellerName}">-->
+        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName">
+            <div class="flex items-start justify-center ">
+                <!--       알림 메시지       -->
+                <div class="flex items-baseline ">
+                    <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
+                    <input type="number" step="100" id="itemPrice" name="itemPrice" class="w-80 font-semibold" v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
+                </div>
+            </div>
+            <!--      사진      -->
+            <div class="inline-block  text-indigo-400 font-bold ml-auto truncate items-center justify-center">
+                <button type="button" id="submit" class="flex hover:bg-zinc-200 items-center mr-1" v-on:click="submitPrice">입찰하기</button>
+            </div>
+        </form>
+        <div v-if="sellerName !== username">
+            <div class="border border-inherit mb-5"></div>
+        </div>
+
+        <div class="text-3xl my-2 font-semibold">입찰 내역</div>
+
+        <!--     상단 아이템       -->
+        <div class="flex m-2">
+            <div class="w-[100px] h-[70px] truncate rounded-lg">
+<!--                <img src="http://localhost:8080/api/v1/image/item/banana.jpg">-->
+                 <img :src="imageUrl">
+            </div>
+            <div class="flex flex-col justify-center ml-2">
+                <div> {{ itemTitle }} </div>
+<!--                <div class="text-sm text-indigo-400" th:text=" '희망금액' + ${bidDetails.getDesiredPrice()} +'원' "> </div>-->
+                <div class="text-sm text-indigo-400">희망금액 {{ desiredPrice }} 원</div>
+            </div>
+
+            <div class="flex flex-col justify-center ml-2 ml-auto">
+                <div v-if="maxPrice !== null">
+                    <div class="text-indigo-400 font-bold">최고가 ₩ {{ maxPrice }} </div>
+                </div>
+                <div v-if="avgPrice !== null">
+                    <div class="text-indigo-400 font-bold">평균가 ₩ {{ avgPrice }} </div>
+                </div>
+                <div v-if="minPrice !== null">
+                    <div class="text-indigo-400 font-bold">최저가 ₩ {{ minPrice }}</div>
+                </div>
             </div>
         </div>
-        <!--      사진      -->
-        <div class="inline-block  text-indigo-400 font-bold ml-auto truncate items-center justify-center">
-            <button type="button" id="submit" class="flex hover:bg-zinc-200 items-center mr-1">입찰하기</button>
-        </div>
-    </form>
 
-    <div class="border border-inherit mb-5" th:if="${username != bidDetails.sellerName}"></div>
-
-    <div class="text-3xl my-2 font-semibold">입찰 내역</div>
-
-    <!--     상단 아이템       -->
-    <div class="flex m-2">
-        <div class="w-[100px] h-[70px] truncate rounded-lg">
-            <img src="http://localhost:8080/api/v1/image/item/banana.jpg">
-            <!-- <img th:src="'http://localhost:8080/api/v1/image/item/' + ${bidDetails.imgName}"> -->
-        </div>
-        <div class="flex flex-col justify-center ml-2">
-            <div th:text="${bidDetails.getItemTitle()}"> </div>
-            <div class="text-sm text-indigo-400" th:text=" '희망금액' + ${bidDetails.getDesiredPrice()} +'원' "> </div>
-        </div>
-
-        <div class="flex flex-col justify-center ml-2 ml-auto">
-            <div class="text-indigo-400 font-bold" th:if="${bidDetails.maxPrice != null}" th:text=" '최고가 ₩' + ${bidDetails.getMaxPrice()}"> </div>
-            <div class="text-indigo-400 font-bold" th:if="${bidDetails.avgPrice != null}" th:text=" '평균가 ₩' + ${bidDetails.getAvgPrice()}"> </div>
-            <div class="text-indigo-400 font-bold" th:if="${bidDetails.minPrice != null}" th:text=" '최저가 ₩' + ${bidDetails.getMinPrice()}"> </div>
-        </div>
-    </div>
-
-    <!--   가로선   -->
-    <div class="border border-inherit mt-4"></div>
-    <div class="flex justify-start h-5/6 w-full">
-        <!--   세로선 시작선    -->
-        <div class="border border-inherit h-full"></div>
-        <!--   채팅방     -->
-        <div class="flex flex-col justify-between w-full overflow-y-scroll">
+        <!--   가로선   -->
+        <div class="border border-inherit mt-4"></div>
+        <div class="flex justify-start h-5/6 w-full">
+            <!--   세로선 시작선    -->
+            <div class="border border-inherit h-full"></div>
+            <!--   채팅방     -->
+            <div class="flex flex-col justify-between w-full overflow-y-scroll">
 
 
-            <div class="flex flex-col">
-                <!--     채팅방 아이템     -->
-                <button class="flex px-3 py-5 hover:bg-zinc-200 items-center"
-                        th:each ="bid: ${bids}">
-                    <!--      이모티콘      -->
-                    <div class="inline-block text-4xl mx-2">🙌</div>
-                    <!--      메시지, 시간      -->
-                    <div class="flex flex-col items-start ml-2">
-                        <!--       알림 메시지       -->
-                        <div class="flex items-baseline">
-                            <div class="font-semibold" th:text="${bid.getBidderName()} + '님이'  + ${bid.getBidPrice()} + '원을 제시하였습니다.'">  </div>
-                        </div>
-                        <!--       알림 시간       -->
-                        <div class="truncate text-sm text-zinc-700" th:text="${bid.createdDate}"></div>
+                <div class="flex flex-col">
+                    <div v-for="(bid, index) in bidHistory" :key="index">
+                        <button class="flex px-3 py-5 hover:bg-zinc-200 items-center">
+                            <!--      이모티콘      -->
+                            <div class="inline-block text-4xl mx-2">🙌</div>
+                            <!--      메시지, 시간      -->
+                            <div class="flex flex-col items-start ml-2">
+                                <!--       알림 메시지       -->
+                                <div class="flex items-baseline">
+<!--                                    <div class="font-semibold" th:text="${bid.getBidderName()} + '님이'  + ${bid.getBidPrice()} + '원을 제시하였습니다.'">  </div>-->
+                                    <div class="font-semibold">
+                                        {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을 제시하였습니다.
+                                    </div>
+                                </div>
+                                <!--       알림 시간       -->
+                                <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
+                            </div>
+                        </button>
                     </div>
-                </button>
+                    <!--     채팅방 아이템     -->
+                </div>
             </div>
+
+            <!--   세로선 채팅방 오른쪽     -->
+            <div class="border border-inherit"></div>
+
+            <!--   세로선 채팅창 오른쪽     -->
+            <div class="border border-inherit"></div>
         </div>
-
-        <!--   세로선 채팅방 오른쪽     -->
-        <div class="border border-inherit"></div>
-
-
-        <!--   세로선 채팅창 오른쪽     -->
         <div class="border border-inherit"></div>
     </div>
-    <div class="border border-inherit"></div>
+    <div class="mb-10"></div>
 </div>
+<script>
+    new Vue({
+        el: '#bid-list-app',
+        data: {
+            username: '',
+            itemId: 0,
+            bidPriceInput: '',
+            bidHistory: [],
+            desiredPrice: 0,
+            maxPrice: 0,
+            minPrice: 0,
+            avgPrice: 0,
+            itemTitle: '',
+            sellerName: '',
+            imageUrl: ''
+        },
+        created() {
+            this.username = localStorage.getItem('username');
+            this.itemId = parseInt($('#itemId').val());
+            this.updateData();
+        },
+        methods: {
+            updateData() {
+                axios.get('/api/v1/bid/list?itemId=' + this.itemId)
+                    .then(response => {
+                        this.bidHistory = [];
+                        this.bidHistory = response.data.bids;
+                        this.desiredPrice = response.data.bidDetails.desiredPrice;
+                        this.maxPrice = response.data.bidDetails.maxPrice;
+                        this.minPrice = response.data.bidDetails.minPrice;
+                        this.avgPrice = response.data.bidDetails.avgPrice;
+                        this.itemTitle = response.data.bidDetails.itemTitle;
+                        this.sellerName = response.data.bidDetails.sellerName;
+                        this.imageUrl = 'http://localhost:8080/api/v1/image/item/' + response.data.bidDetails.imgName;
+                    }).catch();
+            },
+            submitPrice() {
+                if (this.bidPriceInput < 100) {
+                    alert("최소 100원부터 가능합니다.");
+                    return;
+                }
+                axios.get('/api/v1/bid-ids', {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    }
+                }).then(response => {
+                    const itemIds = response.data;
+                    if (!itemIds.includes(this.itemId)) {
+                        this.connect(this.itemId);
+                    }
+                }).catch(error => console.log(error));
+
+                axios.post('/api/v1/bid', {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    },
+                    itemId: this.itemId,
+                    itemPrice: this.bidPriceInput
+                }).then(response => {
+                    this.updateData();
+                    alert("입찰을 완료했습니다.");
+                }).catch(error => {console.log(error)});
+            },
+            connect() {
+                console.log("connect!!!");
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+
+                ws.connect({}, (frame) => {
+                    ws.subscribe("/sub/notification/item/" + this.itemId,
+                        (message) => {
+                            const senderName = message.body;
+                            if (this.username !== senderName) {
+                                $('#notification-icon').attr('src', '/image/notification_noti.png')
+                            }
+                        });
+                }, (error) => {});
+
+                axios.post('/api/v1/connection', {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    },
+                    connectionId: this.itemId,
+                    connectionType: 'ITEM'
+                }).then(response => {}).catch(error => {})
+            },
+        }
+    })
+
+</script>
 </body>
-<script>
-    const numberInput = document.getElementById('myNumberInput');
-    numberInput.addEventListener('focus', () => {
-        numberInput.blur();
-    });
-</script>
-
-<script>
-    $(function(){
-        $('#submit').on("click",function () {
-            var itemId = parseInt($('#itemId').val());
-            var itemPrice = $('#itemPrice').val()
-            var formData = {
-                itemId: itemId,
-                itemPrice: itemPrice
-            };
-            var jsonData = JSON.stringify(formData);
-            var url = "/bid/list?itemId=" + itemId;
-
-            axios.get('/api/v1/bid-ids', {
-                auth: {
-                    username: localStorage.getItem('username'),
-                    password: ''
-                }
-            }).then(response => {
-                const itemIds = response.data;
-                if (!itemIds.includes(itemId)) {
-                    connect(itemId);
-                }
-            }).catch(error => console.log(error));
-
-            $.ajax({
-                type: "post",
-                url: "/bid",
-                data: jsonData,
-                contentType: "application/json",
-                success: function (data) {
-                    alert("입찰을 완료하였습니다!");
-                    window.location.href = url;
-                },
-                error: function (request, status, error) {
-                    console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-
-                }
-            });
-        });
-    });
-
-    connect = (itemId) => {
-        socket = new SockJS("/ws-stomp");
-        ws = Stomp.over(socket);
-        let reconnect = 0;
-
-        ws.connect({}, (frame) => {
-            ws.subscribe("/sub/notification/item/" + itemId,
-                (message) => {
-                    const senderName = message.body;
-                    // if (localStorage.getItem('username') === senderName) {
-                        console.log("icon 표시");
-                    // }
-                });
-        }, (error) => {});
-    }
-</script>
 
 </html>

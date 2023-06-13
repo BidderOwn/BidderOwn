@@ -23,6 +23,8 @@ public class Member extends BaseEntity {
     @Column(unique = true)
     private String name;
 
+    private String password;
+
     @OneToMany(mappedBy = "bidder")
     private List<Bid> bids = new ArrayList<>();
 
@@ -31,7 +33,8 @@ public class Member extends BaseEntity {
     }
 
     @Builder
-    private Member(String name) {
+    private Member(String name, String password) {
+        this.password = password;
         this.name = name;
     }
 
@@ -41,3 +44,4 @@ public class Member extends BaseEntity {
                 .build();
     }
 }
+

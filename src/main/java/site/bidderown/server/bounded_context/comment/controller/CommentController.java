@@ -27,15 +27,15 @@ public class CommentController {
     private final CommentService commentService;
     private final MemberService memberService;
 
-    @PostMapping("/api/v1/item/{id}/comment")
+    @PostMapping("/api/v1/item/{itemId}/comment")
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public CommentResponse createComment(
             @RequestBody CommentRequest request,
-            @PathVariable Long id,
+            @PathVariable Long itemId,
             @AuthenticationPrincipal User user
     ) {
-        return CommentResponse.of(commentService.create(request, id, user.getUsername()));
+        return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
 
     @GetMapping("/api/v1/item/{id}/comments")

@@ -7,7 +7,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import site.bidderown.server.base.event.EventBidEndNotification;
-import site.bidderown.server.base.event.EventItemNotification;
+import site.bidderown.server.base.event.EventItemCommentNotification;
+import site.bidderown.server.base.event.EventItemBidNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -19,6 +20,7 @@ import site.bidderown.server.bounded_context.notification.service.NotificationSe
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -32,12 +34,32 @@ public class NotificationEventHandler {
 
     @EventListener
     @Async
-    public void listen(EventItemNotification eventItemNotification) {
-        notificationService.create(eventItemNotification);
-        String senderName = eventItemNotification.getReceiver().getName();
-        System.out.println(eventItemNotification.getItem().getId());
+    public void listen(EventItemBidNotification eventItemBidNotification) {
+        Item item = eventItemBidNotification.getItem();
+        List<Notification> notifications = new ArrayList<>();
+        item.getBids().stream()
+                .map(bid -> Notification.of(
+                        eventItemBidNotification.getItem(),
+                        bid.getBidder(),
+                        NotificationType.BID
+                )).forEach(notifications::add);
+
+        notifications.add(Notification.of(item, item.getMember(), NotificationType.BID));
+
+        notificationService.createNotifications(notifications);
+
         messagingTemplate.convertAndSend(
-                "/sub/notification/item/" + eventItemNotification.getItem().getId(), senderName);
+                "/sub/notification/item/" + eventItemBidNotification.getItem().getId(), "");
+    }
+
+    @EventListener
+    @Async
+    public void listen(EventItemCommentNotification eventItemCommentNotification) {
+        notificationService.create(eventItemCommentNotification);
+
+        messagingTemplate.convertAndSend(
+                "/sub/item/comment/notification/" + eventItemCommentNotification.getItem().getId(),
+                eventItemCommentNotification.getSender().getName());
     }
 
     @EventListener
@@ -51,7 +73,7 @@ public class NotificationEventHandler {
                     .itemId(item.getId())
                     .receiverId(bid.getBidder().getId()).build()));
         }
-        //log.info(String.valueOf(notifications.size()));
+
         notificationJdbcRepository.insertNotificationList(notifications);
 
         /*

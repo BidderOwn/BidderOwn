@@ -4,7 +4,7 @@
 <body class="flex flex-col items-center justify-start h-screen">
 <div th:replace="header::div"></div>
 <!--  채팅 박스  -->
-<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
+<div class="flex flex-col h-[800px] w-[550px] mt-6" id="app">
 
     <div class="flex" >
         <div class="text-3xl my-2 font-semibold">
@@ -34,7 +34,7 @@
                        th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
                             <!-- 이모티콘 -->
-                            <div class="inline-block text-4xl">🙌</div>
+                            <div class="inline-block text-4xl mr-1">👀</div>
                             <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
                                 <!-- 알림 메시지 -->
@@ -52,7 +52,7 @@
                        th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
                             <!-- 이모티콘 -->
-                            <div class="inline-block text-4xl">🙌</div>
+                            <div class="inline-block text-4xl mr-1">📣</div>
                             <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
                                 <!-- 알림 메시지 -->
@@ -70,7 +70,7 @@
                        th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
                             <!-- 이모티콘 -->
-                            <div class="inline-block text-4xl">🙌</div>
+                            <div class="inline-block text-4xl mr-1">📣</div>
                             <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
                                 <!-- 알림 메시지 -->
@@ -88,7 +88,7 @@
                        th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
                             <!-- 이모티콘 -->
-                            <div class="inline-block text-4xl">🙌</div>
+                            <div class="inline-block text-4xl mr-1">💬</div>
                             <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
                                 <!-- 알림 메시지 -->
@@ -132,7 +132,6 @@
                 type: "put",
                 url: "/notification/readAll",
                 success: function (data) {
-                    alert("success");
                     window.location.href = url;
                 },
                 error: function (request, status, error) {

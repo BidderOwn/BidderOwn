@@ -49,19 +49,19 @@
 <body class="flex flex-col items-center justify-start h-screen">
 <div th:replace="header::div"></div>
 <!--  상품 등록  -->
-<div class="flex flex-col h-[1000px] w-7/12 w-[900px] mt-6" id="app">
+<div class="flex flex-col h-[1000px] w-7/12 w-[700px] mt-6" id="app">
     <form name="createForm" action="create2.html" onsubmit="return validation()" th:action th:object="${itemRequest}" method="post" enctype="multipart/form-data" >
         <div class="text-3xl my-2 font-semibold">상품 등록</div>
         <!--  제목 입력  -->
-        <div class="flex my-10 p-2 border-b border-indigo-200">
-            <input type="text" id="title" name="title" th:field="*{title}" class="form-control" style="width: 400px; height: 40px" maxlength=30 placeholder="제목을 입력해주세요">
+        <div class="flex my-10 p-1 border-b border-indigo-200">
+            <input type="text" id="title" name="title" th:field="*{title}" class="form-control" style="width: 700px; height: 35px" maxlength=30 placeholder="제목을 입력해주세요">
         </div>
         <!--  가격 입력  -->
-        <div class="flex mt-10 mb-7 p-2 border-b border-indigo-200">
-            <input type="number" id="price" name="price" th:field="*{minimumPrice}" class="form-control" style="width: 400px; height: 40px"  step="100" placeholder="최소 희망 가격 (백원 단위)">
+        <div class="flex mt-10 mb-7 p-1 border-b border-indigo-200">
+            <input type="number" id="price" name="price" th:field="*{minimumPrice}" class="form-control" style="width: 700px; height: 35px"  step="100" placeholder="최소 희망 가격 (백원 단위)">
         </div>
         <!--  경매 기간 입력  -->
-        <div class="flex flex-col mb-10 p-2 border-b border-indigo-200">
+        <div class="flex flex-col mb-10 p-1 border-b border-indigo-200">
             <p class="text-gray-400">경매 기간을 선택해 주세요</p>
             <!-- 라벨을 클릭하면 라벨의 하위요소인 버튼(체크,라디오,일반 등)이 클릭되는 효과) -->
             <div class="flex justify-start gap-4 m-2">
@@ -98,18 +98,18 @@
         <div class="flex my-10 p-2 border-b border-indigo-200">
             <div class="filebox">
                 <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled>
-                <label for="file">파일찾기</label>
+                <label style="color: rgb(255 255 255);" for="file">파일찾기</label>
                 <input type="file" name="images" multiple id="file">
             </div>
             <!--                        <input type="file" name="images" multiple size=50 class="form-control">-->
         </div>
         <!--  설명 입력  -->
         <div class="flex mt-10 mb-5 p-2 border-b border-indigo-200">
-            <textarea name="description" th:field="*{description}" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"></textarea>
+            <textarea class="p-3" name="description" th:field="*{description}" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"></textarea>
         </div>
         <!--  등록 버튼  -->
         <div class="justify-end flex mb-10 ">
-            <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300" type="submit">작성완료</button>
+            <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300 text-white" type="submit">작성완료</button>
         </div>
 
     </form>

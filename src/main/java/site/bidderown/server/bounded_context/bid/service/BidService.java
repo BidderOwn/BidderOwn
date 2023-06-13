@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemNotification;
+import site.bidderown.server.base.event.EventItemBidNotification;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
@@ -38,30 +38,31 @@ public class BidService {
         bidRepository.save(bid);
 
         publisher.publishEvent(
-                EventItemNotification.of(item, member, NotificationType.BID)
+                EventItemBidNotification.of(item, member, NotificationType.BID)
         );
     }
 
     @Transactional
-    public void handleBid(BidRequest bidRequest, String username) {
+    public Long handleBid(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
         Member bidder = memberService.getMember(username);
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
+        publisher.publishEvent(
+                EventItemBidNotification.of(item, bidder, NotificationType.BID)
+        );
+
         if (opBid.isEmpty()) {
-            create(bidRequest.getItemPrice(), item, bidder);
-            return;
+            return create(bidRequest.getItemPrice(), item, bidder);
         }
-        opBid.get().updatePrice(bidRequest.getItemPrice());
+        Bid bid = opBid.get();
+        bid.updatePrice(bidRequest.getItemPrice());
+        return bid.getId();
     }
 
-    private void create(int price, Item item, Member bidder) {
+    private Long create(int price, Item item, Member bidder) {
         Bid bid = Bid.of(price, bidder, item);
-        bidRepository.save(bid);
-
-        publisher.publishEvent(
-                EventItemNotification.of(item, bidder, NotificationType.BID)
-        );
+        return bidRepository.save(bid).getId();
     }
 
     public List<BidResponse> getBids(Long itemId) {
