@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
+import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
@@ -65,12 +66,17 @@ public class Item extends BaseEntity {
     }
 
     public static Item of(ItemRequest request, Member member) {
+        LocalDateTime expireAt  =TimeUtils.setExpireAt(request.getPeriod());
+
+
+
+
         return Item.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .minimumPrice(request.getMinimumPrice())
                 .member(member)
-                .expireAt(LocalDateTime.now().plusDays(request.getPeriod()))
+                .expireAt(expireAt)
                 .build();
     }
 

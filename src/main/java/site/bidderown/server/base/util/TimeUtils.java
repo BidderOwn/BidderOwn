@@ -1,7 +1,5 @@
 package site.bidderown.server.base.util;
 
-import org.springframework.cglib.core.Local;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -44,5 +42,10 @@ public class TimeUtils {
         }
         else
             return duration.toDays() + "일 전";
+    }
+
+    public static LocalDateTime setExpireAt(Integer period) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return LocalDateTime.of(currentTime.getYear(), currentTime.getMonth(), currentTime.getDayOfMonth() +  period, currentTime.getHour() + 1, 0);
     }
 }
