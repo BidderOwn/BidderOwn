@@ -55,7 +55,7 @@ public class NotificationService {
 
     public boolean checkNotRead(String memberName) {
         Member member = memberService.getMember(memberName);
-        return notificationRepository.countByReceiverAndReadDateIsNull(member) > 0;
+        return notificationRepository.existsByReceiverAndReadDateIsNull(member);
     }
 
     public void createNotifications(List<Notification> notifications) {

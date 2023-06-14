@@ -5,22 +5,19 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomRequest {
-    private Long sellerId;
-    private Long buyerId;
+    private String buyerName;
     private Long itemId;
 
     @Builder
-    public ChatRoomRequest(Long sellerId, Long buyerId, Long itemId) {
-        this.sellerId = sellerId;
-        this.buyerId = buyerId;
+    public ChatRoomRequest(String buyerName, Long itemId) {
+        this.buyerName = buyerName;
         this.itemId = itemId;
     }
 
-    public static ChatRoomRequest of(Long sellerId, Long buyerId, Long itemId) {
+    public static ChatRoomRequest of(String buyerName, Long itemId) {
         return ChatRoomRequest
                 .builder()
-                .sellerId(sellerId)
-                .buyerId(buyerId)
+                .buyerName(buyerName)
                 .itemId(itemId)
                 .build();
     }

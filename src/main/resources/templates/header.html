@@ -1,12 +1,12 @@
 <div>
     <div th:replace="import::head"></div>
     <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
-        <div class="flex w-[1200px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
+        <div class="flex w-[1100px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
             <a href="/home">
                 <img src="/image/bidder_own_logo.png" width="50" height="50">
             </a>
 
-            <div class="flex min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
+            <div class="flex ml-[80px] min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
                 <div class="pl-3 pr-5 text-indigo-500">검색</div>
                 <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
                 <button id="search-button" onclick="search()">
@@ -15,10 +15,10 @@
             </div>
 
             <div class="flex">
-                <a href="/chat/list" class="mr-2">
+                <a href="/chat/list" onclick="readChat()" class="mr-2">
                     <img id="chat-icon" src="/image/chat.png" class="w-[40px] h-[40px]"/>
                 </a>
-                <a href="/notifications" class="mr-2">
+                <a href="/notifications" onclick="readNotification()" class="mr-2">
                     <img id="notification-icon" src="/image/notification.png" class="w-[40px] h-[40px]"/>
                 </a>
                 <a href="/my-page">
@@ -37,27 +37,28 @@
             })
         });
 
+        if (localStorage.getItem('chatStatus') === '1') {
+            $('#chat-icon').attr('src', '/image/chat_noti.png');
+        }
+
+        if (localStorage.getItem('notificationStatus') === '1') {
+            $('#notification-icon').attr('src', '/image/notification_noti.png');
+        }
+
         search = () => {
             const searchText = document.getElementById('search-input').value;
             if (searchText === '') return;
             window.location.href = 'http://localhost:8080/home?q=' + searchText;
         }
 
-        checkNotRead = () => {
-            const username = localStorage.getItem('username');
-            if (username === null) return;
-            axios.get('/api/v1/notification-check', {
-                auth: {
-                    username: username,
-                    password: ''
-                }
-            }).then(response => {
-                if (response.data) {
-                    $('#notification-icon').attr('src', '/image/notification_noti.png');
-                }
-            }).catch(error => {
-                console.log(error)
-            });
+        readNotification = () => {
+            localStorage.setItem('notificationStatus', 0);
+            $('#notification-icon').attr('src', '/image/notification.png');
+        }
+
+        readChat = () => {
+            localStorage.setItem('chatStatus', 0);
+            $('#chat-icon').attr('src', '/image/chat.png');
         }
 
         socketConnect = () => {
@@ -79,26 +80,42 @@
 
                         const socket = new SockJS("/ws-stomp");
                         const ws = Stomp.over(socket);
-                        ws.connect({}, (frame) => {
-                            ws.subscribe(connectionUrl + connectionId,
-                                (message) => {
-                                    console.log(message.body);
-                                    console.log(username);
-                                    if (message.body !== username) {
-                                        $('#notification-icon').attr('src', '/image/notification_noti.png');
+
+                        if (connectionUrl.includes('/sub/chat/user/')) {
+                            ws.connect({}, (frame) => {
+                                ws.subscribe(connectionUrl + connectionId,
+                                    (message) => {
+                                        if (message.body.toUsername !== username && !window.location.href.includes("/chat/list")) {
+                                            localStorage.setItem('chatStatus', '1');
+                                            $('#chat-icon').attr('src', '/image/chat_noti.png');
+                                        }
                                     }
-                                }
-                            );
-                        }, (error) => {
-                            console.log(error);
-                        })
+                                );
+                            }, (error) => {
+                                console.log(error);
+                            })
+
+                        } else {
+                            ws.connect({}, (frame) => {
+                                ws.subscribe(connectionUrl + connectionId,
+                                    (message) => {
+                                        if (message.body !== username) {
+                                            localStorage.setItem('notificationStatus', '1');
+                                            $('#notification-icon').attr('src', '/image/notification_noti.png');
+                                        }
+                                    }
+                                );
+                            }, (error) => {
+                                console.log(error);
+                            })
+                        }
                     });
                 })
                 .catch(error => {
                     console.log(error);
                 });
         }
-        checkNotRead();
+        // checkNotRead();
         socketConnect();
 
     </script>

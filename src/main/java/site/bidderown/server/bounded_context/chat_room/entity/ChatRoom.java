@@ -31,7 +31,6 @@ public class ChatRoom extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn
-    // nullable 추가해야됨
     private Item item;
 
     @Builder
@@ -47,5 +46,17 @@ public class ChatRoom extends BaseEntity {
                 .buyer(buyer)
                 .item(item)
                 .build();
+    }
+
+    public static Member resolveToMember(ChatRoom chatRoom, String fromUsername) {
+        return chatRoom.seller.getName().equals(fromUsername) ?
+                chatRoom.buyer :
+                chatRoom.seller;
+    }
+
+    public static Member resolveToMember(ChatRoom chatRoom, Long fromId) {
+        return chatRoom.seller.getId().equals(fromId) ?
+                chatRoom.buyer :
+                chatRoom.seller;
     }
 }

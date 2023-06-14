@@ -37,12 +37,12 @@ public class MemberController {
         List<ItemResponse> items = itemService.getItems(member.getId());
         List<ItemResponse> bidItems = itemService.getBidItems(member.getId());
 
-
         model.addAttribute("items", items);
         model.addAttribute("bidItems",bidItems);
 
         return "/usr/my_page";
     }
+
     @GetMapping("/form-login")
     public String loginPage(Model model) {
         return "usr/form_login";

@@ -2,31 +2,32 @@
 <body class="flex flex-col items-center justify-start h-screen">
 <div th:replace="header::div"></div>
 <!--  채팅 박스  -->
-<div class="flex flex-col h-[700px] w-7/12 w-[900px]" id="chat">
-    <div class="text-3xl font-semibold">채팅</div>
+<div class="flex flex-col  h-[750px] w-7/12 w-[700px]" id="chat">
+    <div class="text-3xl mt-5 font-semibold">채팅</div>
     <!--   가로선   -->
     <div class="border border-inherit mt-4"></div>
     <div class="flex justify-start h-5/6 w-full">
         <!--   세로선 시작선    -->
         <div class="border border-inherit h-full"></div>
         <!--   채팅방     -->
-        <div class="flex flex-col w-2/6 justify-between">
-            <div class="flex flex-col overflow-y-scroll">
+        <div class="flex flex-col w-[200px] justify-between">
+            <div class="flex flex-col overflow-y-auto">
                 <!--     채팅방 아이템     -->
-                <button class="flex p-3 hover:bg-zinc-200" :class="{'bg-zinc-200': chatRoom.checked}"
-                        v-for="chatRoom in chatRooms" :key="chatRoom.roomId"
-                        v-on:click="connectRoom(chatRoom.roomId)">
+                <button class="flex p-3 hover:bg-zinc-200 justify-start items-center"
+                        :class="{'bg-zinc-200': chatRoom.checked}"
+                        v-for="chatRoom in chatRooms" :key="chatRoom.chatRoomId"
+                        v-on:click="connectChatRoom(chatRoom.chatRoomId)">
                     <!--      아바타      -->
-                    <div class="inline-block w-11 h-11 min-w-[44px] rounded-full bg-zinc-300"></div>
+                    <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
                     <!--      사용자 이름, 시간, 마지막 채팅      -->
-                    <div class="flex flex-col items-start ml-2">
+                    <div class="flex flex-col items-start justify-start ml-2 truncate">
                         <!--       사용자 이름, 시간       -->
-                        <div class="flex items-baseline">
-                            <div class="font-semibold">{{ chatRoom.toName }}</div>
-                            <div class="ml-2 text-xs text-zinc-500">2분전</div>
+                        <div class="flex items-baseline ">
+                            <div class="font-semibold text-lg truncate">{{ chatRoom.toUserName }}</div>
+                            <!--                            <div class="ml-2 text-xs text-zinc-500">{{ chatRoom.itemTitle }}</div>-->
                         </div>
                         <!--       마지막 채팅       -->
-                        <div class="truncate text-sm text-zinc-700 w-8/12"> {{ chatRoom.message }}</div>
+                        <div class="flex justify-start truncate text-sm text-zinc-700 w-8/12"> {{ chatRoom.itemTitle }}</div>
                     </div>
                 </button>
             </div>
@@ -34,17 +35,28 @@
 
         <!--   세로선 채팅방 오른쪽     -->
         <div class="border border-inherit"></div>
-        <div class="flex flex-col w-full">
 
+        <div v-if="chatRooms.length === 0">
+            <div class="flex items-center justify-center w-[500px] text-xl mt-[100px]"> 아직 채팅방이 없네요!😴</div>
+        </div>
+
+        <div v-else-if="chatRoomId === -1">
+            <div class="flex items-center justify-center w-[500px] text-xl mt-[100px]"> 채팅방을 선택해주세요.</div>
+        </div>
+
+        <div v-else class="flex flex-col w-[500px]">
             <!--     상단 아이템       -->
-            <div class="flex m-2">
-                <div class="w-[100px] h-[70px] truncate rounded-lg">
-                    <img :src="item.imageUrl">
+            <div class="flex flex-col">
+                <div class="flex m-2">
+                    <div class="w-[90px] h-[60px] truncate rounded-lg">
+                        <img :src="itemImageUrl" class="object-cover h-full w-full">
+                    </div>
+                    <div class="flex flex-col justify-center ml-2">
+                        <div> {{ itemTitle }}</div>
+                        <div class="text-sm text-indigo-400">{{ itemPrice }}</div>
+                    </div>
                 </div>
-                <div class="flex flex-col justify-center ml-2">
-                    <div> {{ item.title }} </div>
-                    <div class="text-sm text-indigo-400">{{ item.price }}</div>
-                </div>
+                <div class="border border-inherit"></div>
             </div>
 
             <!--    채팅 내용    -->
@@ -56,22 +68,24 @@
                             <input type="text" placeholder="메시지를 입력해주세요" class="w-full" v-model="message"
                                    @keyup.enter="sendMessage"/>
                         </label>
-                        <button class="min-w-[8%]" @click="sendMessage">전송</button>
+                        <button class="min-w-[8%]" @click="sendMessage">
+                            <img src="/image/submit.png" class="w-[25px] h-[25px]">
+                        </button>
                     </div>
                 </div>
                 <!--    채팅 내역        -->
-                <div class="my-1" v-for="(recv, i) in messages" v-bind:key="i">
-                    <div v-if="recv.isMe">
+                <div class="my-1" v-for="(message, i) in messages" v-bind:key="i">
+                    <div v-if="message.sender === username">
                         <div class="flex justify-end px-5">
                             <div class="border border-blue-100 py-1 px-3 bg-blue-100 rounded-md">
-                                {{ recv.message }}
+                                {{ message.message }}
                             </div>
                         </div>
                     </div>
                     <div v-else>
                         <div class="flex justify-start px-5">
                             <div class="border border-zinc-100 py-1 px-3 bg-zinc-100 rounded-md">
-                                {{ recv.message }}
+                                {{ message.message }}
                             </div>
                         </div>
                     </div>
@@ -83,6 +97,7 @@
         <div class="border border-inherit"></div>
     </div>
     <div class="border border-inherit"></div>
+    <input type="hidden" id="chatRoomId" th:value="${ chatRoomId }">
 </div>
 </body>
 
@@ -95,95 +110,119 @@
             chatRooms: [],
             messages: [],
             belongedRooms: [],
-            roomId: "",
+            chatRoomId: -1,
             message: "",
             username: "",
-            item: {
-                title: '제목입니다.',
-                price: '10000원',
-                imageUrl: 'https://me2.kr/GrxWn'
-            }
+            toUserId: -1,
+            itemPrice: -1,
+            itemTitle: '',
+            itemImageUrl: ''
         },
         created() {
+            const chatRoomId = document.getElementById('chatRoomId').value;
             this.username = localStorage.getItem('username');
-            axios.get('/api/v1/chat/list', {
+
+            axios.get('/api/v1/chat-room/list', {
                 auth: {
                     username: this.username,
                     password: ''
                 }
             })
-            .then(response => {
-                const res = response.data;
-                res.forEach(item => {
-                    this.chatRooms.push({
-                        roomId: item.chatRoomId,
-                        toName: item.toName,
-                        toProfileImageName: item.toProfileImageName
-                    })
-                })
-            });
+                .then(response => {
+                    const chatRooms = response.data;
+                    chatRooms.forEach(chatRoom => {
+                        this.chatRooms.push({
+                            chatRoomId: chatRoom.chatRoomId,
+                            toUserId: chatRoom.toUserId,
+                            toUserName: chatRoom.toUserName,
+                            itemTitle: chatRoom.itemTitle
+                        })
+                    });
+
+                    if (chatRoomId !== '') {
+                        this.connectChatRoom(parseInt(chatRoomId))
+                    }
+                });
         },
+
         methods: {
-            addMessage(recv) {
-                recv.isMe = recv.username === this.username;
-                this.messages.unshift(recv);
-            },
-            connectRoom(roomId) {
-                if (roomId !== this.roomId) {
-                    this.messages = [];
-                    this.updateCheck(roomId);
-                    this.roomId = roomId;
-                    this.connect();
-                }
-            },
-            recvMessage(recv) {
-                this.addMessage(recv);
+            connectChatRoom(chatRoomId) {
+                this.updateCheck(chatRoomId);
+                this.chatRoomId = chatRoomId;
+                this.updateChatRoomDetail(chatRoomId);
+                this.getChatHistory(chatRoomId);
+                this.connectSocket(chatRoomId);
             },
             sendMessage() {
                 if (this.message === "") return;
                 ws.send("/pub/chat/message", {},
                     JSON.stringify({
-                        messageType: 'TALK',
-                        roomId: this.roomId,
+                        chatRoomId: this.chatRoomId,
                         username: this.username,
                         message: this.message
                     }));
                 this.message = '';
+                ws.send("/pub/chat/notification", {},
+                    JSON.stringify({
+                        toUserId: this.toUserId,
+                        toUsername: this.username
+                    }));
             },
-            updateCheck(roomId) {
+            updateCheck(chatRoomId) {
                 this.chatRooms.forEach(room => {
-                    if (room.roomId === this.roomId) {
+                    if (room.chatRoomId === this.chatRoomId) {
                         room.checked = false;
-                    } else if (room.roomId === roomId) {
+                    } else if (room.chatRoomId === chatRoomId) {
                         room.checked = true;
                     }
                 })
             },
-            connect() {
-                if (this.belongedRooms.includes(this.roomId)) return;
+            connectSocket(chatRoomId) {
+                if (this.belongedRooms.includes(chatRoomId)) return;
 
-                this.belongedRooms.push(this.roomId);
+                this.belongedRooms.push(chatRoomId);
 
                 socket = new SockJS("/ws-stomp");
                 ws = Stomp.over(socket);
-                let reconnect = 0;
 
                 ws.connect({}, (frame) => {
-                    ws.subscribe("/sub/chat/room/" + this.roomId,
+                    ws.subscribe("/sub/chat-room/" + chatRoomId,
                         (message) => {
                             let recv = JSON.parse(message.body);
-                            this.recvMessage(recv);
+                            this.messages.unshift(recv);
                         });
                 }, (error) => {
-                    if (reconnect++ <= 5) {
-                        setTimeout(function () {
-                            socket = new SockJS("/ws-stomp");
-                            ws = Stomp.over(socket);
-                            this.connect();
-                        }, 10 * 100);
-                    }
+                    console.log(error);
                 });
             },
+            updateChatRoomDetail(chatRoomId) {
+                axios.get('/api/v1/chat-detail/' + chatRoomId, {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    }
+                }).then(response => {
+                    const data = response.data;
+                    this.toUserId = data.toUserId;
+                    this.itemPrice = data.price;
+                    this.itemImageUrl = 'http://localhost:8080/api/v1/image/item/' + data.itemImageName;
+                    this.itemTitle = data.itemTitle;
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            getChatHistory(chatRoomId) {
+                axios.get('/api/v1/chat/list/' + chatRoomId, {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    }
+                }).then(response => {
+                    this.messages = response.data;
+                }).catch(error => {
+                    console.log(error);
+                })
+            }
         }
     });
 </script>

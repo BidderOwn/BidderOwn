@@ -24,12 +24,4 @@ public class SocketConnectionController {
     public List<SocketConnectionResponse> connectionResponses(@AuthenticationPrincipal User user) {
         return socketConnectionService.getConnections(user.getUsername());
     }
-
-    @PostMapping
-    public Long connectionCreate(
-            @RequestBody SocketConnectionRequest request,
-            @AuthenticationPrincipal User user
-    ) {
-        return socketConnectionService.create(user.getUsername(), request);
-    }
 }

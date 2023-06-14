@@ -5,32 +5,35 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
+import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
+import site.bidderown.server.bounded_context.chat_room.repository.dto.ChatRoomInfo;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.member.entity.Member;
 
 import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomDetail {
+    private Long toUserId;
     private String itemTitle;
     private String itemImageName;
     private int price;
-    private List<ChatResponse> chatList; // 시간이랑 내용은 여기에서 끌어 쓰는게 좋겠죠??
 
     @Builder
-    private ChatRoomDetail(String itemTitle, String itemImageName, int price, List<ChatResponse> chatList){
+    private ChatRoomDetail(Long toUserId, String itemTitle, String itemImageName, int price){
+        this.toUserId = toUserId;
         this.itemTitle = itemTitle;
         this.itemImageName = itemImageName;
         this.price = price;
-        this.chatList = chatList;
     }
 
-    public static ChatRoomDetail of(Item item, List<ChatResponse> chatList){
+    public static ChatRoomDetail of(ChatRoomInfo chatRoomInfo, String fromUsername) {
         return ChatRoomDetail.builder()
-                .itemTitle(item.getTitle())
-                .itemImageName("")
-                .price(item.getMinimumPrice())
-                .chatList(chatList)
+                .toUserId(ChatRoom.resolveToMember(chatRoomInfo.getChatRoom(), fromUsername).getId())
+                .itemTitle(chatRoomInfo.getItem().getTitle())
+                .itemImageName(chatRoomInfo.getItem().getImages().get(0).getFileName())
+                .price(chatRoomInfo.getItem().getMinimumPrice())
                 .build();
     }
 }
