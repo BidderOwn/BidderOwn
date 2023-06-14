@@ -21,6 +21,7 @@ public class ItemListResponse {
     int commentsCount;
     int bidCount;
     String thumbnailImageName;
+    String itemStatus;
 
     @Builder
     private ItemListResponse(
@@ -33,7 +34,8 @@ public class ItemListResponse {
             Integer minPrice,
             int commentsCount,
             int bidCount,
-            String thumbnailImageName
+            String thumbnailImageName,
+            String itemStatus
     ) {
         this.id = id;
         this.title = title;
@@ -45,6 +47,7 @@ public class ItemListResponse {
         this.commentsCount = commentsCount;
         this.bidCount = bidCount;
         this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
     }
 
     public static ItemListResponse of(Item item, Integer minPrice, Integer maxPrice) {
@@ -59,6 +62,7 @@ public class ItemListResponse {
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
                 .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus().getStatus())
                 .build();
     }
 }
