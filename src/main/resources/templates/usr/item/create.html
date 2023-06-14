@@ -58,7 +58,7 @@
         </div>
         <!--  가격 입력  -->
         <div class="flex mt-10 mb-7 p-1 border-b border-indigo-200">
-            <input type="number" id="price" name="price" th:field="*{minimumPrice}" class="form-control" style="width: 700px; height: 35px"  step="100" placeholder="최소 희망 가격 (백원 단위)">
+            <input type="number" id="price" name="price" th:field="*{minimumPrice}" class="form-control" step="100" style="width: 700px; height: 35px" placeholder="최소 희망 가격 (백원 단위)">
         </div>
         <!--  경매 기간 입력  -->
         <div class="flex flex-col mb-10 p-1 border-b border-indigo-200">
@@ -99,7 +99,7 @@
             <div class="filebox">
                 <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled>
                 <label style="color: rgb(255 255 255);" for="file">파일찾기</label>
-                <input type="file" name="images" multiple id="file">
+                <input type="file" name="images" accept=".gif, .jpg, .png" multiple id="file">
             </div>
             <!--                        <input type="file" name="images" multiple size=50 class="form-control">-->
         </div>
@@ -127,7 +127,7 @@
         var price = document.forms["createForm"]["price"].value;
         var period = document.forms["createForm"]["period"].value;
         var description = document.forms["createForm"]["description"].value;
-
+        var fileCheck = document.getElementById("file").value;
         if(title.trim() === "" || price.trim() === "" || period.trim() === "" || description.trim() === ""){
             // alert("모든 내용을 입력해주세요.");
             Swal.fire({
@@ -138,6 +138,14 @@
             window.location.href = "redirect:/item";
             return false;
         }
+        //이미지 파일 null 체크
+        if(!fileCheck){
+            Swal.fire({
+                title: '이미지 파일을 업로드해주세요',
+                icon: 'warning'
+            });
+            return false;
+        }
 
         Swal.fire({
             title: '등록이 완료되었습니다',
@@ -145,6 +153,7 @@
             icon: 'success'
         });
     }
+
 </script>
 </body>
 </html>

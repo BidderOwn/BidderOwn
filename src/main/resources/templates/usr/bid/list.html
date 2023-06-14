@@ -16,7 +16,7 @@
                 <!--       알림 메시지       -->
                 <div class="flex items-baseline ">
                     <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
-                    <input type="number" step="100" id="itemPrice" name="itemPrice" class="w-80 font-semibold" v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
+                    <input type="number" id="itemPrice" name="itemPrice" class="w-80 font-semibold" step="100" v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
                 </div>
             </div>
             <!--      사진      -->
@@ -136,6 +136,10 @@
             submitPrice() {
                 if (this.bidPriceInput < 100) {
                     alert("최소 100원부터 가능합니다.");
+                    return;
+                }
+                if (this.bidPriceInput % 100 != 0) {
+                    alert("백원 단위로 입력해주세요.");
                     return;
                 }
                 axios.get('/api/v1/bid-ids', {
