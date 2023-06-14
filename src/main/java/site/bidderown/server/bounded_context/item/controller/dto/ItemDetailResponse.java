@@ -8,6 +8,7 @@ import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ItemDetailResponse {
     private Integer minPrice;
     private List<Image> images;
     private List<Bid> bids;
+    private String itemStatus;
 
     @Builder
     private ItemDetailResponse (
@@ -41,7 +43,8 @@ public class ItemDetailResponse {
             Integer minPrice,
             Integer maxPrice,
             List<Image> images,
-            List<Bid> bids
+            List<Bid> bids,
+            String itemStatus
     ) {
         this.id = id;
         this.title = title;
@@ -55,6 +58,7 @@ public class ItemDetailResponse {
         this.maxPrice = maxPrice;
         this.images = images;
         this.bids = bids;
+        this.itemStatus = itemStatus;
     }
 
     public static ItemDetailResponse of (Item item, Integer minPrice, Integer maxPrice) {
@@ -71,6 +75,7 @@ public class ItemDetailResponse {
                 .maxPrice(maxPrice)
                 .images(item.getImages())
                 .bids(item.getBids())
+                .itemStatus(item.getItemStatus().getStatus())
                 .build();
     }
 }

@@ -29,9 +29,10 @@
                         <img class="object-cover h-full w-full" :src="item.thumbnailImageUrl" width="350" height="212">
                     </div>
                     <!--   제목   -->
-                    <div class="flex justify-between items-center mt-1">
+                    <div class="flex justify-start items-center mt-1">
                         <div class="text-xl">{{ item.title }}</div>
-                        <div class="flex">
+                        <div v-if="item.itemStatus == '경매종료' || item.itemStatus == '판매종료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                        <div class="flex ml-auto">
                         <span class="flex mr-2">
                             <img src="/image/person.png" class="w-[20px] h-[20px]">
                             <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
@@ -115,6 +116,7 @@
                                 maxPrice: item.maxPrice,
                                 expireAt: this.getTimeAgo(new Date(item.expireAt)),
                                 memberName: item.memberName,
+                                itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
                                 thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName,
                             },
