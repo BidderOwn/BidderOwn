@@ -97,7 +97,7 @@
             belongedRooms: [],
             roomId: "",
             message: "",
-            sender: "",
+            username: "",
             item: {
                 title: '제목입니다.',
                 price: '10000원',
@@ -105,10 +105,10 @@
             }
         },
         created() {
-            this.sender = localStorage.getItem('username');
+            this.username = localStorage.getItem('username');
             axios.get('/api/v1/chat/list', {
                 auth: {
-                    username: this.sender,
+                    username: this.username,
                     password: ''
                 }
             })
@@ -125,7 +125,7 @@
         },
         methods: {
             addMessage(recv) {
-                recv.isMe = recv.sender === this.sender;
+                recv.isMe = recv.username === this.username;
                 this.messages.unshift(recv);
             },
             connectRoom(roomId) {
@@ -145,7 +145,7 @@
                     JSON.stringify({
                         messageType: 'TALK',
                         roomId: this.roomId,
-                        sender: this.sender,
+                        username: this.username,
                         message: this.message
                     }));
                 this.message = '';

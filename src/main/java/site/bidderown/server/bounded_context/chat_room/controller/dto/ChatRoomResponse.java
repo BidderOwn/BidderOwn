@@ -8,20 +8,19 @@ import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 public class ChatRoomResponse {
     private Long chatRoomId;
     private String toName;
-    private String toProfileImageName;
+    private String itemTitle;
 
     @Builder
-    public ChatRoomResponse(Long chatRoomId, String toName, String toProfileImageName){
+    public ChatRoomResponse(Long chatRoomId, String toName, String itemTitle){
         this.chatRoomId = chatRoomId;
         this.toName = toName;
-        this.toProfileImageName = toProfileImageName;
     }
 
-    public static ChatRoomResponse of(ChatRoom chatRoom, String fromName) {
-        //TODO 프로필 이미지 추가
+    public static ChatRoomResponse of(ChatRoom chatRoom, String fromName, String itemTitle) {
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
                 .toName(getToName(chatRoom, fromName))
+                .itemTitle(itemTitle)
                 .build();
     }
     
