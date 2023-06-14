@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.bid.controller.dto;
 
 import lombok.*;
+import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
@@ -29,20 +30,8 @@ public class BidResponse {
     }
 
     public static BidResponse of(Bid bid, Item item){
-        Duration duration = Duration.between(bid.getCreatedAt(), LocalDateTime.now());
-        String createdAt;
 
-        if(duration.toMinutes() < 1)
-        {
-            createdAt = "방금 전";
-        } else if (duration.toMinutes() < 60) {
-            createdAt = duration.toMinutes() + "분 전";
-        } else if (duration.toMinutes() < 1440) {
-            createdAt = duration.toHours() + "시간 전";
-        }
-        else
-            createdAt = duration.toDays() + "일 전";
-
+        String createdAt = TimeUtils.getRegistrationTime(item.getCreatedAt(), LocalDateTime.now());
 
         return BidResponse.builder()
                 .bidderName(bid.getBidder().getName())
