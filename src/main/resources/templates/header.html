@@ -1,150 +1,105 @@
 <div>
-  <div th:replace="import::head"></div>
-  <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
-    <div class="flex w-[1200px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
-      <a href="/home">
-        <img src="/image/bidder_own_logo.png" width="50" height="50">
-      </a>
+    <div th:replace="import::head"></div>
+    <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
+        <div class="flex w-[1200px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
+            <a href="/home">
+                <img src="/image/bidder_own_logo.png" width="50" height="50">
+            </a>
 
-      <div class="flex min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
-        <div class="pl-3 pr-5 text-indigo-500">검색</div>
-        <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
-        <button id="search-button" onclick="search()">
-          <img src="/image/submit.png" class="w-[25px] h-[25px]">
-        </button>
-      </div>
+            <div class="flex min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
+                <div class="pl-3 pr-5 text-indigo-500">검색</div>
+                <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
+                <button id="search-button" onclick="search()">
+                    <img src="/image/submit.png" class="w-[25px] h-[25px]">
+                </button>
+            </div>
 
-      <div class="flex">
-        <a href="/chat/list" class="mr-2">
-          <img id="chat-icon" src="/image/chat.png" class="w-[25px] h-[25px]"/>
-        </a>
-        <a href="/notifications" class="mr-2">
-          <img id="notification-icon" src="/image/notification.png" class="w-[25px] h-[25px]"/>
-        </a>
-        <a href="/my-page">
-          <img src="/image/person2.png" class="w-[25px] h-[25px]"/>
-        </a>
-      </div>
+            <div class="flex">
+                <a href="/chat/list" class="mr-2">
+                    <img id="chat-icon" src="/image/chat.png" class="w-[25px] h-[25px]"/>
+                </a>
+                <a href="/notifications" class="mr-2">
+                    <img id="notification-icon" src="/image/notification.png" class="w-[25px] h-[25px]"/>
+                </a>
+                <a href="/my-page">
+                    <img src="/image/person2.png" class="w-[25px] h-[25px]"/>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    let socketChat;
-    let wsChat;
-
-    let socketComment;
-    let wsComment
-
-    let socketBid;
-    let wsBid;
-
-    $(document).ready(function (){
-      $('#search-input').on('keypress', function (event){
-        if (event.keyCode === 13 || event.which === 13) {
-          $('#search-button').click();
-        }
-      })
-    });
-
-    search = () => {
-      const searchText = document.getElementById('search-input').value;
-      if (searchText === '') return;
-      window.location.href = 'http://localhost:8080/home?q=' + searchText;
-    }
-
-    checkNotRead = () => {
-      const username = localStorage.getItem('username');
-      if (username === null) return;
-      axios.get('/api/v1/notification-check', {
-        auth: {
-          username: username,
-          password: ''
-        }
-      }).then(response => {
-        if (response.data) {
-          $('#notification-icon').attr('src', '/image/notification_noti.png');
-        }
-      }).catch(error => {console.log(error)});
-    }
-
-    socketConnect = () => {
-      const username = localStorage.getItem('username');
-
-      if (username === null) return;
-
-      axios.get('/api/v1/connection/me', {
-        auth: {
-          username: username,
-          password: ''
-        }
-      })
-      .then(response => {
-        const connections = response.data;
-        connections.forEach(connection => {
-          const connectionUrl = connection.connectionUrl;
-          const connectionId = connection.connectionId;
-
-          const socket = new SockJS("ws-stomp");
-          const ws = Stomp.over(socket);
-          ws.connect({}, (frame) => {
-            ws.subscribe(connectionUrl + connectionId,
-                    (message) => $('#notification-icon').attr('src', '/image/notification_noti.png')
-            );
-          }, (error) => {
-            console.log(error);
-          })
-          // if (connection.connectionType === 'CHAT') {
-          //   socketChat = new SockJS("/ws-stomp");
-          //   wsChat = Stomp.over(socketChat);
-          //   wsChat.connect({}, (frame) => {
-          //     wsChat.subscribe("/sub/chat/room/" + connection.connectionId,
-          //       (message) => {
-          //         // let recv = JSON.parse(message.body);
-          //         // this.recvMessage(recv);
-          //         $('#notification-icon').attr('src', '/image/notification_noti.png')
-          //       });
-          //   }, (error) => {
-          //     console.log(error);
-          //   });
-          // }
-          // if (connection.connectionType === 'COMMENT') {
-          //   socketComment = new SockJS("/ws-stomp");
-          //   wsComment = Stomp.over(socketComment);
-          //   wsComment.connect({}, (frame) => {
-          //     wsComment.subscribe("/sub/item/comment/notification/" +  connection.connectionId,
-          //             (message) => {
-          //               // let recv = JSON.parse(message.body);
-          //               // this.recvMessage(recv);
-          //               $('#notification-icon').attr('src', '/image/notification_noti.png')
-          //             });
-          //   }, (error) => {
-          //     console.log(error);
-          //   });
-          // }
-          //
-          // if (connection.connectionType === 'BID') {
-          //   socketBid = new SockJS("/ws-stomp");
-          //   wsBid = Stomp.over(socketBid);
-          //   wsBid.connect({}, (frame) => {
-          //     wsBid.subscribe("/sub/notification/item/" + connection.connectionId,
-          //             (message) => {
-          //               // const senderName = message.body;
-          //               // if (this.username !== senderName) {
-          //               $('#notification-icon').attr('src', '/image/notification_noti.png')
-          //               // }
-          //             });
-          //   }, (error) => {
-          //     console.log(error);
-          //   });
-          // }
+    <script>
+        $(document).ready(function () {
+            $('#search-input').on('keypress', function (event) {
+                if (event.keyCode === 13 || event.which === 13) {
+                    $('#search-button').click();
+                }
+            })
         });
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    }
-    checkNotRead();
-    socketConnect();
 
-  </script>
+        search = () => {
+            const searchText = document.getElementById('search-input').value;
+            if (searchText === '') return;
+            window.location.href = 'http://localhost:8080/home?q=' + searchText;
+        }
+
+        checkNotRead = () => {
+            const username = localStorage.getItem('username');
+            if (username === null) return;
+            axios.get('/api/v1/notification-check', {
+                auth: {
+                    username: username,
+                    password: ''
+                }
+            }).then(response => {
+                if (response.data) {
+                    $('#notification-icon').attr('src', '/image/notification_noti.png');
+                }
+            }).catch(error => {
+                console.log(error)
+            });
+        }
+
+        socketConnect = () => {
+            const username = localStorage.getItem('username');
+
+            if (username === null) return;
+
+            axios.get('/api/v1/connection/me', {
+                auth: {
+                    username: username,
+                    password: ''
+                }
+            })
+                .then(response => {
+                    const connections = response.data;
+                    connections.forEach(connection => {
+                        const connectionUrl = connection.connectionUrl;
+                        const connectionId = connection.connectionId;
+
+                        const socket = new SockJS("/ws-stomp");
+                        const ws = Stomp.over(socket);
+                        ws.connect({}, (frame) => {
+                            ws.subscribe(connectionUrl + connectionId,
+                                (message) => {
+                                    console.log(message.body);
+                                    console.log(username);
+                                    if (message.body !== username) {
+                                        $('#notification-icon').attr('src', '/image/notification_noti.png');
+                                    }
+                                }
+                            );
+                        }, (error) => {
+                            console.log(error);
+                        })
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+        checkNotRead();
+        socketConnect();
+
+    </script>
 </div>

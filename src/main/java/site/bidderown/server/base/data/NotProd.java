@@ -4,7 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import site.bidderown.server.base.event.EventItemBidNotification;
+import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
@@ -78,7 +78,7 @@ public class NotProd {
 
             Item item1 = itemService.getItem(1L);
             for (int i = 0; i <= 10; i++)
-                notificationService.create(EventItemBidNotification.of(item1, kakaoMember1, NotificationType.BID));
+                notificationService.create(EventItemBidderNotification.of(item1, kakaoMember1));
             long endTime = System.currentTimeMillis();
             System.out.println(String.format("Init Data: %20dms", endTime - startTime));
 

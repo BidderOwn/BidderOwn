@@ -22,12 +22,20 @@ public class BulkInsertNotification {
     private LocalDateTime updatedDate;
 
     @Builder
-    public BulkInsertNotification(Long itemId, Long receiverId) {
+    public BulkInsertNotification(Long itemId, Long receiverId, NotificationType notificationType) {
         this.itemId = itemId;
         this.receiverId = receiverId;
-        this.notificationType = String.valueOf(NotificationType.BID_END);
+        this.notificationType = String.valueOf(notificationType);
         this.readDate = null;
         this.createdDate = LocalDateTime.now();
         this.updatedDate = LocalDateTime.now();
+    }
+
+    public static BulkInsertNotification of(Long itemId, Long receiverId, NotificationType notificationType) {
+        return BulkInsertNotification.builder()
+                .itemId(itemId)
+                .receiverId(receiverId)
+                .notificationType(notificationType)
+                .build();
     }
 }
