@@ -7,8 +7,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import site.bidderown.server.base.event.EventBidEndNotification;
-import site.bidderown.server.base.event.EventItemCommentNotification;
-import site.bidderown.server.base.event.EventItemBidNotification;
+import site.bidderown.server.base.event.EventItemSellerNotification;
+import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -17,10 +17,10 @@ import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
+import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -34,46 +34,55 @@ public class NotificationEventHandler {
 
     @EventListener
     @Async
-    public void listen(EventItemBidNotification eventItemBidNotification) {
-        Item item = eventItemBidNotification.getItem();
+    public void listen(EventItemBidderNotification eventItemBidderNotification) {
+        Item item = eventItemBidderNotification.getItem();
+        List<Bid> bids = item.getBids();
         List<Notification> notifications = new ArrayList<>();
-        item.getBids().stream()
-                .filter(bid -> !bid.getBidder().equals(eventItemBidNotification.getReceiver()))
+
+        bids.stream()
+                .filter(bid -> !bid.getBidder().equals(eventItemBidderNotification.getBidder()))
                 .map(bid -> Notification.of(
-                        eventItemBidNotification.getItem(),
+                        eventItemBidderNotification.getItem(),
                         bid.getBidder(),
                         NotificationType.BID
                 )).forEach(notifications::add);
 
         notifications.add(Notification.of(item, item.getMember(), NotificationType.BID));
-        System.out.println(item.getMember().getId());
 
         notificationService.createNotifications(notifications);
 
         messagingTemplate.convertAndSend(
-                "/sub/notification/item/" + eventItemBidNotification.getItem().getId(), "");
-    }
-
-    @EventListener
-    @Async
-    public void listen(EventItemCommentNotification eventItemCommentNotification) {
-        notificationService.create(eventItemCommentNotification);
+                ConnectionType.ITEM_BIDDER.getSocketPath() + eventItemBidderNotification.getItem().getId(),
+                eventItemBidderNotification.getBidder().getName());
 
         messagingTemplate.convertAndSend(
-                "/sub/item/comment/notification/" + eventItemCommentNotification.getItem().getId(),
-                eventItemCommentNotification.getSender().getName());
+                ConnectionType.ITEM_SELLER.getSocketPath() + eventItemBidderNotification.getItem().getId(),
+                "");
     }
 
     @EventListener
     @Async
-    public void listenBidEnd(EventBidEndNotification eventBidEndNotification) {
+    public void listen(EventItemSellerNotification eventItemSellerNotification) {
+        notificationService.create(eventItemSellerNotification);
+
+        messagingTemplate.convertAndSend(
+                ConnectionType.ITEM_SELLER.getSocketPath() + eventItemSellerNotification.getItem().getId(),
+                "");
+    }
+
+    @EventListener
+    @Async
+    public void listen(EventBidEndNotification eventBidEndNotification) {
         List<BulkInsertNotification> notifications = new ArrayList<>();
         for (Item item : eventBidEndNotification.getItems()) {
-            messagingTemplate.convertAndSend("/sub/notification/item/" + item.getId(), "");
+            messagingTemplate.convertAndSend(ConnectionType.ITEM_BIDDER.getSocketPath() + item.getId(), "");
             List<Bid> bids = bidRepository.findByItem(item);
-            bids.forEach(bid -> notifications.add(BulkInsertNotification.builder()
-                    .itemId(item.getId())
-                    .receiverId(bid.getBidder().getId()).build()));
+            bids.forEach(bid -> notifications.add(
+                    BulkInsertNotification.of(
+                            item.getId(),
+                            bid.getBidder().getId(),
+                            NotificationType.BID_END))
+            );
         }
 
         notificationJdbcRepository.insertNotificationList(notifications);

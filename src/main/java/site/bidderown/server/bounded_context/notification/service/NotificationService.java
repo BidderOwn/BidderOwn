@@ -3,8 +3,8 @@ package site.bidderown.server.bounded_context.notification.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemCommentNotification;
-import site.bidderown.server.base.event.EventItemBidNotification;
+import site.bidderown.server.base.event.EventItemSellerNotification;
+import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
@@ -25,20 +25,20 @@ public class NotificationService {
     }
 
     @Transactional
-    public void create(EventItemBidNotification eventItemBidNotification) {
+    public void create(EventItemBidderNotification eventItemBidderNotification) {
         notificationRepository.save(Notification.of(
-                eventItemBidNotification.getItem(),
-                eventItemBidNotification.getReceiver(),
-                eventItemBidNotification.getType()
+                eventItemBidderNotification.getItem(),
+                eventItemBidderNotification.getBidder(),
+                eventItemBidderNotification.getType()
         ));
     }
 
     @Transactional
-    public void create(EventItemCommentNotification eventItemCommentNotification) {
+    public void create(EventItemSellerNotification eventItemSellerNotification) {
         notificationRepository.save(Notification.of(
-                eventItemCommentNotification.getItem(),
-                eventItemCommentNotification.getItem().getMember(),
-                eventItemCommentNotification.getType()
+                eventItemSellerNotification.getItem(),
+                eventItemSellerNotification.getItem().getMember(),
+                eventItemSellerNotification.getType()
         ));
     }
 
@@ -49,7 +49,7 @@ public class NotificationService {
     @Transactional
     public void readAll() {
         List<Notification> notifications = notificationRepository.findByReadDateIsNull();
-        notifications.stream().forEach(notification -> notification.read());
+        notifications.stream().forEach(Notification::read);
     }
 
     public boolean checkNotRead(String memberName) {

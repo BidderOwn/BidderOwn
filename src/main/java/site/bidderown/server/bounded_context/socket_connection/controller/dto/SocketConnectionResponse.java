@@ -11,12 +11,12 @@ import site.bidderown.server.bounded_context.socket_connection.entity.SocketConn
 public class SocketConnectionResponse {
 
     private Long connectionId;
-    private String connectionType;
+    private String connectionUrl;
 
     @Builder
     public SocketConnectionResponse(SocketConnection socketConnection) {
         this.connectionId = socketConnection.getConnectionId();
-        this.connectionType = socketConnection.getConnectionType().toString();
+        this.connectionUrl = socketConnection.getConnectionType().getSocketPath();
     }
 
     public static SocketConnectionResponse of(SocketConnection socketConnection) {

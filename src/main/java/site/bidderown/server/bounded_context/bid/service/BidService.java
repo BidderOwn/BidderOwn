@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemBidNotification;
+import site.bidderown.server.base.event.EventItemBidderNotification;
+import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
@@ -17,6 +18,7 @@ import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
+import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +40,7 @@ public class BidService {
         bidRepository.save(bid);
 
         publisher.publishEvent(
-                EventItemBidNotification.of(item, member, NotificationType.BID)
+                EventItemBidderNotification.of(item, member)
         );
     }
 
@@ -48,13 +50,13 @@ public class BidService {
         Member bidder = memberService.getMember(username);
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
-        publisher.publishEvent(
-                EventItemBidNotification.of(item, bidder, NotificationType.BID)
-        );
+        publisher.publishEvent(EventItemBidderNotification.of(item, bidder));
+        publisher.publishEvent(EventSocketConnection.of(bidder.getName(), item.getId(), ConnectionType.ITEM_BIDDER));
 
         if (opBid.isEmpty()) {
             return create(bidRequest.getItemPrice(), item, bidder);
         }
+
         Bid bid = opBid.get();
         bid.updatePrice(bidRequest.getItemPrice());
         return bid.getId();

@@ -6,22 +6,25 @@
 <div id="bid-list-app">
     <!--  채팅 박스  -->
     <div class="flex flex-col h-[800px] w-7/12 w-[550px] mt-6" id="app">
-<!--        <div class="text-3xl my-3 font-semibold" th:if="${username != bidDetails.sellerName}">입찰하기</div>-->
+        <!--        <div class="text-3xl my-3 font-semibold" th:if="${username != bidDetails.sellerName}">입찰하기</div>-->
         <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName">입찰하기</div>
 
         <!-- 입찰하기 -->
-<!--        <form id="bidForm" class="flex justify-between" th:if="${username != bidDetails.sellerName}">-->
+        <!--        <form id="bidForm" class="flex justify-between" th:if="${username != bidDetails.sellerName}">-->
         <form id="bidForm" class="flex justify-between" v-if="username !== sellerName">
             <div class="flex items-start justify-center ">
                 <!--       알림 메시지       -->
                 <div class="flex items-baseline ">
                     <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
-                    <input type="number" id="itemPrice" name="itemPrice" class="w-80 font-semibold" step="100" v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
+                    <input type="number" step="100" id="itemPrice" name="itemPrice" class="w-80 font-semibold"
+                           v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
                 </div>
             </div>
             <!--      사진      -->
             <div class="inline-block  text-indigo-400 font-bold ml-auto truncate items-center justify-center">
-                <button type="button" id="submit" class="flex hover:bg-zinc-200 items-center mr-1" v-on:click="submitPrice">입찰하기</button>
+                <button type="button" id="submit" class="flex hover:bg-zinc-200 items-center mr-1"
+                        v-on:click="submitPrice">입찰하기
+                </button>
             </div>
         </form>
         <div v-if="sellerName !== username">
@@ -33,21 +36,21 @@
         <!--     상단 아이템       -->
         <div class="flex m-2">
             <div class="w-[100px] h-[70px] truncate rounded-lg">
-<!--                <img src="http://localhost:8080/api/v1/image/item/banana.jpg">-->
-                 <img :src="imageUrl">
+                <!--                <img src="http://localhost:8080/api/v1/image/item/banana.jpg">-->
+                <img :src="imageUrl">
             </div>
             <div class="flex flex-col justify-center ml-2">
-                <div> {{ itemTitle }} </div>
-<!--                <div class="text-sm text-indigo-400" th:text=" '희망금액' + ${bidDetails.getDesiredPrice()} +'원' "> </div>-->
+                <div> {{ itemTitle }}</div>
+                <!--                <div class="text-sm text-indigo-400" th:text=" '희망금액' + ${bidDetails.getDesiredPrice()} +'원' "> </div>-->
                 <div class="text-sm text-indigo-400">희망금액 {{ desiredPrice }} 원</div>
             </div>
 
             <div class="flex flex-col justify-center ml-2 ml-auto">
                 <div v-if="maxPrice !== null">
-                    <div class="text-indigo-400 font-bold">최고가 ₩ {{ maxPrice }} </div>
+                    <div class="text-indigo-400 font-bold">최고가 ₩ {{ maxPrice }}</div>
                 </div>
                 <div v-if="avgPrice !== null">
-                    <div class="text-indigo-400 font-bold">평균가 ₩ {{ avgPrice }} </div>
+                    <div class="text-indigo-400 font-bold">평균가 ₩ {{ avgPrice }}</div>
                 </div>
                 <div v-if="minPrice !== null">
                     <div class="text-indigo-400 font-bold">최저가 ₩ {{ minPrice }}</div>
@@ -73,7 +76,7 @@
                             <div class="flex flex-col items-start ml-2">
                                 <!--       알림 메시지       -->
                                 <div class="flex items-baseline">
-<!--                                    <div class="font-semibold" th:text="${bid.getBidderName()} + '님이'  + ${bid.getBidPrice()} + '원을 제시하였습니다.'">  </div>-->
+                                    <!--                                    <div class="font-semibold" th:text="${bid.getBidderName()} + '님이'  + ${bid.getBidPrice()} + '원을 제시하였습니다.'">  </div>-->
                                     <div class="font-semibold">
                                         {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을 제시하였습니다.
                                     </div>
@@ -138,10 +141,6 @@
                     alert("최소 100원부터 가능합니다.");
                     return;
                 }
-                if (this.bidPriceInput % 100 != 0) {
-                    alert("백원 단위로 입력해주세요.");
-                    return;
-                }
                 axios.get('/api/v1/bid-ids', {
                     auth: {
                         username: this.username,
@@ -164,31 +163,19 @@
                 }).then(response => {
                     this.updateData();
                     alert("입찰을 완료했습니다.");
-                }).catch(error => {console.log(error)});
+                }).catch(error => {
+                    console.log(error)
+                });
             },
             connect() {
-                console.log("connect!!!");
                 socket = new SockJS("/ws-stomp");
                 ws = Stomp.over(socket);
-
                 ws.connect({}, (frame) => {
-                    ws.subscribe("/sub/notification/item/" + this.itemId,
-                        (message) => {
-                            const senderName = message.body;
-                            if (this.username !== senderName) {
-                                $('#notification-icon').attr('src', '/image/notification_noti.png')
-                            }
-                        });
-                }, (error) => {});
-
-                axios.post('/api/v1/connection', {
-                    auth: {
-                        username: this.username,
-                        password: ''
-                    },
-                    connectionId: this.itemId,
-                    connectionType: 'ITEM'
-                }).then(response => {}).catch(error => {})
+                    ws.subscribe("/sub/item/bidder/notification/" + this.itemId,
+                        (message) => {});
+                }, (error) => {
+                    console.log(error)
+                });
             },
         }
     })
