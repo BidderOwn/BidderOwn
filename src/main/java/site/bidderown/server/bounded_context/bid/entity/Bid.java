@@ -43,4 +43,17 @@ public class Bid extends BaseEntity {
                 .item(item)
                 .build();
     }
+
+    public static Bid of(int price, Member bidder, Item item){
+        return Bid.builder()
+                .price(price)
+                .bidResult(BidResult.WAIT)
+                .bidder(bidder)
+                .item(item)
+                .build();
+    }
+
+    public void updatePrice(int price) {
+        this.price = price;
+    }
 }

@@ -27,24 +27,24 @@ public class CommentController {
     private final CommentService commentService;
     private final MemberService memberService;
 
-    @PostMapping("/api/v1/item/{id}")
+    @PostMapping("/api/v1/item/{itemId}/comment")
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public CommentResponse createComment(
             @RequestBody CommentRequest request,
-            @PathVariable Long id,
+            @PathVariable Long itemId,
             @AuthenticationPrincipal User user
     ) {
-        return CommentResponse.of(commentService.create(request, id, user.getUsername()));
+        return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
 
-    @GetMapping("/api/v1/item/{id}")
+    @GetMapping("/api/v1/item/{id}/comments")
     @ResponseBody
     public List<CommentDetailResponse> getCommentList(@PathVariable Long id) {
         return commentService.getAll(id);
     }
 
-    @DeleteMapping("/api/v1/itme/{id}")
+    @DeleteMapping("/api/v1/item/{id}/comment")
     @PreAuthorize("isAuthenticated()")
     public void deleteComment(Long commentId, Principal principal) {
         Comment comment = commentService.getComment(commentId);
@@ -57,7 +57,7 @@ public class CommentController {
         commentService.delete(commentId);
     }
 
-    @PostMapping("/api/v1/itme/{id}")
+    @PutMapping("/api/v1/item/{id}/comment")
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public CommentResponse updateComment(@PathVariable Long id, @RequestBody @Valid CommentRequest commentRequest, Principal principal){
@@ -68,6 +68,14 @@ public class CommentController {
         }
 
         return commentService.updateById(id, commentRequest, memberDetail.getName());
+    }
+
+    @GetMapping("/api/v1/comment-ids")
+    @ResponseBody
+    public List<Long> getBidItemIds(
+            @AuthenticationPrincipal User user
+    ) {
+        return commentService.getCommentItemIds(user.getUsername());
     }
 
 }

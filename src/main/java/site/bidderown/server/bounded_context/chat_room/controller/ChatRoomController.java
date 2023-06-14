@@ -31,24 +31,11 @@ public class ChatRoomController {
         return "/usr/chat/list";
     }
 
-    @GetMapping("/api/v1/chat/list")
-    @ResponseBody
-    public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
-        return chatRoomService.getChatRooms(user.getUsername());
-    }
-
-
-    @PostMapping("/api/v1/chat-room")
+    @PostMapping("/chat-room")
     public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
         /**
          * 채팅방이 없다면 만들어주고 /chat/list?id=chatRoomId로 이동
          */
         return "redirect:/chat/list?id=" + chatRoomService.handleChatRoom(chatRoomRequest);
-    }
-
-    @GetMapping("/api/v1/chat/{chatRoomId}")
-    @ResponseBody
-    public ChatRoomDetail joinChat(@PathVariable Long chatRoomId){
-        return chatRoomService.getChatRoomDetail(chatRoomId);
     }
 }

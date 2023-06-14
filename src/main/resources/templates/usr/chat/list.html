@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="ko">
 <div th:replace="import::head"></div>
 <body class="flex flex-col items-center justify-start h-screen">
 <div th:replace="header::div"></div>
 <!--  채팅 박스  -->
-<div class="flex flex-col h-[700px] w-7/12 w-[900px]" id="app">
+<div class="flex flex-col h-[700px] w-7/12 w-[900px]" id="chat">
     <div class="text-3xl font-semibold">채팅</div>
     <!--   가로선   -->
     <div class="border border-inherit mt-4"></div>
@@ -92,7 +90,7 @@
     let socket;
     let ws;
     new Vue({
-        el: '#app',
+        el: '#chat',
         data: {
             chatRooms: [],
             messages: [],
@@ -189,4 +187,3 @@
         }
     });
 </script>
-</html>

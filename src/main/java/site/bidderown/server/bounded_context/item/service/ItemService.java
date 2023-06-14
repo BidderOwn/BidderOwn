@@ -1,21 +1,24 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.image.service.ImageService;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemListResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
+import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
+import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
+import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,10 +29,11 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemCustomRepository itemCustomRepository;
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
-
+    private final ApplicationEventPublisher publisher;
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
@@ -45,6 +49,13 @@ public class ItemService {
     public Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id));
+    }
+
+    public ItemDetailResponse getItemDetail(Long id) {
+        Item item = getItem(id);
+        Integer minPrice = itemCustomRepository.minItemPrice(id);
+        Integer maxPrice = itemCustomRepository.maxItemPrice(id);
+        return ItemDetailResponse.of(item, minPrice, maxPrice);
     }
 
     public ItemUpdateDto updateById(Long itemId, ItemUpdateDto itemUpdateDto) {
@@ -66,20 +77,17 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
+        publisher.publishEvent(EventSocketConnection.of(
+                member.getName(), SocketConnectionRequest.of(item.getId(), "COMMENT")));
+
+        publisher.publishEvent(EventSocketConnection.of(
+                member.getName(), SocketConnectionRequest.of(item.getId(), "BID")));
+
         return item;
     }
-    //전체 리스트
-    public Page<ItemListResponse> getAll(Pageable pageable) {
-        return itemRepository.findAll(pageable).map(ItemListResponse::of);
-    }
-    //제목 검색
-    public Page<ItemListResponse> searchTitle(String keyword, Pageable pageable) {
-        return itemRepository.findByTitleContaining(keyword, pageable).map(ItemListResponse::of);
-    }
 
-    //내용 검색
-    public Page<ItemListResponse> searchDescription(String keyword, Pageable pageable) {
-        return itemRepository.findByDescriptionContaining(keyword, pageable).map(ItemListResponse::of);
+    public List<ItemListResponse> getItems(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findAll(sortCode, searchText, pageable);
     }
 
     //판매자 아이디 검색
@@ -90,5 +98,9 @@ public class ItemService {
                 .map(ItemResponse::of)
                 .collect(Collectors.toList());
     }
-
+    public List<ItemResponse> getBidItems(Long memberId) {
+        Member member = memberService.getMember(memberId);
+        List<Bid> bids = member.getBids();
+        return bids.stream().map(bid -> ItemResponse.of(bid.getItem())).collect(Collectors.toList());
+    }
 }

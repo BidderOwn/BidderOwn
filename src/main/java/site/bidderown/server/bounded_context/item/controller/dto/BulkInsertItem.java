@@ -29,7 +29,7 @@ public class BulkInsertItem {
         this.memberId = memberId;
         this.createdDate = LocalDateTime.now();
         this.updatedDate = LocalDateTime.now();
-        this.expiredDate = LocalDateTime.now().plusDays(0);
+        this.expiredDate = LocalDateTime.now().plusDays(3);
         this.itemStatus = String.valueOf(ItemStatus.BIDDING);
     }
 }

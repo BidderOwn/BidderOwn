@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -21,6 +22,8 @@ public class QMember extends EntityPathBase<Member> {
 
     public final site.bidderown.server.base.base_entity.QBaseEntity _super = new site.bidderown.server.base.base_entity.QBaseEntity(this);
 
+    public final ListPath<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid> bids = this.<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid>createList("bids", site.bidderown.server.bounded_context.bid.entity.Bid.class, site.bidderown.server.bounded_context.bid.entity.QBid.class, PathInits.DIRECT2);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
@@ -28,6 +31,8 @@ public class QMember extends EntityPathBase<Member> {
     public final NumberPath<Long> id = _super.id;
 
     public final StringPath name = createString("name");
+
+    public final StringPath password = createString("password");
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> updatedAt = _super.updatedAt;

@@ -9,23 +9,22 @@ import site.bidderown.server.bounded_context.notification.entity.NotificationTyp
 
 @Getter
 @NoArgsConstructor
-public class EventItemNotification {
+public class EventItemCommentNotification {
     private Item item;
-    private Member receiver;
+    private Member sender;
     private NotificationType type;
 
     @Builder
-    public EventItemNotification(Item item, Member receiver, NotificationType type) {
+    public EventItemCommentNotification(Item item, Member sender) {
         this.item = item;
-        this.receiver = receiver;
-        this.type = type;
+        this.sender = sender;
+        this.type = NotificationType.COMMENT;
     }
 
-    public static EventItemNotification of(Item item, Member receiver, NotificationType type) {
-        return EventItemNotification.builder()
+    public static EventItemCommentNotification of(Item item, Member sender) {
+        return EventItemCommentNotification.builder()
                 .item(item)
-                .receiver(receiver)
-                .type(type)
+                .sender(sender)
                 .build();
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
@@ -12,6 +13,11 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests().antMatchers("/**").permitAll()
@@ -23,13 +29,19 @@ public class SecurityConfig {
                     .addHeaderWriter(new XFrameOptionsHeaderWriter(
                             XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 .and()
+                    .formLogin(
+                            formLogin -> formLogin
+                                    .loginPage("/form_login")
+                                    .loginProcessingUrl("/loginProc")
+                    )
                     .oauth2Login(
                         oauth2Login -> oauth2Login
                                 .loginPage("/member/login")
+                                .defaultSuccessUrl("/home")
                     )
                     .logout(
                             logout -> logout
-                                    .logoutUrl("/member/logout")
+                                    .logoutUrl("/logout")
                                     .logoutSuccessUrl("/login") // TODO logout url 변경해야됨
                     );
 

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -14,6 +15,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemDetailResponse {
+    private Long id;
     private String title;
     private String description;
     private String memberName;
@@ -21,13 +23,14 @@ public class ItemDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime expireAt;
-    private int maxPrice;
-    private int minPrice;
+    private Integer maxPrice;
+    private Integer minPrice;
     private List<Image> images;
-    private List<Comment> comments;
+    private List<Bid> bids;
 
     @Builder
     private ItemDetailResponse (
+            Long id,
             String title,
             String description,
             String memberName,
@@ -35,11 +38,12 @@ public class ItemDetailResponse {
             LocalDateTime createdAt,
             LocalDateTime updatedAt,
             LocalDateTime expireAt,
-            int maxPrice,
-            int minPrice,
+            Integer minPrice,
+            Integer maxPrice,
             List<Image> images,
-            List<Comment> comments
+            List<Bid> bids
     ) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.memberName = memberName;
@@ -47,14 +51,15 @@ public class ItemDetailResponse {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.expireAt = expireAt;
-        this.maxPrice = maxPrice;
         this.minPrice = minPrice;
+        this.maxPrice = maxPrice;
         this.images = images;
-        this.comments = comments;
+        this.bids = bids;
     }
 
-    public static ItemDetailResponse of (Item item) {
+    public static ItemDetailResponse of (Item item, Integer minPrice, Integer maxPrice) {
         return ItemDetailResponse.builder()
+                .id(item.getId())
                 .title(item.getTitle())
                 .description(item.getDescription())
                 .memberName(item.getMember().getName())
@@ -62,10 +67,10 @@ public class ItemDetailResponse {
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .expireAt(item.getExpireAt())
-                .maxPrice(item.getBids().get(0).getPrice())
-                .minPrice(item.getBids().get(item.getBids().size()-1).getPrice())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
                 .images(item.getImages())
-                .comments(item.getComments())
+                .bids(item.getBids())
                 .build();
     }
 }

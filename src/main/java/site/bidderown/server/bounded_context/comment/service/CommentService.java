@@ -1,18 +1,18 @@
 package site.bidderown.server.bounded_context.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
+import site.bidderown.server.base.event.EventItemCommentNotification;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
+import site.bidderown.server.bounded_context.comment.repository.CommentCustomRepository;
 import site.bidderown.server.bounded_context.comment.repository.CommentRepository;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -23,13 +23,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final CommentCustomRepository commentCustomRepository;
     private final ItemService itemService;
     private final MemberService memberService;
+    private final ApplicationEventPublisher publisher;
 
     public Comment create(CommentRequest request, Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
         Member writer = memberService.getMember(writerName);
         Comment comment = Comment.of(request, item, writer);
+
+        publisher.publishEvent(
+                EventItemCommentNotification.of(item, item.getMember()));
+
         return commentRepository.save(comment);
     }
 
@@ -59,5 +65,9 @@ public class CommentService {
         findComment.update(commentRequest);
 
         return CommentResponse.of(findComment);
+    }
+
+    public List<Long> getCommentItemIds(String username) {
+        return commentCustomRepository.findCommentItemIds(username);
     }
 }
