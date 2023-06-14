@@ -31,7 +31,7 @@
                     <!--   제목   -->
                     <div class="flex justify-start items-center mt-1">
                         <div class="text-xl">{{ item.title }}</div>
-                        <div v-if="item.itemStatus == '경매종료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                        <div v-if="item.itemStatus == '경매종료' || item.itemStatus == '판매종료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
                         <div class="flex ml-auto">
                         <span class="flex mr-2">
                             <img src="/image/person.png" class="w-[20px] h-[20px]">
