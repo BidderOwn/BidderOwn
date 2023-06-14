@@ -1,10 +1,12 @@
 package site.bidderown.server.bounded_context.chat_room.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDetail;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
@@ -19,6 +21,7 @@ public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat/list")
     public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
         return chatRoomService.getChatRooms(user.getUsername());
