@@ -1,9 +1,6 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +9,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ItemRequest {
 
@@ -32,4 +28,12 @@ public class ItemRequest {
     @NotBlank
     @Length(max = 500)
     private String description;
+
+    @Builder
+    public ItemRequest(String title, Integer minimumPrice, Integer period, String description) {
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.period = period;
+        this.description = description;
+    }
 }
