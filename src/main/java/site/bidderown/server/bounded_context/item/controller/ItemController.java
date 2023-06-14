@@ -51,4 +51,14 @@ public class ItemController {
         itemService.create(itemRequest, user.getUsername());
         return "redirect:/home";
     }
+
+    @GetMapping("/sale")
+    @PreAuthorize("isAuthenticated()")
+    public String saleComplete(
+            @RequestParam("itemId") Long itemId,
+            @AuthenticationPrincipal User user
+    ) {
+        itemService.handleSale(itemId);
+        return "redirect:/bid/list?itemId=" + itemId;
+    }
 }

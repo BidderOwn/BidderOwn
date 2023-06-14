@@ -66,7 +66,7 @@ public class NotProd {
              *  이후 images/item에 존재하는 파일명으로 이미지 엔티티를 생성한 뒤 연관관계를 설정해줍니다.
              */
             Item item = Item.of(ItemRequest.builder().
-                    title("title")
+                    title("바나나")
                     .description("description")
                     .period(3)
                     .minimumPrice(10000)
