@@ -6,43 +6,51 @@
 <div id="bid-list-app">
     <!--  채팅 박스  -->
     <div class="flex flex-col h-[800px] w-7/12 w-[550px] mt-6" id="app">
-        <!--        <div class="text-3xl my-3 font-semibold" th:if="${username != bidDetails.sellerName}">입찰하기</div>-->
-        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName">입찰하기</div>
+        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName && itemStatus == '경매중'">입찰하기</div>
 
         <!-- 입찰하기 -->
-        <!--        <form id="bidForm" class="flex justify-between" th:if="${username != bidDetails.sellerName}">-->
-        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName">
+        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName && itemStatus == '경매중'">
             <div class="flex items-start justify-center ">
-                <!--       알림 메시지       -->
+                <!--       입찰 폼       -->
                 <div class="flex items-baseline ">
                     <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
                     <input type="number" step="100" id="itemPrice" name="itemPrice" class="w-80 font-semibold"
                            v-model="bidPriceInput" placeholder="입찰할 가격을 입력해주세요.(단위 100원)">
                 </div>
             </div>
-            <!--      사진      -->
+            <!--     입찰버튼       -->
             <div class="inline-block  text-indigo-400 font-bold ml-auto truncate items-center justify-center">
                 <button type="button" id="submit" class="flex hover:bg-zinc-200 items-center mr-1"
-                        v-on:click="submitPrice">입찰하기
+                        v-on:click="submitPrice">입찰
                 </button>
             </div>
         </form>
-        <div v-if="sellerName !== username">
+        <div v-if="sellerName !== username && itemStatus == '경매중'">
             <div class="border border-inherit mb-5"></div>
         </div>
-
-        <div class="text-3xl my-2 font-semibold">입찰 내역</div>
-
+        <div class="flex">
+            <div class="text-3xl my-2 font-semibold">입찰 내역</div>
+            <div v-if="username == sellerName && itemStatus == '경매중'" class="flex items-center ml-auto" >
+                <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
+                   th:href="'/item/sale?itemId=' + ${itemId}">판매완료
+                </a>
+            </div>
+        </div>
         <!--     상단 아이템       -->
         <div class="flex m-2">
-            <div class="w-[100px] h-[70px] truncate rounded-lg">
+            <div class="w-[100px] h-[100px] truncate rounded-lg">
                 <!--                <img src="http://localhost:8080/api/v1/image/item/banana.jpg">-->
                 <img :src="imageUrl">
             </div>
             <div class="flex flex-col justify-center ml-2">
-                <div> {{ itemTitle }}</div>
-                <!--                <div class="text-sm text-indigo-400" th:text=" '희망금액' + ${bidDetails.getDesiredPrice()} +'원' "> </div>-->
+                <div class="flex justify-start items-center mt-1">
+                    <div class="text-xl  font-bold"> {{ itemTitle }}</div>
+                    <div v-if="itemStatus == '경매종료' || itemStatus == '판매완료'" class="text-base  rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                </div>
+
+
                 <div class="text-sm text-indigo-400">희망금액 {{ desiredPrice }} 원</div>
+                <div v-if="itemStatus == '경매중'"> {{ expireAt }}</div>
             </div>
 
             <div class="flex flex-col justify-center ml-2 ml-auto">
@@ -114,7 +122,9 @@
             avgPrice: 0,
             itemTitle: '',
             sellerName: '',
-            imageUrl: ''
+            expireAt: '',
+            imageUrl: '',
+            itemStatus: ''
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -133,6 +143,8 @@
                         this.avgPrice = response.data.bidDetails.avgPrice;
                         this.itemTitle = response.data.bidDetails.itemTitle;
                         this.sellerName = response.data.bidDetails.sellerName;
+                        this.expireAt = response.data.bidDetails.expireAt;
+                        this.itemStatus = response.data.bidDetails.itemStatus;
                         this.imageUrl = 'http://localhost:8080/api/v1/image/item/' + response.data.bidDetails.imgName;
                     }).catch();
             },

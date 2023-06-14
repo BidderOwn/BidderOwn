@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.event.EventItemBidderNotification;
+import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 import site.bidderown.server.bounded_context.notification.entity.Notification;

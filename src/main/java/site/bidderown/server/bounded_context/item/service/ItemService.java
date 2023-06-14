@@ -5,13 +5,17 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.event.EventSocketConnection;
+import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -99,5 +103,17 @@ public class ItemService {
         Member member = memberService.getMember(memberId);
         List<Bid> bids = member.getBids();
         return bids.stream().map(bid -> ItemResponse.of(bid.getItem())).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void handleSale(Long itemId) {
+        Item item = getItem(itemId);
+        item.updateStatus(ItemStatus.SOLDOUT);
+        item.getBids().stream()
+                .forEach(bid -> bid.updateBidResult(BidResult.FAIL));
+
+        publisher.publishEvent(
+                EventSoldOutNotification.of(item)
+        );
     }
 }

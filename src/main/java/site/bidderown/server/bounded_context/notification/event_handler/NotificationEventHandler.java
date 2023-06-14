@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import site.bidderown.server.base.event.EventBidEndNotification;
 import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.event.EventItemBidderNotification;
+import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -67,6 +68,23 @@ public class NotificationEventHandler {
 
         messagingTemplate.convertAndSend(
                 ConnectionType.ITEM_SELLER.getSocketPath() + eventItemSellerNotification.getItem().getId(),
+                "");
+    }
+
+    @EventListener
+    @Async
+    public void listen(EventSoldOutNotification eventSoldOutNotification) {
+        Item item = eventSoldOutNotification.getItem();
+        List<Bid> bids = item.getBids();
+        List<Notification> notifications = new ArrayList<>();
+
+        bids.stream().map(bid -> Notification.of(item, bid.getBidder(), NotificationType.SOLDOUT))
+                .forEach(notification -> notifications.add(notification));
+
+        notificationService.create(notifications);
+
+        messagingTemplate.convertAndSend(
+                ConnectionType.ITEM_BIDDER.getSocketPath() + eventSoldOutNotification.getItem().getId(),
                 "");
     }
 

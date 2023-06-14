@@ -33,7 +33,7 @@
             <!--   제목, 버튼   -->
             <div class="flex justify-start items-center mt-1">
                 <div class="text-xl font-semibold" th:text="${item.title}"></div>
-                <div th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매종료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                <div th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
 
                 <!--    버튼    -->
                 <div class="flex ml-auto">

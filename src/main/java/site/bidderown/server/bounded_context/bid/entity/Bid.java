@@ -56,4 +56,7 @@ public class Bid extends BaseEntity {
     public void updatePrice(int price) {
         this.price = price;
     }
+    public void updateBidResult(BidResult bidResult) {
+        this.bidResult = bidResult;
+    }
 }

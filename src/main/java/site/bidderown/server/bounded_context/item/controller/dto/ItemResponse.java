@@ -16,14 +16,16 @@ public class ItemResponse {
     private String expireAt;
     private Long itemId;
     private String thumbnailImageName;
+    private String itemStatus;
     @Builder
-    public ItemResponse(String title, String description, int minimumPrice, String expireAt, Long itemId, String thumbnailImageName) {
+    public ItemResponse(String title, String description, int minimumPrice, String expireAt, Long itemId, String thumbnailImageName, String itemStatus) {
         this.title = title;
         this.description = description;
         this.minimumPrice = minimumPrice;
         this.expireAt = expireAt;
         this.itemId = itemId;
         this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
     }
 
     public static ItemResponse of(Item item) {
@@ -60,6 +62,7 @@ public class ItemResponse {
                 .expireAt(expireAt)
                 .itemId(item.getId())
                 .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus().getStatus())
                 .build();
     }
 }
