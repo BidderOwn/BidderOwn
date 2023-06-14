@@ -10,7 +10,10 @@ import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
+import site.bidderown.server.bounded_context.image.entity.Image;
+import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.BulkInsertItem;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
@@ -22,6 +25,7 @@ import site.bidderown.server.bounded_context.notification.repository.Notificatio
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 @Profile({"dev"})
@@ -38,7 +42,8 @@ public class NotProd {
             NotificationService notificationService,
             NotificationJdbcRepository notificationJdbcRepository,
             ItemService itemService,
-            CommentService commentService
+            CommentService commentService,
+            ImageService imageService
     ) {
         return args -> {
 
@@ -55,45 +60,22 @@ public class NotProd {
 
             long startTime = System.currentTimeMillis();
 
-            BulkInsertItem item;
-            // 아이템 등록
-            long n = 99;
-            for (long i = 1; i <= 1; i++){
-                ArrayList<BulkInsertItem> itemList = new ArrayList<>();
-                ArrayList<BulkInsertBid> bidList = new ArrayList<>();
-                for(long j = 1; j <= 100; j++) {
-                    if (j % 2 == 0) {
-                        itemList.add(BulkInsertItem.builder()
-                                .memberId(member1.getId())
-                                .title("testTitle_" + j)
-                                .description("testDescription")
-                                .minimumPrice(10000)
-                                .build());
-                    } else {
-                        itemList.add(BulkInsertItem.builder()
-                                .memberId(member2.getId())
-                                .title("testTitle_" + j)
-                                .description("testDescription")
-                                .minimumPrice(10000)
-                                .build());
-                    }
-                    bidList.add(BulkInsertBid.builder()
-                            .price(10000)
-                            .bidderId(member2.getId())
-                            .itemId(n)
-                            .build());
+            /**
+             *  기존의 생성 방식은 아이템 서비스를 통해 이미지 파일을 저장한 뒤 추출된 파일명으로 이미지 엔티티를 생성 후 저장합니다.
+             *  임시로 데이터를 넣기위해서는 이미지 파일 저장 로직을 생략한 뒤 아이템만 저장합니다.
+             *  이후 images/item에 존재하는 파일명으로 이미지 엔티티를 생성한 뒤 연관관계를 설정해줍니다.
+             */
+            Item item = Item.of(ItemRequest.builder().
+                    title("title")
+                    .description("description")
+                    .period(3)
+                    .minimumPrice(10000)
+                    .build(), member1);
+            itemRepository.save(item);
 
-                }
-                n++;
-                itemJdbcRepository.insertItemList(itemList);
-                bidJdbcRepository.insertBidList(bidList);
-                commentService.create(CommentRequest.of("테스트 댓글1"), 100L, "user_1");
-                commentService.create(CommentRequest.of("테스트 댓글2"), 100L, "user_1");
-                commentService.create(CommentRequest.of("테스트 댓글3"), 100L, "user_1");
-                commentService.create(CommentRequest.of("테스트 댓글4"), 100L, "user_1");
-                commentService.create(CommentRequest.of("테스트 댓글5"), 100L, "user_1");
+            imageService.create(item, Arrays.asList("banana.jpg"));
 
-            }
+
             Item item1 = itemService.getItem(1L);
             for (int i = 0; i <= 10; i++)
                 notificationService.create(EventItemBidNotification.of(item1, kakaoMember1, NotificationType.BID));
