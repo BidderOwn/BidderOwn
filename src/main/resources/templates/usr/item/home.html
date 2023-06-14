@@ -115,8 +115,8 @@
                                 maxPrice: item.maxPrice,
                                 expireAt: this.getTimeAgo(new Date(item.expireAt)),
                                 memberName: item.memberName,
-                                // thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageUrl,
-                                thumbnailImageUrl: '/image/test_image.png',
+                                thumbnailImageName: item.thumbnailImageName,
+                                thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName,
                             },
                         )
                     })
