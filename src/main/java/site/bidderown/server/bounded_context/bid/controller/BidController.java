@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.bid.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,7 @@ public class BidController {
     }
 
     @GetMapping("/bid/list")
+    @PreAuthorize("isAuthenticated()")
     public String bidList(@RequestParam Long itemId, Model model, @AuthenticationPrincipal User user){
         model.addAttribute("itemId", itemId);
         return "usr/bid/list";

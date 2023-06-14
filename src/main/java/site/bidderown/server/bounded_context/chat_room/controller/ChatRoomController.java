@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.chat_room.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     @GetMapping("/chat/list")
+    @PreAuthorize("isAuthenticated()")
     public String showChatRoomList (Model model, @RequestParam(value = "id", required = false) Long chatRoomId) {
         /**
          *  채팅방 리스트 페이지로 이동
@@ -32,6 +34,7 @@ public class ChatRoomController {
     }
 
     @PostMapping("/chat-room")
+    @PreAuthorize("isAuthenticated()")
     public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
         /**
          * 채팅방이 없다면 만들어주고 /chat/list?id=chatRoomId로 이동

@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.socket_connection.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,7 @@ public class SocketConnectionController {
     private final SocketConnectionService socketConnectionService;
 
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     public List<SocketConnectionResponse> connectionResponses(@AuthenticationPrincipal User user) {
         return socketConnectionService.getConnections(user.getUsername());
     }

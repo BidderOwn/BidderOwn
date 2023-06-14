@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.notification.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -23,6 +24,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/notifications")
+    @PreAuthorize("isAuthenticated()")
     public String notificationList(Model model) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         List<Notification> list = notificationService.getNotifications(username);

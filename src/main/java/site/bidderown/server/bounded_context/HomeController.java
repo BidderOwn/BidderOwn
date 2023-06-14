@@ -32,7 +32,9 @@ public class HomeController {
             @AuthenticationPrincipal User user,
             @RequestParam(name = "q", defaultValue = "") String searchText
     ) {
-        model.addAttribute("username", user.getUsername());
+            if (user != null) {
+                model.addAttribute("username", user.getUsername());
+            }
         model.addAttribute("searchText", searchText);
         return "/usr/item/home";
     }
