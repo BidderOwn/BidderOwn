@@ -16,8 +16,7 @@ import site.bidderown.server.bounded_context.item.repository.ItemCustomRepositor
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
-import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
+import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,11 +76,9 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
-        publisher.publishEvent(EventSocketConnection.of(
-                member.getName(), SocketConnectionRequest.of(item.getId(), "COMMENT")));
 
         publisher.publishEvent(EventSocketConnection.of(
-                member.getName(), SocketConnectionRequest.of(item.getId(), "BID")));
+                member.getName(), item.getId(), ConnectionType.ITEM_SELLER));
 
         return item;
     }

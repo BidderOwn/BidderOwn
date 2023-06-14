@@ -3,24 +3,27 @@ package site.bidderown.server.base.event;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
+import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 @Getter
 @NoArgsConstructor
 public class EventSocketConnection {
-    String memberName;
-    SocketConnectionRequest socketConnectionRequest;
+    private String memberName;
+    private Long connectionId;
+    private ConnectionType connectionType;
 
     @Builder
-    public EventSocketConnection(String memberName, SocketConnectionRequest socketConnectionRequest) {
+    public EventSocketConnection(String memberName, Long connectionId, ConnectionType connectionType) {
         this.memberName = memberName;
-        this.socketConnectionRequest = socketConnectionRequest;
+        this.connectionId = connectionId;
+        this.connectionType = connectionType;
     }
 
-    public static EventSocketConnection of(String memberName, SocketConnectionRequest socketConnectionRequest) {
+    public static EventSocketConnection of(String memberName, Long connectionId, ConnectionType connectionType) {
         return EventSocketConnection.builder()
                 .memberName(memberName)
-                .socketConnectionRequest(socketConnectionRequest)
+                .connectionId(connectionId)
+                .connectionType(connectionType)
                 .build();
     }
 }

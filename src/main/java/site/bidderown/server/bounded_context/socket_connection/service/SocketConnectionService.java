@@ -22,7 +22,9 @@ public class SocketConnectionService {
 
     public List<SocketConnectionResponse> getConnections(String memberName) {
         Member member = memberService.getMember(memberName);
-        return socketConnectionRepository.findByMember(member).stream()
+        return socketConnectionRepository
+                .findByMember(member)
+                .stream()
                 .map(SocketConnectionResponse::of)
                 .collect(Collectors.toList());
     }
@@ -33,21 +35,7 @@ public class SocketConnectionService {
                 SocketConnection.of(
                         member,
                         request.getConnectionId(),
-                        resolveConnectionType(request.getConnectionType())
+                        request.getConnectionType()
                 )).getId();
-    }
-
-    private ConnectionType resolveConnectionType(String connectionType) {
-        switch (connectionType) {
-            case "CHAT" -> {
-                return ConnectionType.CHAT;
-            }
-            case "COMMENT" -> {
-                return ConnectionType.COMMENT;
-            }
-            default -> {
-                return ConnectionType.BID;
-            }
-        }
     }
 }

@@ -3,7 +3,7 @@ package site.bidderown.server.bounded_context.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import site.bidderown.server.base.event.EventItemCommentNotification;
+import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
@@ -34,7 +34,7 @@ public class CommentService {
         Comment comment = Comment.of(request, item, writer);
 
         publisher.publishEvent(
-                EventItemCommentNotification.of(item, item.getMember()));
+                EventItemSellerNotification.of(item));
 
         return commentRepository.save(comment);
     }

@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import site.bidderown.server.base.event.EventBidEndNotification;
-import site.bidderown.server.base.event.EventItemCommentNotification;
+import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.event.EventItemBidNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
@@ -17,10 +17,10 @@ import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
+import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -56,12 +56,12 @@ public class NotificationEventHandler {
 
     @EventListener
     @Async
-    public void listen(EventItemCommentNotification eventItemCommentNotification) {
-        notificationService.create(eventItemCommentNotification);
+    public void listen(EventItemSellerNotification eventItemSellerNotification) {
+        notificationService.create(eventItemSellerNotification);
 
         messagingTemplate.convertAndSend(
-                "/sub/item/comment/notification/" + eventItemCommentNotification.getItem().getId(),
-                eventItemCommentNotification.getSender().getName());
+                ConnectionType.ITEM_SELLER.getSocketPath() + eventItemSellerNotification.getItem().getId(),
+                "");
     }
 
     @EventListener
