@@ -15,13 +15,15 @@ public class ItemResponse {
     private int minimumPrice;
     private String expireAt;
     private Long itemId;
+    private String thumbnailImageName;
     @Builder
-    public ItemResponse(String title, String description, int minimumPrice, String expireAt, Long itemId) {
+    public ItemResponse(String title, String description, int minimumPrice, String expireAt, Long itemId, String thumbnailImageName) {
         this.title = title;
         this.description = description;
         this.minimumPrice = minimumPrice;
         this.expireAt = expireAt;
         this.itemId = itemId;
+        this.thumbnailImageName = thumbnailImageName;
     }
 
     public static ItemResponse of(Item item) {
@@ -57,6 +59,7 @@ public class ItemResponse {
                 .minimumPrice(item.getMinimumPrice())
                 .expireAt(expireAt)
                 .itemId(item.getId())
+                .thumbnailImageName(item.getThumbnailImage())
                 .build();
     }
 }

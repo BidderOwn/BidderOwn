@@ -15,15 +15,17 @@ public class BidResponse {
     private int bidPrice; // 입찰 금액
     private Long itemId;
     private String createdDate;
+    private String thumbnailImageName;
     // img도 들어가야할 것 같습니다.
 
 
     @Builder
-    private BidResponse(String bidderName, String createdDate, int bidPrice, Long itemId) {
+    private BidResponse(String bidderName, String createdDate, int bidPrice, Long itemId, String thumbnailImageName) {
         this.bidderName = bidderName;
         this.createdDate = createdDate;
         this.bidPrice = bidPrice;
         this.itemId = itemId;
+        this.thumbnailImageName = thumbnailImageName;
     }
 
     public static BidResponse of(Bid bid, Item item){
@@ -46,6 +48,7 @@ public class BidResponse {
                 .bidderName(bid.getBidder().getName())
                 .bidPrice(bid.getPrice())
                 .createdDate(createdAt)
+                .thumbnailImageName(item.getThumbnailImage())
                 .itemId(item.getId()).build();
     }
 }
