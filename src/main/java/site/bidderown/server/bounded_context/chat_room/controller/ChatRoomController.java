@@ -22,7 +22,10 @@ public class ChatRoomController {
 
     @GetMapping("/chat/list")
     @PreAuthorize("isAuthenticated()")
-    public String showChatRoomList (Model model, @RequestParam(value = "id", required = false) Long chatRoomId) {
+    public String showChatRoomList (
+            Model model,
+            @RequestParam(value = "id", required = false) Long chatRoomId
+    ) {
         /**
          *  채팅방 리스트 페이지로 이동
          *  model에 담겨있는 채팅방에 자동
@@ -31,14 +34,5 @@ public class ChatRoomController {
             model.addAttribute("chatRoomId", chatRoomId);
 
         return "/usr/chat/list";
-    }
-
-    @PostMapping("/chat-room")
-    @PreAuthorize("isAuthenticated()")
-    public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        /**
-         * 채팅방이 없다면 만들어주고 /chat/list?id=chatRoomId로 이동
-         */
-        return "redirect:/chat/list?id=" + chatRoomService.handleChatRoom(chatRoomRequest);
     }
 }

@@ -7,13 +7,10 @@ public enum ConnectionType {
     // 새로운 입찰 등록 시 구매자가 받는 알림 소켓 {itemId}
     ITEM_BIDDER("/sub/item/bidder/notification/"),
 
-    // 채팅 시 판매자가 받는 알림 소켓 {itemId}
-    CHAT_SELLER("/sub/chat/seller/notification/"),
+    // 채팅 소켓은 내 아이디를 구독
+    CHAT("/sub/chat/user/");
 
-    // 채팅 시 구매자가 받는 알림 소켓 {chatRoomId}
-    CHAT_BIDDER("/sub/chat/bidder/notification/");
-
-    private String socketPath;
+    private final String socketPath;
 
     public String getSocketPath() {
         return socketPath;

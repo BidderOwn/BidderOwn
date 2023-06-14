@@ -11,6 +11,8 @@ import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDe
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
 import site.bidderown.server.bounded_context.chat_room.service.ChatRoomService;
+import site.bidderown.server.bounded_context.member.entity.Member;
+import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
 
@@ -20,21 +22,23 @@ import java.util.List;
 public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
+    private final MemberService memberService;
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/chat/list")
+    @GetMapping("/chat-room/list")
     public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
         return chatRoomService.getChatRooms(user.getUsername());
     }
 
-    @GetMapping("/chat/{chatRoomId}")
+    @GetMapping("/chat-detail/{chatRoomId}")
     @ResponseBody
-    public ChatRoomDetail joinChat(@PathVariable Long chatRoomId){
-        return chatRoomService.getChatRoomDetail(chatRoomId);
+    public ChatRoomDetail joinChat(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
+        return chatRoomService.getChatRoomDetail(chatRoomId, user.getUsername());
     }
 
-//    @GetMapping("/chat-room/ids")
-//    public List<Long> getChatRoomIds(@AuthenticationPrincipal User user) {
-//        chatRoomService.getChatRooms(user.getUsername());
-//    }
+    @PostMapping("/chat-room")
+    @PreAuthorize("isAuthenticated()")
+    public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        return "/chat/list?id=" + chatRoomService.handleChatRoom(chatRoomRequest);
+    }
 }

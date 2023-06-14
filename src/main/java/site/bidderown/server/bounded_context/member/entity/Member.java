@@ -43,5 +43,12 @@ public class Member extends BaseEntity {
                 .name(name)
                 .build();
     }
+
+    public static Member of(String name, String password) {
+        return Member.builder()
+                .name(name)
+                .password(password)
+                .build();
+    }
 }
 

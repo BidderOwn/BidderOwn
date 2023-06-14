@@ -5,18 +5,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
-import site.bidderown.server.bounded_context.item.entity.QItem;
-import site.bidderown.server.bounded_context.member.entity.Member;
-import site.bidderown.server.bounded_context.member.entity.QMember;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static site.bidderown.server.bounded_context.bid.entity.QBid.*;
+import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
 import static site.bidderown.server.bounded_context.item.entity.QItem.item;
-import static site.bidderown.server.bounded_context.member.entity.QMember.*;
+import static site.bidderown.server.bounded_context.member.entity.QMember.member;
 
 @RequiredArgsConstructor
 @Repository

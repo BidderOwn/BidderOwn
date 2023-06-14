@@ -7,27 +7,21 @@ import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomResponse {
     private Long chatRoomId;
-    private String toName;
-    private String toProfileImageName;
+    private String toUserName;
+    private String itemTitle;
 
     @Builder
-    public ChatRoomResponse(Long chatRoomId, String toName, String toProfileImageName){
+    public ChatRoomResponse(Long chatRoomId, String toUserName, String itemTitle){
         this.chatRoomId = chatRoomId;
-        this.toName = toName;
-        this.toProfileImageName = toProfileImageName;
+        this.toUserName = toUserName;
+        this.itemTitle = itemTitle;
     }
 
-    public static ChatRoomResponse of(ChatRoom chatRoom, String fromName) {
-        //TODO 프로필 이미지 추가
+    public static ChatRoomResponse of(ChatRoom chatRoom, String fromName, String itemTitle) {
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getId())
-                .toName(getToName(chatRoom, fromName))
+                .toUserName(ChatRoom.resolveToMember(chatRoom, fromName).getName())
+                .itemTitle(itemTitle)
                 .build();
-    }
-    
-    public static String getToName(ChatRoom chatRoom, String fromName) {
-        return chatRoom.getBuyer().getName().equals(fromName) ?
-                chatRoom.getSeller().getName():
-                chatRoom.getBuyer().getName();
     }
 }
