@@ -49,7 +49,8 @@
                     </div>
                     <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white" th:href="|@{'/bid/list?itemId='}| + ${item.id}">
                         <span v-if="isMe()">입찰내역</span>
-                        <span v-else>입찰하기</span>
+                        <span v-else th:if="${item.getItemStatus() == '경매중'}">입찰하기</span>
+                        <span v-else th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'">입찰목록</span>
                     </a>
                 </div>
             </div>
