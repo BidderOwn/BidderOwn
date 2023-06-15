@@ -39,6 +39,14 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    public Comment create(CommentRequest request, Long itemId, Member writer) {
+        Item item = itemService.getItem(itemId);
+        Comment comment = Comment.of(request, item, writer);
+        publisher.publishEvent(
+                EventItemSellerNotification.of(item));
+        return commentRepository.save(comment);
+    }
+
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(commentId));

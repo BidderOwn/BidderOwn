@@ -2,6 +2,7 @@ package site.bidderown.server.base.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class TimeUtils {
 
@@ -44,12 +45,13 @@ public class TimeUtils {
 
     public static LocalDateTime setExpireAt(Integer period) {
         LocalDateTime currentTime = LocalDateTime.now();
-        return LocalDateTime.of(currentTime.getYear(), currentTime.getMonth(), currentTime.getDayOfMonth() +  period, currentTime.getHour() + 1, 0);
+        return LocalDateTime.of(currentTime.getYear(), currentTime.getMonth(), currentTime.getDayOfMonth() +  period, currentTime.getHour(), 0, 0);
     }
 
     public static LocalDateTime getCurrentOClockPlus(int hour) {
         LocalDateTime now = LocalDateTime.now();
-        return  LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour() + hour, 0, 0);
+        return now.plusHours(hour).truncatedTo(ChronoUnit.HOURS);
+//        return  LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour() + hour, 0, 0);
     }
 
     public static LocalDateTime getCurrentOClock() {

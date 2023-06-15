@@ -6,10 +6,10 @@
 <div id="bid-list-app">
     <!--  채팅 박스  -->
     <div class="flex flex-col h-[800px] w-7/12 w-[550px] mt-6" id="app">
-        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName && itemStatus == '경매중'">입찰하기</div>
+        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName && itemStatus === '경매중'">입찰하기</div>
 
         <!-- 입찰하기 -->
-        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName && itemStatus == '경매중'">
+        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName && itemStatus === '경매중'">
             <div class="flex items-start justify-center ">
                 <!--       입찰 폼       -->
                 <div class="flex items-baseline ">
@@ -25,12 +25,12 @@
                 </button>
             </div>
         </form>
-        <div v-if="sellerName !== username && itemStatus == '경매중'">
+        <div v-if="sellerName !== username && itemStatus === '경매중'">
             <div class="border border-inherit mb-5"></div>
         </div>
         <div class="flex">
-            <div class="text-3xl my-2 font-semibold">입찰 내역</div>
-            <div v-if="username == sellerName && itemStatus == '경매중'" class="flex items-center ml-auto" >
+            <div class="text-2xl my-2 font-semibold">입찰 내역</div>
+            <div v-if="username === sellerName && itemStatus === '경매중'" class="flex items-center ml-auto" >
                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                    th:href="'/item/sale?itemId=' + ${itemId}">판매완료
                 </a>
@@ -44,8 +44,8 @@
             </div>
             <div class="flex flex-col justify-center ml-2">
                 <div class="flex justify-start items-center mt-1">
-                    <div class="text-xl  font-bold"> {{ itemTitle }}</div>
-                    <div v-if="itemStatus === '경매종료' || itemStatus === '판매완료'" class="text-base  rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                    <div class="text-xl  font-bold text-gray-600"> {{ itemTitle }}</div>
+                    <div v-if="itemStatus === '경매종료' || itemStatus === '판매완료'" class="text-sm text-gray-600 ml-1">경매종료</div>
                 </div>
 
 
@@ -68,21 +68,21 @@
 
         <!--   가로선   -->
         <div class="border border-inherit mt-4"></div>
-        <div class="flex justify-start h-5/6 w-full">
+        <div class="flex justify-start h-5/6 w-[550px]">
             <!--   세로선 시작선    -->
             <div class="border border-inherit h-full"></div>
             <!--   채팅방     -->
-            <div class="flex flex-col justify-between w-full overflow-y-scroll">
+            <div class="flex flex-col justify-between w-[550px] overflow-y-auto">
 
 
-                <div class="flex flex-col">
+                <div class="flex flex-col w-[548px] overflow-y-auto">
                     <div v-for="(bid, index) in bidHistory" :key="index">
-                        <button class="flex px-3 py-5 hover:bg-zinc-200 w-[550px] justify-between items-center">
+                        <button class="flex px-3 py-5 hover:bg-zinc-200 w-[548px] justify-between items-center">
                             <!--      이모티콘      -->
                             <div class="flex items-center">
                                 <div class="flex-none inline-block text-4xl grow-0 mx-2">🙌</div>
                                 <!--      메시지, 시간      -->
-                                <div class="flex flex-col  items-start  ml-2">
+                                <div class="flex flex-col items-start  ml-2">
                                     <!--       알림 메시지       -->
                                     <div class="flex items-baseline ">
                                         <div class="font-semibold truncate">
@@ -93,7 +93,7 @@
                                     <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
                                 </div>
                             </div>
-                            <div v-if="username === sellerName && itemStatus === '경매중'" class="items-center  mr-2" >
+                            <div v-if="username === sellerName && (itemStatus === '경매중' || itemStatus === '경매종료')" class="items-center  mr-2" >
                                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                                    v-on:click="handleChat(bid.bidderName)">채팅하기
                                 </a>
@@ -103,10 +103,6 @@
                     <!--     채팅방 아이템     -->
                 </div>
             </div>
-
-            <!--   세로선 채팅방 오른쪽     -->
-            <div class="border border-inherit"></div>
-
             <!--   세로선 채팅창 오른쪽     -->
             <div class="border border-inherit"></div>
         </div>
