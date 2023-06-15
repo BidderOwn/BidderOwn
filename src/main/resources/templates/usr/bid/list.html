@@ -45,12 +45,12 @@
             <div class="flex flex-col justify-center ml-2">
                 <div class="flex justify-start items-center mt-1">
                     <div class="text-xl  font-bold"> {{ itemTitle }}</div>
-                    <div v-if="itemStatus == '경매종료' || itemStatus == '판매완료'" class="text-base  rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                    <div v-if="itemStatus === '경매종료' || itemStatus === '판매완료'" class="text-base  rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
                 </div>
 
 
                 <div class="text-sm text-indigo-400">희망금액 {{ desiredPrice }} 원</div>
-                <div v-if="itemStatus == '경매중'"> {{ expireAt }}</div>
+                <div v-if="itemStatus === '경매중'"> {{ expireAt }}</div>
             </div>
 
             <div class="flex flex-col justify-center ml-2 ml-auto">
@@ -77,21 +77,23 @@
 
                 <div class="flex flex-col">
                     <div v-for="(bid, index) in bidHistory" :key="index">
-                        <button class="flex  px-3 py-5 hover:bg-zinc-200 items-center">
+                        <button class="flex px-3 py-5 hover:bg-zinc-200 w-[550px] justify-between items-center">
                             <!--      이모티콘      -->
-                            <div class="flex-none inline-block text-4xl grow-0 mx-2">🙌</div>
-                            <!--      메시지, 시간      -->
-                            <div class="flex flex-col  items-start  ml-2">
-                                <!--       알림 메시지       -->
-                                <div class="flex items-baseline ">
+                            <div class="flex items-center">
+                                <div class="flex-none inline-block text-4xl grow-0 mx-2">🙌</div>
+                                <!--      메시지, 시간      -->
+                                <div class="flex flex-col  items-start  ml-2">
+                                    <!--       알림 메시지       -->
+                                    <div class="flex items-baseline ">
                                         <div class="font-semibold truncate">
                                             {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을 제시하였습니다.
                                         </div>
+                                    </div>
+                                    <!--       알림 시간       -->
+                                    <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
                                 </div>
-                                <!--       알림 시간       -->
-                                <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
                             </div>
-                            <div v-if="username == sellerName && itemStatus == '경매중'" class="items-center  ml-auto" >
+                            <div v-if="username === sellerName && itemStatus === '경매중'" class="items-center  mr-2" >
                                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                                    v-on:click="handleChat(bid.bidderName)">채팅하기
                                 </a>
