@@ -32,8 +32,10 @@
             </div>
             <!--   제목, 버튼   -->
             <div class="flex justify-between items-center mt-1">
-                <div class="text-xl font-semibold" th:text="${item.title}"></div>
-                <div th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+                <div class="flex items-start">
+                    <div class="text-xl font-semibold text-gray-600" th:text="${item.title}"></div>
+                    <div th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'" class="text-sm text-gray-600 ml-1 pt-[2px]">경매종료</div>
+                </div>
 
                 <!--    버튼    -->
                 <div class="flex items-center">
@@ -91,7 +93,7 @@
                 <span class="text-sm text-gray-600" th:if="${item.maxPrice == null}" th:text="|최고가&nbsp₩|"></span>
             </div>
             <!--  본문  -->
-            <div class="mt-5" th:text="${item.description}"></div>
+            <div class="mt-5 w-[550px]" th:text="${item.description}"></div>
         </div>
 
         <!--  댓글  -->

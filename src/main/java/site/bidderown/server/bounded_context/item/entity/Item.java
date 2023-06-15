@@ -74,10 +74,7 @@ public class Item extends BaseEntity {
     }
 
     public static Item of(ItemRequest request, Member member) {
-        LocalDateTime expireAt  =TimeUtils.setExpireAt(request.getPeriod());
-
-
-
+        LocalDateTime expireAt = TimeUtils.setExpireAt(request.getPeriod());
 
         return Item.builder()
                 .title(request.getTitle())
@@ -88,7 +85,7 @@ public class Item extends BaseEntity {
                 .build();
     }
 
-    public void update(ItemUpdateDto itemUpdateDto){
+    public void update(ItemUpdateDto itemUpdateDto) {
 
         this.title = itemUpdateDto.getTitle();
         this.description = itemUpdateDto.getDescription();
@@ -101,14 +98,14 @@ public class Item extends BaseEntity {
 
     // 낙찰 받은 사람
     private Member getWinner() {
-        if(bids.isEmpty()) return null;
+        if (bids.isEmpty()) return null;
         Bid bid = bids.get(0); //최고가
         return bid.getBidder();
     }
 
     // 썸네일 이미지 얻기 (첫번째 사진)
     public String getThumbnailImage() {
-        if(images.isEmpty()) return null;
+        if (images.isEmpty()) return null;
         return images.get(0).getFileName();
     }
 
