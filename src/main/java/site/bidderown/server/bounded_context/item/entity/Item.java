@@ -4,11 +4,13 @@ import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.member.entity.Member;
+import site.bidderown.server.bounded_context.notification.entity.Notification;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,6 +47,12 @@ public class Item extends BaseEntity {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;

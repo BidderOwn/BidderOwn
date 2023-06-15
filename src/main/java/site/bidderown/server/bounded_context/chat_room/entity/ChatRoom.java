@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.chat.entity.Chat;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -26,11 +28,10 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member buyer;
 
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
     private List<Chat> chatList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
     @Builder
