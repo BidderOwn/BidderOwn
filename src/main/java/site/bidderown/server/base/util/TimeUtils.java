@@ -18,8 +18,6 @@ public class TimeUtils {
         long minute = totalSeconds / 60;
         long seconds = totalSeconds % 60;
 
-
-
         if(duration.toMinutes() < 1)
             return seconds + "초";
         else if (duration.toMinutes() < 60)
@@ -47,5 +45,15 @@ public class TimeUtils {
     public static LocalDateTime setExpireAt(Integer period) {
         LocalDateTime currentTime = LocalDateTime.now();
         return LocalDateTime.of(currentTime.getYear(), currentTime.getMonth(), currentTime.getDayOfMonth() +  period, currentTime.getHour() + 1, 0);
+    }
+
+    public static LocalDateTime getCurrentOClockPlus(int hour) {
+        LocalDateTime now = LocalDateTime.now();
+        return  LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour() + hour, 0, 0);
+    }
+
+    public static LocalDateTime getCurrentOClock() {
+        LocalDateTime now = LocalDateTime.now();
+        return LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
     }
 }

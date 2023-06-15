@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
+import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.batch.item.listener.BidEndItemWriterListener;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -74,10 +75,8 @@ public class ItemJobConfiguration {
     @StepScope
     public ItemReader<Item> bidEndStepItemReader() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDateTime = LocalDateTime
-                .of(now.getYear(), now.getMonth(), now.getDayOfMonth(),
-                        now.getHour(), 0, 0);
-        LocalDateTime endDateTime = startDateTime.plusHours(1);
+        LocalDateTime startDateTime = TimeUtils.getCurrentOClock();
+        LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("startDateTime", startDateTime);
@@ -127,11 +126,8 @@ public class ItemJobConfiguration {
                     .map(Item::getId)
                     .toList();
 
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime startDateTime = LocalDateTime
-                    .of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
-            LocalDateTime endDateTime = startDateTime.plusHours(1);
-
+            LocalDateTime startDateTime = TimeUtils.getCurrentOClock();
+            LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
             itemRepository.updateItemStatus(ItemStatus.BID_END, startDateTime, endDateTime, ids);
         };
     }
