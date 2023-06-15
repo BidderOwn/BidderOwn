@@ -77,20 +77,24 @@
 
                 <div class="flex flex-col">
                     <div v-for="(bid, index) in bidHistory" :key="index">
-                        <button class="flex px-3 py-5 hover:bg-zinc-200 items-center">
+                        <button class="flex  px-3 py-5 hover:bg-zinc-200 items-center">
                             <!--      이모티콘      -->
-                            <div class="inline-block text-4xl mx-2">🙌</div>
+                            <div class="flex-none inline-block text-4xl grow-0 mx-2">🙌</div>
                             <!--      메시지, 시간      -->
-                            <div class="flex flex-col items-start ml-2">
+                            <div class="flex flex-col  items-start  ml-2">
                                 <!--       알림 메시지       -->
-                                <div class="flex items-baseline">
-                                    <!--                                    <div class="font-semibold" th:text="${bid.getBidderName()} + '님이'  + ${bid.getBidPrice()} + '원을 제시하였습니다.'">  </div>-->
-                                    <div class="font-semibold">
-                                        {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을 제시하였습니다.
-                                    </div>
+                                <div class="flex items-baseline ">
+                                        <div class="font-semibold truncate">
+                                            {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을 제시하였습니다.
+                                        </div>
                                 </div>
                                 <!--       알림 시간       -->
                                 <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
+                            </div>
+                            <div v-if="username == sellerName && itemStatus == '경매중'" class="items-center  ml-auto" >
+                                <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
+                                   v-on:click="handleChat(bid.bidderName)">채팅하기
+                                </a>
                             </div>
                         </button>
                     </div>
@@ -189,6 +193,14 @@
                     console.log(error)
                 });
             },
+            handleChat(bidderName) {
+                axios.post('/api/v1/chat-room', {
+                    buyerName: bidderName,
+                    itemId: this.itemId
+                }).then(response => {
+                    window.location.href = 'http://localhost:8080' + response.data;
+                }).catch(error => console.log(error));
+            }
         }
     })
 
