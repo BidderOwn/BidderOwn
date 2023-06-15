@@ -57,6 +57,7 @@ public class NotProd {
             Member member2 = memberService.join("user2", "1234");
             Member kakaoMember1 = memberService.loginAsSocial("KAKAO_2810203532");
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
+            Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
             long startTime = System.currentTimeMillis();
 
