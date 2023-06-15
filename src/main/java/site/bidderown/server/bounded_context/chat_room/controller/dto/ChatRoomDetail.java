@@ -19,13 +19,15 @@ public class ChatRoomDetail {
     private String itemTitle;
     private String itemImageName;
     private int price;
+    private Long itemId;
 
     @Builder
-    private ChatRoomDetail(Long toUserId, String itemTitle, String itemImageName, int price){
+    private ChatRoomDetail(Long toUserId, String itemTitle, String itemImageName, int price, Long itemId){
         this.toUserId = toUserId;
         this.itemTitle = itemTitle;
         this.itemImageName = itemImageName;
         this.price = price;
+        this.itemId = itemId;
     }
 
     public static ChatRoomDetail of(ChatRoomInfo chatRoomInfo, String fromUsername) {
@@ -34,6 +36,7 @@ public class ChatRoomDetail {
                 .itemTitle(chatRoomInfo.getItem().getTitle())
                 .itemImageName(chatRoomInfo.getItem().getImages().get(0).getFileName())
                 .price(chatRoomInfo.getItem().getMinimumPrice())
+                .itemId(chatRoomInfo.getItem().getId())
                 .build();
     }
 }
