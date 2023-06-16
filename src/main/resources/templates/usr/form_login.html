@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title>로그인</title>
+    <style>
+        .login-form {
+            width: 300px;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+        }
+        .input {
+            font-size: 14px;
+            padding: 10px;
+            width: 260px;
+            margin-bottom: 10px;
+            border: 1px solid #999999;
+            border-radius: 10px;
+        }
+        .btn {
+            font-size: 14px;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            width: 260px;
+            background-color: #7991FF;
+            margin-bottom: 30px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+<div style="text-align: center; display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div style="margin-top: 50px">
+        <img src="/image/bidder_own_logo.png" width="120px">
+        <p style="font-size: 50px; font-weight: 600; margin: 5px; font-family: 'Inter'">BeTheOne</p>
+        <div class="login-form" style="margin-top: 50px">
+            <form action="/loginProc" method="POST">
+                <input type="text" name="username" maxlength="30" placeholder="아이디" class="input">
+                <input type="password" name="password" maxlength="30" placeholder="비밀번호" class="input">
+                <input type="submit" value="로그인" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
