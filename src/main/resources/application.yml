@@ -1,6 +1,5 @@
 spring:
   profiles:
-    include: secret
     active: dev
   datasource:
     driver-class-name: org.h2.Driver
@@ -27,6 +26,7 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
             client-authentication-method: POST
+            clientId: '0604c0cada4293ab7d8f98999c83c35e'
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize

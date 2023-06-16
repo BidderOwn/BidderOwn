@@ -142,20 +142,20 @@
             },
             getTimeAgo(date) {
                 const currentDate = new Date();
-                const timeDiff = currentDate - date;
+                const timeDiff =  date - currentDate;
 
                 const minuteDiff = Math.floor(timeDiff / 1000 / 60);
                 const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
                 const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
 
                 if (minuteDiff < 1) {
-                    return "방금 전";
+                    return "1분 안에 종료";
                 } else if (hourDiff < 1) {
-                    return `${minuteDiff}분 전`;
+                    return `${minuteDiff}분 남음`;
                 } else if (dayDiff < 1) {
-                    return `${hourDiff}시간 전`;
+                    return `${hourDiff}시간 남음`;
                 } else {
-                    return `${dayDiff}일 전`;
+                    return `${dayDiff}일 남음`;
                 }
             },
             isPriceShow(price) {
