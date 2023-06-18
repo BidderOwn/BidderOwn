@@ -26,16 +26,17 @@ import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
+import site.bidderown.server.bounded_context.notification.repository.dto.JdbcNotification;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,8 +49,8 @@ public class ItemJobConfiguration {
     private final ItemRepository itemRepository;
     private final TaskExecutor taskExecutor;
     private final NotificationService notificationService;
-
-    private final int CHUNK_SIZE = 1000;
+    private final NotificationJdbcRepository notificationJdbcRepository;
+    private final int CHUNK_SIZE = 5000;
 
     @Bean
     public Job bidEndJob(CommandLineRunner initData) throws Exception{
@@ -69,21 +70,31 @@ public class ItemJobConfiguration {
                 .reader(bidEndStepItemReader())
                 .writer(jPQLItemWriter())
                 .taskExecutor(taskExecutor)
-                .throttleLimit(4)
+                .throttleLimit(8)
                 .build();
     }
 
 
     @JobScope
+    public Step bidEndNotificationJdbcStep() throws Exception {
+        return stepBuilderFactory.get("bidEndNotificationStep")
+                .<Bid, JdbcNotification>chunk(CHUNK_SIZE)
+                .reader(bidEndNotificationStepItemReader())
+                .processor(bidEndNotificationJdbcStepItemProcessor())
+                .writer(jdbcBatchNotificationWriter())
+                .listener(new BidEndNotificationWriterListener(publisher))
+                .build();
+    }
+
+    @JobScope
     public Step bidEndNotificationStep() throws Exception {
         return stepBuilderFactory.get("bidEndNotificationStep")
-                .<Bid, Notification>chunk(CHUNK_SIZE)
+                .<Bid, Bid>chunk(CHUNK_SIZE)
                 .reader(bidEndNotificationStepItemReader())
-                .processor(bidEndNotificationStepItemProcessor())
                 .writer(bidEndNotificationStepItemWriter())
                 .listener(new BidEndNotificationWriterListener(publisher))
                 .taskExecutor(taskExecutor)
-                .throttleLimit(4)
+                .throttleLimit(8)
                 .build();
     }
 
@@ -128,7 +139,7 @@ public class ItemJobConfiguration {
                 .queryString( // TODO expireAt으로 변경
                         "SELECT b " +
                         "FROM Bid b " +
-                        "JOIN b.item i " +
+                        "JOIN  b.item i " +
                         "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
@@ -141,18 +152,36 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemProcessor<Bid, Notification> bidEndNotificationStepItemProcessor(){
-        return bid -> Notification.of(bid.getItem(), bid.getBidder(), NotificationType.BID_END);
+    public ItemProcessor<Bid, JdbcNotification> bidEndNotificationJdbcStepItemProcessor(){
+        return bid -> JdbcNotification.of(
+                bid.getItem().getId(),
+                bid.getBidder().getId(),
+                NotificationType.BID_END.toString());
     }
 
     @StepScope
-    public ItemWriter<? super Notification> bidEndNotificationStepItemWriter() {
-        return notifications -> {
-            List<Notification> notificationList = notifications
+    public ItemWriter<JdbcNotification> jdbcBatchNotificationWriter() {
+        return items -> {
+            List<BulkInsertNotification> bulkInsertNotifications = new ArrayList<>();
+            items.forEach(notification -> bulkInsertNotifications.add(
+                    BulkInsertNotification.of(
+                            notification.getItemId(),
+                            notification.getReceiverId(),
+                            NotificationType.BID_END)
+            ));
+
+            notificationJdbcRepository.insertNotificationList(bulkInsertNotifications);
+        };
+    }
+
+    @StepScope
+    public ItemWriter<? super Bid> bidEndNotificationStepItemWriter() {
+        return bids -> {
+            List<Notification> notificationList = bids
                     .stream()
-                    .map(notification -> Notification.of(
-                            notification.getItem(),
-                            notification.getReceiver(),
+                    .map(bid -> Notification.of(
+                            bid.getItem(),
+                            bid.getBidder(),
                             NotificationType.BID_END
                     )).toList();
             notificationService.create(notificationList);
