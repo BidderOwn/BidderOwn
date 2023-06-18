@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class BidEndItemWriterListener implements ItemWriteListener<Item> {
+public class BidEndNotificationWriterListener implements ItemWriteListener<Item> {
 
     private final ApplicationEventPublisher publisher;
 

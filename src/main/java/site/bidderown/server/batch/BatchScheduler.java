@@ -21,16 +21,17 @@ public class BatchScheduler {
     private final ItemJobConfiguration itemJobConfiguration;
     private final CommandLineRunner initData;
 
-    @Scheduled(cron = "0 0 * * * *")
+//    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(fixedRate = 30000000)
     public void bidEndScheduler() throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("JobID", String.valueOf(System.currentTimeMillis()))
                 .toJobParameters();
 
-        log.info("bidEndScheduler");
         jobLauncher.run(
                 itemJobConfiguration.bidEndJob(initData),
-                jobParameters);
+                jobParameters
+        );
     }
 }

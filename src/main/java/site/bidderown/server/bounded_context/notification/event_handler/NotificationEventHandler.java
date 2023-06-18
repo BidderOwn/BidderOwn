@@ -30,8 +30,6 @@ public class NotificationEventHandler {
 
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final BidRepository bidRepository;
-    private final NotificationJdbcRepository notificationJdbcRepository;
 
     @EventListener
     @Async
@@ -79,7 +77,7 @@ public class NotificationEventHandler {
         List<Notification> notifications = new ArrayList<>();
 
         bids.stream().map(bid -> Notification.of(item, bid.getBidder(), NotificationType.SOLDOUT))
-                .forEach(notification -> notifications.add(notification));
+                .forEach(notifications::add);
 
         notificationService.create(notifications);
 
@@ -91,28 +89,7 @@ public class NotificationEventHandler {
     @EventListener
     @Async
     public void listen(EventBidEndNotification eventBidEndNotification) {
-        List<BulkInsertNotification> notifications = new ArrayList<>();
-        for (Item item : eventBidEndNotification.getItems()) {
+        for (Item item : eventBidEndNotification.getItems())
             messagingTemplate.convertAndSend(ConnectionType.ITEM_BIDDER.getSocketPath() + item.getId(), "");
-            List<Bid> bids = bidRepository.findByItem(item);
-            bids.forEach(bid -> notifications.add(
-                    BulkInsertNotification.of(
-                            item.getId(),
-                            bid.getBidder().getId(),
-                            NotificationType.BID_END))
-            );
-        }
-
-        notificationJdbcRepository.insertNotificationList(notifications);
-
-        /*
-        List<Notification> notifications = new ArrayList<>();
-        for (Item item : eventBidEndNotification.getItems()) {
-            messagingTemplate.convertAndSend("/sub/notification/item/" + item.getId(), "");
-            List<Bid> bids = bidRepository.findByItem(item);
-            bids.forEach(bid -> notifications.add(Notification.of(item, bid.getBidder(), NotificationType.BID_END)));
-        }
-        notificationService.create(notifications);
-        */
     }
 }
