@@ -11,12 +11,9 @@ import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
-import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
@@ -89,7 +86,10 @@ public class NotificationEventHandler {
     @EventListener
     @Async
     public void listen(EventBidEndNotification eventBidEndNotification) {
-        for (Item item : eventBidEndNotification.getItems())
-            messagingTemplate.convertAndSend(ConnectionType.ITEM_BIDDER.getSocketPath() + item.getId(), "");
+        for (Notification notification : eventBidEndNotification.getItemIds()){
+            messagingTemplate.convertAndSend(
+                    ConnectionType.ITEM_BIDDER.getSocketPath() + notification.getItem().getId(),
+                    "");
+        }
     }
 }

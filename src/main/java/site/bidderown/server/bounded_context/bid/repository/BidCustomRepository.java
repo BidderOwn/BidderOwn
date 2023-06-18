@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.repository.dto.BidEndNotification;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.notification.repository.dto.BidEndNotification;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,11 +44,13 @@ public class BidCustomRepository {
     public List<BidEndNotification> findBidByItemExpireAt(Pageable pageable) {
         return jpaQueryFactory
                 .select(Projections.constructor(
-                            BidEndNotification.class,
-                            item.id,
-                            bid.bidder.id))
+                        BidEndNotification.class,
+                        item,
+                        bid.bidder
+                ))
                 .from(bid)
                 .join(bid.item, item)
+                .join(bid.bidder, member)
                 .where(betweenCurrentTime())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

@@ -3,23 +3,23 @@ package site.bidderown.server.base.event;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.notification.entity.Notification;
 
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class EventBidEndNotification {
-    private List<? extends Item> items;
+    private List<? extends Notification> itemIds;
 
     @Builder
-    public EventBidEndNotification(List<? extends Item> items) {
-        this.items = items;
+    public EventBidEndNotification(List<? extends Notification> itemIds) {
+        this.itemIds = itemIds;
     }
 
-    public static EventBidEndNotification of(List<? extends Item> items) {
+    public static EventBidEndNotification of(List<? extends Notification> items) {
         return EventBidEndNotification.builder()
-                .items(items)
+                .itemIds(items)
                 .build();
     }
 }

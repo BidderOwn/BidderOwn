@@ -5,24 +5,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.context.ApplicationEventPublisher;
 import site.bidderown.server.base.event.EventBidEndNotification;
-import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.notification.entity.Notification;
 
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
-public class BidEndNotificationWriterListener implements ItemWriteListener<Item> {
+public class BidEndNotificationWriterListener implements ItemWriteListener<Notification> {
 
     private final ApplicationEventPublisher publisher;
 
     @Override
-    public void beforeWrite(List<? extends Item> items) {
+    public void beforeWrite(List<? extends Notification> items) {
 
     }
 
     @Override
-    public void afterWrite(List<? extends Item> items) {
-        publisher.publishEvent(EventBidEndNotification.of(items));
+    public void afterWrite(List<? extends Notification> bidEndNotifications) {
+        publisher.publishEvent(EventBidEndNotification.of(bidEndNotifications));
     }
 
     @Override

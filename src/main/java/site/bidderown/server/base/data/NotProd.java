@@ -253,12 +253,11 @@ public class NotProd {
                 }
             }
 
-            BulkInsertItem item;
             // 아이템 등록
             long n = 1;
             ArrayList<BulkInsertItem> itemList = new ArrayList<>();
             ArrayList<BulkInsertBid> bidList = new ArrayList<>();
-            for(long j = 1; j <= 10; j++) {
+            for(long j = 1; j <= 1000; j++) {
                 if (n % 2 == 0) {
                     itemList.add(BulkInsertItem.builder()
                             .memberId(member1.getId())
