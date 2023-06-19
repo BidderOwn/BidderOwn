@@ -37,14 +37,6 @@ public class NotificationController {
         // return dto 변환 코드 작성해야함
     }
 
-    @GetMapping("api/v1/notification-check")
-    @ResponseBody
-    public Boolean checkNotification(@AuthenticationPrincipal User user) {
-        if (user == null) return false;
-        return notificationService.checkNotRead(user.getUsername());
-    }
-
-
     @PutMapping("/notification/readAll")
     public String readAllNotification() {
         notificationService.readAll();
