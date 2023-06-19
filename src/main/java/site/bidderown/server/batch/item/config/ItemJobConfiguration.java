@@ -12,9 +12,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
@@ -22,17 +20,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import site.bidderown.server.base.util.TimeUtils;
-import site.bidderown.server.batch.item.listener.BidEndItemWriterListener;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
+import site.bidderown.server.batch.item.listener.BidEndNotificationWriterListener;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
+import site.bidderown.server.bounded_context.notification.entity.Notification;
+import site.bidderown.server.bounded_context.notification.entity.NotificationType;
+import site.bidderown.server.bounded_context.notification.repository.NotificationJdbcRepository;
+import site.bidderown.server.bounded_context.notification.repository.dto.JdbcNotification;
+import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -44,8 +48,9 @@ public class ItemJobConfiguration {
     private final ApplicationEventPublisher publisher;
     private final ItemRepository itemRepository;
     private final TaskExecutor taskExecutor;
-    
-    private final int CHUNK_SIZE = 1000;
+    private final NotificationService notificationService;
+    private final NotificationJdbcRepository notificationJdbcRepository;
+    private final int CHUNK_SIZE = 5000;
 
     @Bean
     public Job bidEndJob(CommandLineRunner initData) throws Exception{
@@ -53,20 +58,41 @@ public class ItemJobConfiguration {
         return jobBuilderFactory.get("bidEndJob")
                 .incrementer(new RunIdIncrementer())
                 .start(bidEndStep())
+                .next(bidEndNotificationStep())
                 .listener(new BidEndJobListener())
                 .build();
     }
 
-    @Bean
     @JobScope
     public Step bidEndStep() throws Exception {
         return stepBuilderFactory.get("bidEndStep")
                 .<Item, Item>chunk(CHUNK_SIZE)
                 .reader(bidEndStepItemReader())
-//                .processor(bidEndStepJpaItemProcessor())
-//                .writer(bidEndStepJpaItemWriter())
                 .writer(jPQLItemWriter())
-                .listener(new BidEndItemWriterListener(publisher))
+                .taskExecutor(taskExecutor)
+                .throttleLimit(8)
+                .build();
+    }
+
+
+    @JobScope
+    public Step bidEndNotificationJdbcStep() throws Exception {
+        return stepBuilderFactory.get("bidEndNotificationStep")
+                .<Bid, JdbcNotification>chunk(CHUNK_SIZE)
+                .reader(bidEndNotificationStepItemReader())
+                .processor(bidEndNotificationJdbcStepItemProcessor())
+                .writer(jdbcBatchNotificationWriter())
+                .listener(new BidEndNotificationWriterListener(publisher))
+                .build();
+    }
+
+    @JobScope
+    public Step bidEndNotificationStep() throws Exception {
+        return stepBuilderFactory.get("bidEndNotificationStep")
+                .<Bid, Bid>chunk(CHUNK_SIZE)
+                .reader(bidEndNotificationStepItemReader())
+                .writer(bidEndNotificationStepItemWriter())
+                .listener(new BidEndNotificationWriterListener(publisher))
                 .taskExecutor(taskExecutor)
                 .throttleLimit(8)
                 .build();
@@ -74,7 +100,6 @@ public class ItemJobConfiguration {
 
     @StepScope
     public ItemReader<Item> bidEndStepItemReader() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
         LocalDateTime startDateTime = TimeUtils.getCurrentOClock();
         LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
@@ -85,10 +110,10 @@ public class ItemJobConfiguration {
         JpaPagingItemReader<Item> itemReader = new JpaPagingItemReaderBuilder<Item>()
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString(
+                .queryString( // TODO expireAt으로 변경
                         "SELECT i " +
-                                "FROM Item i " +
-                                "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "FROM Item i " +
+                        "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .saveState(false)
@@ -100,27 +125,72 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemProcessor<Item, Item> bidEndStepJpaItemProcessor(){
-        return item -> {
-            item.updateStatus(ItemStatus.BID_END);
-            return item;
+    public ItemReader<Bid> bidEndNotificationStepItemReader() throws Exception {
+        LocalDateTime startDateTime = TimeUtils.getCurrentOClock();
+        LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("startDateTime", startDateTime);
+        parameters.put("endDateTime", endDateTime);
+
+        JpaPagingItemReader<Bid> itemReader = new JpaPagingItemReaderBuilder<Bid>()
+                .name("bidEndStepItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString( // TODO expireAt으로 변경
+                        "SELECT b " +
+                        "FROM Bid b " +
+                        "JOIN  b.item i " +
+                        "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                .parameterValues(parameters)
+                .pageSize(CHUNK_SIZE)
+                .saveState(false)
+                .build();
+
+        itemReader.afterPropertiesSet();
+
+        return itemReader;
+    }
+
+    @StepScope
+    public ItemProcessor<Bid, JdbcNotification> bidEndNotificationJdbcStepItemProcessor(){
+        return bid -> JdbcNotification.of(
+                bid.getItem().getId(),
+                bid.getBidder().getId(),
+                NotificationType.BID_END.toString());
+    }
+
+    @StepScope
+    public ItemWriter<JdbcNotification> jdbcBatchNotificationWriter() {
+        return items -> {
+            List<BulkInsertNotification> bulkInsertNotifications = new ArrayList<>();
+            items.forEach(notification -> bulkInsertNotifications.add(
+                    BulkInsertNotification.of(
+                            notification.getItemId(),
+                            notification.getReceiverId(),
+                            NotificationType.BID_END)
+            ));
+
+            notificationJdbcRepository.insertNotificationList(bulkInsertNotifications);
         };
     }
 
     @StepScope
-    public JpaItemWriter<Item> bidEndStepJpaItemWriter() throws Exception {
-
-        JpaItemWriter<Item> itemWriter = new JpaItemWriterBuilder<Item>()
-                .entityManagerFactory(entityManagerFactory)
-                .build();
-
-        itemWriter.afterPropertiesSet();
-
-        return itemWriter;
+    public ItemWriter<? super Bid> bidEndNotificationStepItemWriter() {
+        return bids -> {
+            List<Notification> notificationList = bids
+                    .stream()
+                    .map(bid -> Notification.of(
+                            bid.getItem(),
+                            bid.getBidder(),
+                            NotificationType.BID_END
+                    )).toList();
+            notificationService.create(notificationList);
+        };
     }
 
     @StepScope
     public ItemWriter<Item> jPQLItemWriter() {
+        log.info("jPQLItemWriter");
         return items -> {
             List<Long> ids = items.stream()
                     .map(Item::getId)

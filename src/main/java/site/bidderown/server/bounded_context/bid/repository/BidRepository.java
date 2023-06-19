@@ -26,4 +26,5 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
 
     @Query("SELECT AVG (b.price) FROM Bid b where b.item = :item")
     Integer findAvgPrice(@Param("item") Item item);
+
 }
