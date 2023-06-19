@@ -31,8 +31,7 @@ public class ItemController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public String showCreateItem(Model model) {
-        model.addAttribute("itemRequest", new ItemRequest());
+    public String showCreateItem() {
         return "/usr/item/create";
     }
 
@@ -40,16 +39,6 @@ public class ItemController {
     public String showItemDetail(Model model,  @PathVariable Long id) {
         model.addAttribute("item", itemService.getItemDetail(id));
         return "/usr/item/detail";
-    }
-
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @PreAuthorize("isAuthenticated()")
-    public String createItem(
-            @Valid ItemRequest itemRequest,
-            @AuthenticationPrincipal User user
-    ) {
-        itemService.create(itemRequest, user.getUsername());
-        return "redirect:/home";
     }
 
     @GetMapping("/sale")

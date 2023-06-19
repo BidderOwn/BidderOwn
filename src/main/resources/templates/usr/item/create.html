@@ -1,7 +1,5 @@
-<!DOCTYPE html>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.10/dist/sweetalert2.min.js"></script>
-<html lang="ko">
 <head>
     <style>
         .filebox .upload-name {
@@ -14,6 +12,7 @@
             width: 500px;
             color: #999999;
         }
+
         .filebox label {
             display: inline-block;
             padding: 10px 20px;
@@ -25,6 +24,7 @@
             height: 40px;
             margin-left: 10px;
         }
+
         .filebox input[type="file"] {
             position: absolute;
             width: 0;
@@ -33,6 +33,7 @@
             overflow: hidden;
             border: 0;
         }
+
         textarea {
             width: 100%;
             height: 200px;
@@ -47,18 +48,21 @@
 </head>
 <div th:replace="import::head"></div>
 <body class="flex flex-col items-center justify-start h-screen">
-<div th:replace="header::div"></div>
-<!--  상품 등록  -->
-<div class="flex flex-col h-[1000px] w-7/12 w-[700px] mt-6" id="app">
-    <form name="createForm" action="create2.html" onsubmit="return validation()" th:action th:object="${itemRequest}" method="post" enctype="multipart/form-data" >
+<div id="create-form">
+    <div th:replace="header::div"></div>
+    <!--  상품 등록  -->
+    <div class="flex flex-col h-[1000px] w-7/12 w-[700px] mt-6" id="app">
         <div class="text-3xl my-2 font-semibold">상품 등록</div>
         <!--  제목 입력  -->
-        <div class="flex my-10 p-1 border-b border-indigo-200">
-            <input type="text" id="title" name="title" th:field="*{title}" class="form-control" style="width: 700px; height: 35px" maxlength=30 placeholder="제목을 입력해주세요">
+        <div class="flex mt-10 p-1 border-b border-indigo-200">
+            <input type="text" id="title" name="title" class="form-control" style="width: 700px; height: 35px"
+                   v-model="title"
+                   maxlength=30 placeholder="제목을 입력해주세요">
         </div>
         <!--  가격 입력  -->
-        <div class="flex mt-10 mb-7 p-1 border-b border-indigo-200">
-            <input type="number" id="price" name="price" th:field="*{minimumPrice}" class="form-control" step="100" style="width: 700px; height: 35px" placeholder="최소 희망 가격 (백원 단위)">
+        <div class="flex my-10 p-1 border-b border-indigo-200">
+            <input type="number" id="price" name="price" class="form-control" step="100" v-model="minimumPrice"
+                   style="width: 700px; height: 35px" placeholder="최소 희망 가격 (백원 단위)">
         </div>
         <!--  경매 기간 입력  -->
         <div class="flex flex-col mb-10 p-1 border-b border-indigo-200">
@@ -66,7 +70,7 @@
             <!-- 라벨을 클릭하면 라벨의 하위요소인 버튼(체크,라디오,일반 등)이 클릭되는 효과) -->
             <div class="flex justify-start gap-4 m-2">
                 <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" th:field="*{period}" value="3" class="radio peer">
+                    <input type="radio" name="period" value="3" class="radio peer" v-model="period">
                     <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-solid fa-person-rays"></i>
                                 3일
@@ -74,7 +78,7 @@
                 </label>
 
                 <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" th:field="*{period}" value="5" class="radio peer">
+                    <input type="radio" name="period" value="5" class="radio peer" v-model="period">
                     <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-regular fa-face-smile"></i>
                                 5일
@@ -82,7 +86,7 @@
                 </label>
 
                 <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" th:field="*{period}" value="7" class="radio peer">
+                    <input type="radio" name="period" value="7" class="radio peer" v-model="period">
                     <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
                                 <i class="fa-solid fa-people-roof"></i>
                                 7일
@@ -95,65 +99,106 @@
         <!--                        <input type="text" v-model="itemRequest.region" size=50 placeholder="거래 가능 지역을 입력해주세요">-->
         <!--                </div>-->
         <!--  이미지 등록  -->
-        <div class="flex my-10 p-2 border-b border-indigo-200">
+        <div class="flex mb-10 p-2 border-b border-indigo-200">
             <div class="filebox">
-                <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled>
+                <input class="upload-name" value="첨부파일" placeholder="첨부파일" disabled v-model="filenames">
                 <label style="color: rgb(255 255 255);" for="file">파일찾기</label>
-                <input type="file" name="images" accept=".gif, .jpg, .png" multiple id="file">
+                <input type="file" name="images" accept=".gif, .jpg, .png" multiple id="file"
+                       v-on:change="onFileChange">
             </div>
             <!--                        <input type="file" name="images" multiple size=50 class="form-control">-->
         </div>
         <!--  설명 입력  -->
-        <div class="flex mt-10 mb-5 p-2 border-b border-indigo-200">
-            <textarea class="p-3" name="description" th:field="*{description}" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"></textarea>
+        <div class="flex mb-5 p-2 border-b border-indigo-200">
+            <textarea class="p-3" name="description" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"
+                      v-model="description"></textarea>
         </div>
         <!--  등록 버튼  -->
         <div class="justify-end flex mb-10 ">
-            <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300 text-white" type="submit">작성완료</button>
+            <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300 text-white"
+                    type="submit" v-on:click="submit">작성완료
+            </button>
         </div>
 
-    </form>
-</div>
-<script>
-    // js코드 첨부파일 업로드 시 파일이름 미리보기
-    $("#file").on('change', function() {
-        var fileName = $("#file").val();
-        $(".upload-name").val(fileName);
-    });
+    </div>
+    <script>
+        new Vue({
+            el: '#create-form',
+            data: {
+                title: '',
+                minimumPrice: '',
+                period: '',
+                images: [],
+                description: '',
+                filenames: '',
+                formData: new FormData()
+            }, // java class => 필드 변수
+            created() { // 최초에 이 페이지가 열릴 때, 실행
 
-    // null 또는 공백 입력 시 리다이렉트
-    function validation() {
-        var title = document.forms["createForm"]["title"].value;
-        var price = document.forms["createForm"]["price"].value;
-        var period = document.forms["createForm"]["period"].value;
-        var description = document.forms["createForm"]["description"].value;
-        var fileCheck = document.getElementById("file").value;
-        if(title.trim() === "" || price.trim() === "" || period.trim() === "" || description.trim() === ""){
-            // alert("모든 내용을 입력해주세요.");
-            Swal.fire({
-                title: '모든 내용을 입력해주세요',
-                text: '다시 입력해주세요',
-                icon: 'warning'
-            });
-            window.location.href = "redirect:/item";
-            return false;
-        }
-        //이미지 파일 null 체크
-        if(!fileCheck){
-            Swal.fire({
-                title: '이미지 파일을 업로드해주세요',
-                icon: 'warning'
-            });
-            return false;
-        }
+            },
+            methods: { // java => method
+                onFileChange() {
+                    const fileInput = event.target;
+                    if (fileInput.files && fileInput.files[0]) {
+                        if (this.images.includes(fileInput.files[0].name)) {
+                            alert("같은 파일입니다.");
+                            return;
+                        }
+                        if (this.images.length > 5) {
+                            alert("최대 5개까지 가능합니다.");
+                            return;
+                        }
+                        console.log(this.images.length);
+                        this.images.push(fileInput.files[0]);
+                        this.filenames += fileInput.files[0].name + "  ";
+                        this.formData.append("images", fileInput.files[0]);
+                    }
+                },
+                submit() {
+                    if (this.title.trim() === "" ||
+                        this.price < 100 ||
+                        this.period.trim() === "" ||
+                        this.description.trim() === "") {
+                        Swal.fire({
+                            title: '모든 내용을 입력해주세요',
+                            text: '다시 입력해주세요',
+                            icon: 'warning'
+                        });
+                        return;
+                    }
 
-        Swal.fire({
-            title: '등록이 완료되었습니다',
-            text: '등록 성공',
-            icon: 'success'
+                    //이미지 파일 null 체크
+                    if (this.images.length === 0) {
+                        Swal.fire({
+                            title: '이미지 파일을 업로드해주세요',
+                            icon: 'warning'
+                        });
+                        return false;
+                    }
+                    this.formData.append("title", this.title);
+                    this.formData.append("minimumPrice", this.minimumPrice);
+                    this.formData.append("period", this.period);
+                    this.formData.append("description", this.description);
+                    this.formData.append("auth", {user: localStorage.getItem("username"), password: ''});
+
+                    axios.post("/api/v1/item", this.formData, {
+                        headers: {
+                            "Content-Type": `multipart/form-data`,
+                        }
+                    }).then(response => {
+                        Swal.fire({
+                            title: '등록이 완료되었습니다',
+                            text: '등록 성공',
+                            icon: 'success'
+                        });
+                        setTimeout(() => {window.location.href = response.data;}, 1500);
+                    }).catch(error => console.log(error));
+
+                }
+            }
         });
-    }
 
-</script>
+    </script>
+</div>
 </body>
 </html>
