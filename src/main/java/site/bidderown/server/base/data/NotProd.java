@@ -5,13 +5,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
-import site.bidderown.server.bounded_context.item.controller.dto.BulkInsertItem;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
@@ -22,7 +20,6 @@ import site.bidderown.server.bounded_context.socket_connection.controller.dto.So
 import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"dev"})
@@ -252,38 +249,6 @@ public class NotProd {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
                 }
             }
-
-            // 아이템 등록
-            long n = 1;
-            ArrayList<BulkInsertItem> itemList = new ArrayList<>();
-            ArrayList<BulkInsertBid> bidList = new ArrayList<>();
-            for(long j = 1; j <= 1000; j++) {
-                if (n % 2 == 0) {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member1.getId())
-                            .title("testTitle")
-                            .description("testDescription")
-                            .minimumPrice(10000)
-                            .build());
-                } else {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member2.getId())
-                            .title("testTitle")
-                            .description("testDescription")
-                            .minimumPrice(10000)
-                            .build());
-                }
-                bidList.add(BulkInsertBid.builder()
-                        .price(10000)
-                        .bidderId(kakaoMember1.getId())
-                        .itemId(n)
-                        .build());
-
-                n++;
-            }
-            itemJdbcRepository.insertItemList(itemList);
-            bidJdbcRepository.insertBidList(bidList);
-
         };
     }
 }
