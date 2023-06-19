@@ -14,18 +14,16 @@ import java.time.LocalDateTime;
 public class BidResponse {
     private String bidderName;
     private int bidPrice; // 입찰 금액
-    private Long itemId;
     private String createdDate;
     private String thumbnailImageName;
     // img도 들어가야할 것 같습니다.
 
 
     @Builder
-    private BidResponse(String bidderName, String createdDate, int bidPrice, Long itemId, String thumbnailImageName) {
+    private BidResponse(String bidderName, String createdDate, int bidPrice, String thumbnailImageName) {
         this.bidderName = bidderName;
         this.createdDate = createdDate;
         this.bidPrice = bidPrice;
-        this.itemId = itemId;
         this.thumbnailImageName = thumbnailImageName;
     }
 
@@ -38,6 +36,6 @@ public class BidResponse {
                 .bidPrice(bid.getPrice())
                 .createdDate(createdAt)
                 .thumbnailImageName(item.getThumbnailImage())
-                .itemId(item.getId()).build();
+                .build();
     }
 }
