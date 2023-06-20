@@ -30,7 +30,7 @@
                 <!--     알림 아이템     -->
                 <div v-for="notification in notifications">
                     <!-- 입찰 알림 -->
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === '입찰'"
+                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID'"
                        v-on:click="clickNotification(notification.itemId)">
                         <button class="flex px-3 py-5  items-center">
                             <div class="inline-block text-4xl mr-1">👀</div>
@@ -42,7 +42,7 @@
                             </div>
                         </button>
                     </a>
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === '판매완료'"
+                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID_END'"
                        v-on:click="clickNotification(notification.itemId)">
                         <button class="flex px-3 py-5  items-center">
                             <div class="inline-block text-4xl mr-1">📣</div>
@@ -55,7 +55,7 @@
                         </button>
                     </a>
 
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === '경매종료'"
+                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'SOLDOUT'"
                        v-on:click="clickNotification(notification.itemId)">
                         <button class="flex px-3 py-5  items-center">
                             <div class="inline-block text-4xl mr-1">📣</div>

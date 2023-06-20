@@ -15,10 +15,10 @@ public class NotificationResponse {
 
     private Long itemId;
     private LocalDateTime createdDate;
-    private String notificationType;
+    private NotificationType notificationType;
 
     @Builder
-    private NotificationResponse(Long itemId, LocalDateTime createdDate, String notificationType) {
+    private NotificationResponse(Long itemId, LocalDateTime createdDate, NotificationType notificationType) {
         this.itemId = itemId;
         this.createdDate = createdDate;
         this.notificationType = notificationType;
@@ -27,7 +27,7 @@ public class NotificationResponse {
     public static NotificationResponse of(Notification notification){
         return NotificationResponse.builder()
                 .createdDate(notification.getCreatedAt())
-                .notificationType(notification.getNotificationType().getType())
+                .notificationType(notification.getNotificationType())
                 .itemId(notification.getItem().getId()).build();
     }
 }
