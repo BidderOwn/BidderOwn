@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemSimpleResponse;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -34,8 +34,8 @@ public class MemberController {
 
         model.addAttribute("nickname", memberDetail.getName());
 
-        List<ItemResponse> items = itemService.getItems(member.getId());
-        List<ItemResponse> bidItems = itemService.getBidItems(member.getId());
+        List<ItemSimpleResponse> items = itemService.getItems(member.getId());
+        List<ItemSimpleResponse> bidItems = itemService.getBidItems(member.getId());
 
         model.addAttribute("items", items);
         model.addAttribute("bidItems",bidItems);

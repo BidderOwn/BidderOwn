@@ -5,7 +5,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.base.exception.NotFoundException;
@@ -54,20 +53,25 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException(id));
     }
 
-    public ItemDetailResponse getItemDetail(Long id) {
+    public ItemDetailResponse getItemDetail_V1(Long id) {
         Item item = getItem(id);
         Integer minPrice = itemCustomRepository.minItemPrice(id);
         Integer maxPrice = itemCustomRepository.maxItemPrice(id);
         return ItemDetailResponse.of(item, minPrice, maxPrice);
     }
 
-    public ItemUpdateDto updateById(Long itemId, ItemUpdateDto itemUpdateDto) {
+    public ItemDetailResponse getItemDetail(Long id) {
+        return itemCustomRepository.findItemById(id)
+                .orElseThrow(() -> new NotFoundException(id));
+    }
+
+    public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
         Item findItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(itemId));
 
-        findItem.update(itemUpdateDto);
+        findItem.update(itemUpdate);
 
-        return new ItemUpdateDto(findItem.getTitle(), findItem.getDescription());
+        return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
     }
 
     public void delete(Long itemId) {
@@ -87,30 +91,36 @@ public class ItemService {
         return item;
     }
 
-    public List<ItemListResponse> getItems(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findAll(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems_V1(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems_v1(sortCode, searchText, pageable);
     }
 
-    //판매자 아이디 검색
-    public List<ItemResponse> getItems(Long memberId) {
+    public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems(sortCode, searchText, pageable);
+    }
+
+    public List<ItemSimpleResponse> getItems(Long memberId) {
         return itemRepository
                 .findByMemberId(memberId)
                 .stream()
-                .map(ItemResponse::of)
+                .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
     }
-    public List<ItemResponse> getBidItems(Long memberId) {
+
+    public List<ItemSimpleResponse> getBidItems(Long memberId) {
         Member member = memberService.getMember(memberId);
         List<Bid> bids = member.getBids();
-        return bids.stream().map(bid -> ItemResponse.of(bid.getItem())).collect(Collectors.toList());
+        return bids.stream()
+                .map(Bid::getItem)
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public void handleSale(Long itemId) {
         Item item = getItem(itemId);
         item.updateStatus(ItemStatus.SOLDOUT);
-        item.getBids().stream()
-                .forEach(bid -> bid.updateBidResult(BidResult.FAIL));
+        item.getBids().forEach(bid -> bid.updateBidResult(BidResult.FAIL));
 
         publisher.publishEvent(
                 EventSoldOutNotification.of(item)

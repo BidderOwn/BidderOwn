@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemListResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -31,25 +31,13 @@ public class ItemApiController {
     private final ItemService itemService;
     private final MemberService memberService;
 
-    @GetMapping("/{id}")
-    public ItemDetailResponse getItem(@PathVariable Long id) {
-        return itemService.getItemDetail(id);
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}")
-    public ItemUpdateDto updateItem(
-            @PathVariable Long id,
-            @RequestBody @Valid ItemUpdateDto itemUpdateDto,
-            Principal principal
-    ){
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
-
-        if (!memberDetail.getName().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        return itemService.updateById(id, itemUpdateDto);
+    @GetMapping("/list")
+    public List<ItemsResponse> getItems(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            Pageable pageable
+    ) {
+        return itemService.getItems(sortCode, searchText, pageable);
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -62,13 +50,25 @@ public class ItemApiController {
         return "/home";
     }
 
-    @GetMapping("/list")
-    public List<ItemListResponse> getItemList(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            Pageable pageable
-    ) {
-        return itemService.getItems(sortCode, searchText, pageable);
+    @GetMapping("/{id}")
+    public ItemDetailResponse getItem(@PathVariable Long id) {
+        return itemService.getItemDetail(id);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public ItemUpdate updateItem(
+            @PathVariable Long id,
+            @RequestBody @Valid ItemUpdate itemUpdate,
+            Principal principal
+    ){
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
+
+        if (!memberDetail.getName().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+
+        return itemService.updateById(id, itemUpdate);
     }
 
     @PostMapping("/{id}")

@@ -8,7 +8,7 @@ import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 
@@ -85,10 +85,10 @@ public class Item extends BaseEntity {
                 .build();
     }
 
-    public void update(ItemUpdateDto itemUpdateDto) {
+    public void update(ItemUpdate itemUpdate) {
 
-        this.title = itemUpdateDto.getTitle();
-        this.description = itemUpdateDto.getDescription();
+        this.title = itemUpdate.getTitle();
+        this.description = itemUpdate.getDescription();
         this.setUpdatedAt(LocalDateTime.now());
     }
 

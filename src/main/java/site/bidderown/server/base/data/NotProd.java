@@ -233,11 +233,6 @@ public class NotProd {
             bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
             bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
 
-            bidService.create(BidRequest.of(items.get(10).getId(), 31_000), members.get(5).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 28_000), members.get(0).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 29_000), members.get(1).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 22_000), members.get(2).getName());
-
             for (int i = 0; i < 11; i++) {
                 imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
                 socketConnectionService.create(members.get(i).getName(), SocketConnectionRequest.of(members.get(i).getId(), ConnectionType.CHAT));

@@ -1,4 +1,4 @@
-package site.bidderown.server.bounded_context.item.controller.dto;
+package site.bidderown.server.bounded_context.item.repository.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;

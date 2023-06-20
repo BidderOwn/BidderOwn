@@ -1,24 +1,30 @@
 package site.bidderown.server.bounded_context.item.repository;
 
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.util.TimeUtils;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemListResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
+import static site.bidderown.server.bounded_context.image.entity.QImage.image;
 import static site.bidderown.server.bounded_context.item.entity.QItem.item;
 
 @RequiredArgsConstructor
@@ -26,6 +32,9 @@ import static site.bidderown.server.bounded_context.item.entity.QItem.item;
 public class ItemCustomRepository {
     private final JPAQueryFactory queryFactory;
 
+    /**
+     * @description  offset 적용하지 않고 가져오는 법, 성능 향상을 위해 남겨둠
+     */
     public List<Item> paginationNoOffsetBuilder(Long itemId, int pageSize) {
         return queryFactory
                 .selectFrom(item)
@@ -38,7 +47,72 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    public List<ItemListResponse> findAll(int sortCode, String searchText, Pageable pageable) {
+    /**
+     * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
+     * @param searchText 검색어(제목, 내용, 작성자)
+     * @param pageable   페이징: 9
+     * @return 홈화면에 보여질 아이템 리스트
+     * @description https://www.notion.so/eui9179/20230-06-20-90075e3fdf484754843adcae04134f76?pvs=4
+     */
+    public List<ItemsResponse> findItems(int sortCode, String searchText, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                item.comments.size(),
+                                item.bids.size(),
+                                image.fileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .leftJoin(item.images, image)
+                .on(image.id.eq(itemThumbnailImageId()))
+                .where(eqToSearchText(searchText))
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    /**
+     * @param id 상품 아이디
+     * @description 상품 ItemDetailResponse로 받음
+     * @return Optional로 받아서 404 처리
+     */
+    public Optional<ItemDetailResponse> findItemById(Long id) {
+        return Optional.ofNullable(queryFactory.select(
+                        Projections.constructor(
+                                ItemDetailResponse.class,
+                                item.id,
+                                item.title,
+                                item.description,
+                                item.member.name,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                image.fileName,
+                                item.bids.size(),
+                                item.itemStatus,
+                                item.expireAt
+                        ))
+                .from(item)
+                .leftJoin(item.images, image)
+                .on(image.id.eq(itemThumbnailImageId()))
+                .where(item.id.eq(id))
+                .fetchOne());
+    }
+
+    /**
+     * @description 홈 화면에 보여줄 아이템 리스트, 성능 테스트를 위해 남겨두었음
+     */
+    public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
         List<Item> items = queryFactory.selectFrom(item)
                 .orderBy(orderBySortCode(sortCode))
                 .where(eqToSearchText(searchText))
@@ -47,12 +121,28 @@ public class ItemCustomRepository {
                 .fetch();
 
         return items.stream()
-                .map(item -> ItemListResponse.of(
+                .map(item -> ItemsResponse.of(
                         item,
                         minItemPrice(item.getId()),
                         maxItemPrice(item.getId()))
                 )
                 .collect(Collectors.toList());
+    }
+
+    private Expression<Long> itemThumbnailImageId() {
+        return JPAExpressions.select(image.id)
+                .from(image)
+                .where(image.item.eq(item))
+                .limit(1)
+                .orderBy(image.id.asc());
+    }
+
+    private Expression<Integer> itemBidMaxPrice() {
+        return JPAExpressions.select(bid.price.max()).from(bid).where(bid.item.eq(item));
+    }
+
+    private Expression<Integer> itemBidMinPrice() {
+        return JPAExpressions.select(bid.price.min()).from(bid).where(bid.item.eq(item));
     }
 
     public Integer minItemPrice(Long itemId) {

@@ -130,9 +130,8 @@
                 period: '',
                 images: [],
                 description: '',
-                filenames: '',
-                formData: new FormData()
-            }, // java class => 필드 변수
+                filenames: ''
+            },
             created() { // 최초에 이 페이지가 열릴 때, 실행
 
             },
@@ -148,13 +147,13 @@
                             alert("최대 5개까지 가능합니다.");
                             return;
                         }
-                        console.log(this.images.length);
                         this.images.push(fileInput.files[0]);
                         this.filenames += fileInput.files[0].name + "  ";
-                        this.formData.append("images", fileInput.files[0]);
                     }
                 },
                 submit() {
+                    const formData = new FormData();
+
                     if (this.title.trim() === "" ||
                         this.price < 100 ||
                         this.period.trim() === "" ||
@@ -175,13 +174,14 @@
                         });
                         return false;
                     }
-                    this.formData.append("title", this.title);
-                    this.formData.append("minimumPrice", this.minimumPrice);
-                    this.formData.append("period", this.period);
-                    this.formData.append("description", this.description);
-                    this.formData.append("auth", {user: localStorage.getItem("username"), password: ''});
 
-                    axios.post("/api/v1/item", this.formData, {
+                    formData.append("title", this.title);
+                    formData.append("minimumPrice", this.minimumPrice);
+                    formData.append("period", this.period);
+                    formData.append("description", this.description);
+                    this.images.forEach(image => formData.append("images", image));
+
+                    axios.post("/api/v1/item", formData, {
                         headers: {
                             "Content-Type": `multipart/form-data`,
                         }

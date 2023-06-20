@@ -2,23 +2,17 @@ package site.bidderown.server.bounded_context.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import site.bidderown.server.bounded_context.item.service.ItemService;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-
-import javax.validation.Valid;
-import java.security.Principal;
 
 @Slf4j
 @Controller
@@ -37,7 +31,7 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public String showItemDetail(Model model,  @PathVariable Long id) {
-        model.addAttribute("item", itemService.getItemDetail(id));
+        model.addAttribute("itemId", id);
         return "/usr/item/detail";
     }
 
