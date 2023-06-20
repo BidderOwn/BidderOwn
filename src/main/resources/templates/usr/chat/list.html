@@ -16,7 +16,7 @@
                 <button class="flex p-3 hover:bg-zinc-200 justify-start items-center"
                         :class="{'bg-zinc-200': chatRoom.checked}"
                         v-for="chatRoom in chatRooms" :key="chatRoom.chatRoomId"
-                        v-on:click="connectChatRoom(chatRoom.chatRoomId)">
+                        @click="connectChatRoom(chatRoom.chatRoomId)">
                     <!--      아바타      -->
                     <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
                     <!--      사용자 이름, 시간, 마지막 채팅      -->
@@ -46,7 +46,7 @@
 
         <div v-else class="flex flex-col w-[500px]">
             <!--     상단 아이템       -->
-            <div class="flex flex-col" v-on:click="clickItem(itemId)" >
+            <div class="flex flex-col" @click="clickItem(itemId)" >
                 <div class="flex m-2">
                     <div class="w-[90px] h-[60px] truncate rounded-lg">
                         <img :src="itemImageUrl" class="object-cover h-full w-full">
@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <!--    채팅 내역        -->
-                <div class="my-1" v-for="(message, i) in messages" v-bind:key="i">
+                <div class="my-1" v-for="(message, i) in messages" :key="i">
                     <div v-if="message.sender === username">
                         <div class="flex justify-end px-5">
                             <div class="border border-blue-100 py-1 px-3 bg-blue-100 rounded-md">
