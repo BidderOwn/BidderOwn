@@ -168,6 +168,10 @@
                 }).catch(error => console.log(error));
 
                 axios.post('/api/v1/bid', {
+                    auth: {
+                        username: this.username,
+                        password: ''
+                    },
                     itemId: this.itemId,
                     itemPrice: this.bidPriceInput
                 }).then(response => {
