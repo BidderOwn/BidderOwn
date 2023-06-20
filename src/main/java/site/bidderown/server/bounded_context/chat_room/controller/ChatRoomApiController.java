@@ -22,7 +22,6 @@ import java.util.List;
 public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
-    private final MemberService memberService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat-room/list")
@@ -31,7 +30,6 @@ public class ChatRoomApiController {
     }
 
     @GetMapping("/chat-detail/{chatRoomId}")
-    @ResponseBody
     public ChatRoomDetail joinChat(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
         return chatRoomService.getChatRoomDetail(chatRoomId, user.getUsername());
     }

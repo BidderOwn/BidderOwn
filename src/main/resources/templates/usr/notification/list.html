@@ -10,8 +10,8 @@
         <div class="text-3xl my-2 font-semibold">
             알림
         </div>
-        <div v-on:click="readAllNotification()" class="ml-auto" style="position: relative; top: 30px;">
-            <a id ="readAllNotification" class="text-l text-indigo-400 hover:bg-zinc-200"> 모든 알림 지우기</a>
+        <div class="ml-auto" style="position: relative; top: 30px;">
+            <a v-on:click="readAllNotification()" id ="readAllNotification" class="text-l text-indigo-400 hover:bg-zinc-200"> 모든 알림 지우기</a>
 
         </div>
     </div>
@@ -101,16 +101,16 @@
             notifications: [],
         },
         created() {
-            this.addData();
+            this.updateData();
             this.username = localStorage.getItem('username');
 
         },
         methods: {
-            addData() {
+            updateData() {
                 axios.get("/api/v1/notifications", {
                 }).then(response => {
                     console.log(response)
-
+                    this.notifications = [];
                     response.data.forEach(notification => {
                         this.notifications.push(
                             {
@@ -143,10 +143,9 @@
                 }
             },
             readAllNotification() {
-                const url = "/notifications";
-                axios.put('/notification/readAll',{
+                axios.put('/api/v1/notification/readAll',{
                 }).then(response => {
-                        window.location.href = url;
+                        this.updateData();
                     }).catch(error => {
                     console.log(error);
                 })
