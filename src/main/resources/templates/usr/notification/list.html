@@ -11,7 +11,7 @@
             알림
         </div>
         <div class="ml-auto" style="position: relative; top: 30px;">
-            <a v-on:click="readAllNotification()" id ="readAllNotification" class="text-l text-indigo-400 hover:bg-zinc-200"> 모든 알림 지우기</a>
+            <a id ="readAllNotification" class="text-l text-indigo-400 hover:bg-zinc-200"> 모든 알림 지우기</a>
 
         </div>
     </div>
@@ -28,58 +28,81 @@
 
             <div class="flex flex-col">
                 <!--     알림 아이템     -->
-                <div v-for="notification in notifications">
+                <th:block th:each="notification: ${notifications}">
                     <!-- 입찰 알림 -->
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID'"
-                       v-on:click="clickNotification(notification.itemId)">
+                    <a class="hover:bg-zinc-200" th:if="${notification.getNotificationType().name() == 'BID'}"
+                       th:href="'/bid/list?itemId=' + ${notification.itemId}">
                         <button class="flex px-3 py-5  items-center">
+                            <!-- 이모티콘 -->
                             <div class="inline-block text-4xl mr-1">👀</div>
+                            <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
                                 <div class="flex items-baseline">
                                     <div class="font-semibold"> 등록하신 상품에 입찰이 등록되었습니다. 바로 확인해보세요!</div>
                                 </div>
-                                <div class="truncate text-sm text-zinc-700">{{notification.elapsedTime}}</div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700" th:text="${notification.getCreatedDate()}"></div>
                             </div>
                         </button>
                     </a>
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID_END'"
-                       v-on:click="clickNotification(notification.itemId)">
+                    <!-- 경매 종료 알림 -->
+                    <a class="hover:bg-zinc-200" th:if="${notification.getNotificationType().name() == 'BID_END'}"
+                       th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
+                            <!-- 이모티콘 -->
                             <div class="inline-block text-4xl mr-1">📣</div>
+                            <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
                                 <div class="flex items-baseline">
                                     <div class="font-semibold"> 경매가 종료되었습니다. 판매자의 연락을 기다려주세요!</div>
                                 </div>
-                                <div class="truncate text-sm text-zinc-700">{{notification.elapsedTime}}</div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700" th:text="${notification.getCreatedDate()}"></div>
                             </div>
                         </button>
                     </a>
-
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === 'SOLDOUT'"
-                       v-on:click="clickNotification(notification.itemId)">
+                    <!-- 판매 종료 알림 -->
+                    <a class="hover:bg-zinc-200" th:if="${notification.getNotificationType().name() == 'SOLDOUT'}"
+                       th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
+                            <!-- 이모티콘 -->
                             <div class="inline-block text-4xl mr-1">📣</div>
+                            <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
                                 <div class="flex items-baseline">
                                     <div class="font-semibold"> 가격을 제시한 물건이 낙찰받지 못하였습니다.</div>
                                 </div>
-                                <div class="truncate text-sm text-zinc-700">{{notification.elapsedTime}}</div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700" th:text="${notification.getCreatedDate()}"></div>
                             </div>
                         </button>
                     </a>
-                    <a class="hover:bg-zinc-200" v-if="notification.notificationType === '댓글'"
-                       v-on:click="clickNotification(notification.itemId)">
+                    <!-- 댓글 알림 -->
+                    <a class="hover:bg-zinc-200" th:if="${notification.getNotificationType().name() == 'COMMENT'}"
+                       th:href="@{/item/{itemId}(itemId=${notification.getItemId()})}">
                         <button class="flex px-3 py-5  items-center">
+                            <!-- 이모티콘 -->
                             <div class="inline-block text-4xl mr-1">💬</div>
+                            <!-- 메시지, 시간 -->
                             <div class="flex flex-col items-start ml-2">
+                                <!-- 알림 메시지 -->
                                 <div class="flex items-baseline">
                                     <div class="font-semibold"> 등록하신 상품에 댓글이 등록되었습니다. 바로 확인해보세요!</div>
                                 </div>
-                                <div class="truncate text-sm text-zinc-700">{{notification.elapsedTime}}</div>
+                                <!-- 알림 시간 -->
+                                <!--/*@thymesVar id="thCurrentData" type="aj"*/-->
+                                <div class="truncate text-sm text-zinc-700" th:text="${notification.getCreatedDate()}"></div>
                             </div>
                         </button>
                     </a>
-                </div>
+                    <!-- 나머지 알림 타입에 대한 분기 처리 -->
+                </th:block>
             </div>
         </div>
 
@@ -95,67 +118,22 @@
 </body>
 
 <script>
-    new Vue({
-        el: '#app',
-        data: {
-            notifications: [],
-        },
-        created() {
-            this.updateData();
-            this.username = localStorage.getItem('username');
+    $(function(){
+        $('#readAllNotification').on("click",function () {
+            var url = "/notifications";
 
-        },
-        methods: {
-            updateData() {
-                axios.get("/api/v1/notifications", {
-                }).then(response => {
-                    console.log(response)
-                    this.notifications = [];
-                    response.data.forEach(notification => {
-                        this.notifications.push(
-                            {
-                                elapsedTime: this.getTimeAgo(new Date(notification.createdDate)),
-                                itemId: notification.itemId,
-                                notificationType: notification.notificationType
-                            },
-                        )
-                    })
-                }).catch(error => {
-                    console.log(error);
-                })
-            },
-            getTimeAgo(date) {
-                const currentDate = new Date();
-                const timeDiff = currentDate - date;
-
-                const minuteDiff = Math.floor(timeDiff / 1000 / 60);
-                const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
-                const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
-
-                if (minuteDiff < 1) {
-                    return "방금 전";
-                } else if (hourDiff < 1) {
-                    return `${minuteDiff}분 전`;
-                } else if (dayDiff < 1) {
-                    return `${hourDiff}시간 전`;
-                } else {
-                    return `${dayDiff}일 전`;
+            $.ajax({
+                type: "put",
+                url: "/notification/readAll",
+                success: function (data) {
+                    window.location.href = url;
+                },
+                error: function (request, status, error) {
+                    console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
                 }
-            },
-            readAllNotification() {
-                axios.put('/api/v1/notification/readAll',{
-                }).then(response => {
-                        this.updateData();
-                    }).catch(error => {
-                    console.log(error);
-                })
-            },
-            clickNotification(itemId) {
-                window.location.href = 'http://localhost:8080/item/' + itemId;
-            }
-        }
-    })
-
+            });
+        });
+    });
 </script>
 
 </html>
