@@ -59,4 +59,8 @@ public class Bid extends BaseEntity {
     public void updateBidResult(BidResult bidResult) {
         this.bidResult = bidResult;
     }
+
+    public void updateBidResultFail() {
+        this.bidResult = BidResult.FAIL;
+    }
 }

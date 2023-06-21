@@ -20,9 +20,6 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 @RequestMapping("/item")
 public class ItemController {
 
-    private final ItemService itemService;
-    private final MemberService memberService;
-
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public String showCreateItem() {
@@ -33,15 +30,5 @@ public class ItemController {
     public String showItemDetail(Model model,  @PathVariable Long id) {
         model.addAttribute("itemId", id);
         return "/usr/item/detail";
-    }
-
-    @GetMapping("/sale")
-    @PreAuthorize("isAuthenticated()")
-    public String saleComplete(
-            @RequestParam("itemId") Long itemId,
-            @AuthenticationPrincipal User user
-    ) {
-        itemService.handleSale(itemId);
-        return "redirect:/bid/list?itemId=" + itemId;
     }
 }

@@ -209,6 +209,15 @@
                 } else {
                     return `${dayDiff}일 남음`;
                 }
+            },
+            redirectBidList() {
+                axios.put('/api/v1/item/sale', {
+                    "itemId": this.itemId
+                }).then(response => {
+                    window.location.href = response.data;
+                }).catch(error => {
+                    // TODO 예외 처리 403
+                })
             }
 
         }

@@ -84,4 +84,14 @@ public class ItemApiController {
         itemService.delete(id);
         return "ok";
     }
+
+    @PutMapping("/sale")
+    @PreAuthorize("isAuthenticated()")
+    public String saleComplete(
+            @RequestParam Long itemId,
+            @AuthenticationPrincipal User user
+    ) {
+        itemService.handleSale(itemId, user.getUsername());
+        return "/bid/list?itemId=" + itemId;
+    }
 }

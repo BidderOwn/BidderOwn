@@ -96,6 +96,10 @@ public class Item extends BaseEntity {
         this.itemStatus = status;
     }
 
+    public void soldOutItem() {
+        this.itemStatus = ItemStatus.SOLDOUT;
+    }
+
     // 낙찰 받은 사람
     private Member getWinner() {
         if (bids.isEmpty()) return null;

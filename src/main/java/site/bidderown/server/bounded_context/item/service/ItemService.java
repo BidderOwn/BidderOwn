@@ -7,14 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.base.event.EventSoldOutNotification;
+import site.bidderown.server.base.exception.ForbiddenException;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -117,10 +116,15 @@ public class ItemService {
     }
 
     @Transactional
-    public void handleSale(Long itemId) {
+    public void handleSale(Long itemId, String memberName) {
         Item item = getItem(itemId);
-        item.updateStatus(ItemStatus.SOLDOUT);
-        item.getBids().forEach(bid -> bid.updateBidResult(BidResult.FAIL));
+
+        if (item.getMember().getName().equals(memberName)) {
+            throw new ForbiddenException(memberName);
+        }
+
+        item.soldOutItem();
+        item.getBids().forEach(Bid::updateBidResultFail);
 
         publisher.publishEvent(
                 EventSoldOutNotification.of(item)
