@@ -76,7 +76,7 @@ public class ItemService {
     public void delete(Long itemId) {
         Item findItem = itemRepository.findById(itemId)
                         .orElseThrow(() -> new NotFoundException(itemId));
-        itemRepository.delete(findItem);
+        findItem.delete();
     }
 
     private Item _create(ItemRequest request, Member member) {

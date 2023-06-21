@@ -57,6 +57,8 @@ public class Item extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
 
+    private boolean deleteStatus;
+
     @Builder
     private Item(
             String title,
@@ -70,11 +72,13 @@ public class Item extends BaseEntity {
         this.minimumPrice = minimumPrice;
         this.member = member;
         this.expireAt = expireAt;
+        this.deleteStatus = false;
         this.itemStatus = ItemStatus.BIDDING;
     }
 
     public static Item of(ItemRequest request, Member member) {
         LocalDateTime expireAt = TimeUtils.setExpireAt(request.getPeriod());
+        boolean deleteStatus = false;
 
         return Item.builder()
                 .title(request.getTitle())
@@ -111,6 +115,10 @@ public class Item extends BaseEntity {
     public String getThumbnailImage() {
         if (images.isEmpty()) return null;
         return images.get(0).getFileName();
+    }
+
+    public void delete() {
+        this.deleteStatus = true;
     }
 
 }
