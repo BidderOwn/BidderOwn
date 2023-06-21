@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
@@ -36,6 +37,9 @@ public class Item extends BaseEntity {
     private Member member;
 
     private LocalDateTime expireAt;
+
+    @ColumnDefault("false")
+    private boolean deleted;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Image> images = new ArrayList<>();
@@ -75,7 +79,6 @@ public class Item extends BaseEntity {
 
     public static Item of(ItemRequest request, Member member) {
         LocalDateTime expireAt = TimeUtils.setExpireAt(request.getPeriod());
-
         return Item.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -96,6 +99,10 @@ public class Item extends BaseEntity {
         this.itemStatus = status;
     }
 
+    public void soldOutItem() {
+        this.itemStatus = ItemStatus.SOLDOUT;
+    }
+
     // 낙찰 받은 사람
     private Member getWinner() {
         if (bids.isEmpty()) return null;
@@ -109,6 +116,9 @@ public class Item extends BaseEntity {
         return images.get(0).getFileName();
     }
 
+    public void updateDeleted() {
+        this.deleted = true;
+    }
 }
 
 

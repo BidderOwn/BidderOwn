@@ -57,8 +57,8 @@
                     <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                        :href="'/bid/list?itemId=' + itemId">
                         <span v-if="isMe()">입찰내역</span>
-                        <span v-else v-if="item.itemStatus === 'BIDDING'">입찰하기</span>
-                        <span v-else v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'">입찰목록</span>
+                        <span v-else-if="item.itemStatus === 'BIDDING'">입찰하기</span>
+                        <span v-else-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'">입찰목록</span>
                     </a>
                 </div>
             </div>
@@ -164,17 +164,15 @@
                 }).catch(error => console.log(error));
             },
             isMe() {
-                return $('#memberName').val() === this.username;
+                return this.item.memberName === this.username;
             },
             deleteItem() {
-                axios.post('/api/v1/item/' + this.itemId, {
-                    auth: {
-                        username: this.username,
-                        password: ''
-                    }
-                }).then(response => {
-                    window.location.href = 'http://localhost:8080/home';
-                }).catch();
+                if (window.confirm("삭제하시겠습니까?")) {
+                    axios.delete('/api/v1/item/' + this.itemId)
+                        .then(response => {
+                            window.location.href = response.data;
+                        }).catch(error => console.log(error));
+                }
             },
             getComments() {
                 axios.get('/api/v1/item/' + this.itemId + '/comments')
@@ -209,8 +207,16 @@
                 } else {
                     return `${dayDiff}일 남음`;
                 }
+            },
+            redirectBidList() {
+                axios.put('/api/v1/item/sale', {
+                    "itemId": this.itemId
+                }).then(response => {
+                    window.location.href = response.data;
+                }).catch(error => {
+                    // TODO 예외 처리 403
+                })
             }
-
         }
     })
 </script>

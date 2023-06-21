@@ -6,15 +6,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventSocketConnection;
+import site.bidderown.server.base.event.EventSocketDisconnection;
 import site.bidderown.server.base.event.EventSoldOutNotification;
+import site.bidderown.server.base.exception.ForbiddenException;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
-import site.bidderown.server.bounded_context.bid.entity.BidResult;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -49,7 +49,7 @@ public class ItemService {
     }
 
     public Item getItem(Long id) {
-        return itemRepository.findById(id)
+        return itemRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() -> new NotFoundException(id));
     }
 
@@ -66,18 +66,17 @@ public class ItemService {
     }
 
     public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
-        Item findItem = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(itemId));
-
+        Item findItem = getItem(itemId);
         findItem.update(itemUpdate);
-
         return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
     }
 
-    public void delete(Long itemId) {
-        Item findItem = itemRepository.findById(itemId)
-                        .orElseThrow(() -> new NotFoundException(itemId));
-        itemRepository.delete(findItem);
+    @Transactional
+    public void updateDeleted(Long itemId) {
+        Item item = getItem(itemId);
+        item.updateDeleted();
+        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_SELLER));
+        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_BIDDER));
     }
 
     private Item _create(ItemRequest request, Member member) {
@@ -101,7 +100,7 @@ public class ItemService {
 
     public List<ItemSimpleResponse> getItems(Long memberId) {
         return itemRepository
-                .findByMemberId(memberId)
+                .findByMemberIdAndDeletedIsFalse(memberId)
                 .stream()
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
@@ -112,18 +111,29 @@ public class ItemService {
         List<Bid> bids = member.getBids();
         return bids.stream()
                 .map(Bid::getItem)
+                .filter(item -> !item.isDeleted())
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void handleSale(Long itemId) {
+    public void handleSale(Long itemId, String memberName) {
         Item item = getItem(itemId);
-        item.updateStatus(ItemStatus.SOLDOUT);
-        item.getBids().forEach(bid -> bid.updateBidResult(BidResult.FAIL));
 
+        if (item.getMember().getName().equals(memberName)) {
+            throw new ForbiddenException(memberName);
+        }
+
+        item.soldOutItem();
+        item.getBids().forEach(Bid::updateBidResultFail);
+        afterHandleSale(item);
+    }
+
+    private void afterHandleSale(Item item) {
         publisher.publishEvent(
                 EventSoldOutNotification.of(item)
         );
+        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_SELLER));
+        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_BIDDER));
     }
 }

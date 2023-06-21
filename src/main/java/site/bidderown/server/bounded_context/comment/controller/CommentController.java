@@ -45,11 +45,11 @@ public class CommentController {
 
     @DeleteMapping("/api/v1/item/{id}/comment")
     @PreAuthorize("isAuthenticated()")
-    public void deleteComment(Long commentId, Principal principal) {
+    public void deleteComment(Long commentId, @AuthenticationPrincipal User user) {
         Comment comment = commentService.getComment(commentId);
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(comment.getWriter().getId()));
 
-        if (!memberDetail.getName().equals(principal.getName())) {
+        if (!memberDetail.getName().equals(user.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "댓글 삭제권한이 없습니다.");
         }
 
@@ -59,10 +59,14 @@ public class CommentController {
     @PutMapping("/api/v1/item/{id}/comment")
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
-    public CommentResponse updateComment(@PathVariable Long id, @RequestBody @Valid CommentRequest commentRequest, Principal principal){
+    public CommentResponse updateComment(
+            @PathVariable Long id,
+            @RequestBody @Valid CommentRequest commentRequest,
+            @AuthenticationPrincipal User user
+    ){
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
 
-        if (!memberDetail.getName().equals(principal.getName())) {
+        if (!memberDetail.getName().equals(user.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "댓글 수정권한이 없습니다.");
         }
 

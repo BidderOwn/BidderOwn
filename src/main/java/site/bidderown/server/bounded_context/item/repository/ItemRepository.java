@@ -14,15 +14,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findByMemberId(Long memberId);
+    List<Item> findByMemberIdAndDeletedIsFalse(Long memberId);
 
     Optional<Item> findById(Long id);
 
+    Optional<Item> findByIdAndDeletedIsFalse(Long id);
+
     Page<Item> findAll(Pageable pageable);
-
-    Page<Item> findByTitleContaining(String keyword, Pageable pageable);
-
-    Page<Item> findByDescriptionContaining(String keyword, Pageable pageable);
 
     @Modifying
     @Query("update Item i " +
