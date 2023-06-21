@@ -12,4 +12,6 @@ public interface SocketConnectionRepository extends JpaRepository<SocketConnecti
     List<SocketConnection> findByMember(Member member);
 
     Optional<SocketConnection> findByMemberAndConnectionType(Member member, ConnectionType connectionType);
+
+    List<SocketConnection> findAllByConnectionIdAndConnectionType(Long connectionId, ConnectionType connectionType);
 }

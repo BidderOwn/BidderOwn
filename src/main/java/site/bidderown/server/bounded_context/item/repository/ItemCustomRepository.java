@@ -74,7 +74,10 @@ public class ItemCustomRepository {
                 .from(item)
                 .leftJoin(item.images, image)
                 .on(image.id.eq(itemThumbnailImageId()))
-                .where(eqToSearchText(searchText))
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted()
+                )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -105,7 +108,7 @@ public class ItemCustomRepository {
                 .from(item)
                 .leftJoin(item.images, image)
                 .on(image.id.eq(itemThumbnailImageId()))
-                .where(item.id.eq(id))
+                .where(item.id.eq(id), eqNotDeleted())
                 .fetchOne());
     }
 
@@ -185,6 +188,10 @@ public class ItemCustomRepository {
         return eqToTitle(keywordExpression)
                 .or(eqToDescription(keywordExpression))
                 .or(eqToSeller(keywordExpression));
+    }
+
+    private BooleanExpression eqNotDeleted() {
+        return item.deleted.eq(false);
     }
 
     private BooleanExpression eqToTitle(StringExpression searchText) {

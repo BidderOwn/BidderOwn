@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventSocketConnection;
+import site.bidderown.server.base.event.EventSocketDisconnection;
 import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.base.exception.ForbiddenException;
 import site.bidderown.server.base.exception.NotFoundException;
@@ -48,7 +49,7 @@ public class ItemService {
     }
 
     public Item getItem(Long id) {
-        return itemRepository.findById(id)
+        return itemRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() -> new NotFoundException(id));
     }
 
@@ -65,18 +66,17 @@ public class ItemService {
     }
 
     public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
-        Item findItem = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(itemId));
-
+        Item findItem = getItem(itemId);
         findItem.update(itemUpdate);
-
         return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
     }
 
-    public void delete(Long itemId) {
-        Item findItem = itemRepository.findById(itemId)
-                        .orElseThrow(() -> new NotFoundException(itemId));
-        findItem.delete();
+    @Transactional
+    public void updateDeleted(Long itemId) {
+        Item item = getItem(itemId);
+        item.updateDeleted();
+        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_SELLER));
+        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_BIDDER));
     }
 
     private Item _create(ItemRequest request, Member member) {
@@ -100,7 +100,7 @@ public class ItemService {
 
     public List<ItemSimpleResponse> getItems(Long memberId) {
         return itemRepository
-                .findByMemberId(memberId)
+                .findByMemberIdAndDeletedIsFalse(memberId)
                 .stream()
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
@@ -111,6 +111,7 @@ public class ItemService {
         List<Bid> bids = member.getBids();
         return bids.stream()
                 .map(Bid::getItem)
+                .filter(item -> !item.isDeleted())
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
     }
@@ -125,9 +126,14 @@ public class ItemService {
 
         item.soldOutItem();
         item.getBids().forEach(Bid::updateBidResultFail);
+        afterHandleSale(item);
+    }
 
+    private void afterHandleSale(Item item) {
         publisher.publishEvent(
                 EventSoldOutNotification.of(item)
         );
+        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_SELLER));
+        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_BIDDER));
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import site.bidderown.server.base.exception.ForbiddenException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
@@ -71,18 +72,17 @@ public class ItemApiController {
         return itemService.updateById(id, itemUpdate);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    @ResponseBody
     public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
 
         if (!memberDetail.getName().equals(user.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+            throw new ForbiddenException("삭제 권한이 없습니다.");
         }
 
-        itemService.delete(id);
-        return "ok";
+        itemService.updateDeleted(id);
+        return "/home";
     }
 
     @PutMapping("/sale")

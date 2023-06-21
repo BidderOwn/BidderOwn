@@ -167,14 +167,10 @@
                 return this.item.memberName === this.username;
             },
             deleteItem() {
-                axios.post('/api/v1/item/' + this.itemId, {
-                    auth: {
-                        username: this.username,
-                        password: ''
-                    }
-                }).then(response => {
-                    window.location.href = 'http://localhost:8080/home';
-                }).catch();
+                axios.delete('/api/v1/item/' + this.itemId)
+                    .then(response => {
+                        window.location.href = response.data;
+                    }).catch(error => console.log(error));
             },
             getComments() {
                 axios.get('/api/v1/item/' + this.itemId + '/comments')

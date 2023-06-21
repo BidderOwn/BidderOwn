@@ -23,7 +23,6 @@ public class SocketConnectionService {
 
     private final SocketConnectionRepository socketConnectionRepository;
     private final MemberService memberService;
-    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public List<SocketConnectionResponse> getConnections(String memberName) {
@@ -51,5 +50,12 @@ public class SocketConnectionService {
 
     private SocketConnection create(SocketConnection socketConnection) {
         return socketConnectionRepository.save(socketConnection);
+    }
+
+    @Transactional
+    public void disconnect(Long connectionId, ConnectionType connectionType) {
+        List<SocketConnection> connections = socketConnectionRepository
+                .findAllByConnectionIdAndConnectionType(connectionId, connectionType);
+        socketConnectionRepository.deleteAll(connections);
     }
 }
