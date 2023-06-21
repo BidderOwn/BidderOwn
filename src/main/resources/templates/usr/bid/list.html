@@ -93,6 +93,11 @@
                                     <div class="truncate text-sm text-zinc-700">{{ bid.createdDate }}</div>
                                 </div>
                             </div>
+                            <div v-if="username === bid.bidderName" class="items-center mr-2">
+                                <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
+                                   v-on:click="deleteBid(bid.bidId)">취소하기
+                                </a>
+                            </div>
                             <div v-if="username === sellerName && (itemStatus === '경매중' || itemStatus === '경매종료')" class="items-center  mr-2" >
                                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                                    v-on:click="handleChat(bid.bidderName)">채팅하기
@@ -188,6 +193,13 @@
                 }, (error) => {
                     console.log(error)
                 });
+            },
+            deleteBid(bidId){
+                console.log(bidId);
+                axios.delete('/api/v1/bid/'+ bidId, {
+                }).then(response => {
+                    this.updateData();
+                }).catch();
             },
             handleChat(bidderName) {
                 axios.post('/api/v1/chat-room', {
