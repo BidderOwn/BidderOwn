@@ -5,7 +5,6 @@ import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Setter
@@ -16,15 +15,17 @@ public class BidResponse {
     private int bidPrice; // 입찰 금액
     private String createdDate;
     private String thumbnailImageName;
+    private Long bidId;
     // img도 들어가야할 것 같습니다.
 
 
     @Builder
-    private BidResponse(String bidderName, String createdDate, int bidPrice, String thumbnailImageName) {
+    private BidResponse(String bidderName, String createdDate, int bidPrice, String thumbnailImageName, Long bidId) {
         this.bidderName = bidderName;
         this.createdDate = createdDate;
         this.bidPrice = bidPrice;
         this.thumbnailImageName = thumbnailImageName;
+        this.bidId = bidId;
     }
 
     public static BidResponse of(Bid bid, Item item){
@@ -36,6 +37,7 @@ public class BidResponse {
                 .bidPrice(bid.getPrice())
                 .createdDate(createdAt)
                 .thumbnailImageName(item.getThumbnailImage())
+                .bidId(bid.getId())
                 .build();
     }
 }

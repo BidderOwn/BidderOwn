@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.event.EventSocketConnection;
+import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
@@ -17,7 +18,6 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.List;
@@ -76,6 +76,13 @@ public class BidService {
 
     public void clear() {
         bidRepository.deleteAll();
+    }
+
+    public void delete(Long bidId) {
+        Bid findBid = bidRepository.findById(bidId)
+                .orElseThrow(() -> new NotFoundException("입찰이 없습니다."));
+
+        bidRepository.delete(findBid);
     }
 
     public BidDetails getBidStatistics(Long itemId) {
