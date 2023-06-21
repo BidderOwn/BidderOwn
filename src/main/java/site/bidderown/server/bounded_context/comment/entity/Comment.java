@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 

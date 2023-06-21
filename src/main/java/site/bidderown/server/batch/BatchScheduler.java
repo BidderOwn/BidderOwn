@@ -22,7 +22,7 @@ public class BatchScheduler {
     private final CommandLineRunner initData;
 
 //    @Scheduled(cron = "0 0 * * * *")
-    @Scheduled(fixedRate = 30000000)
+//    @Scheduled(fixedRate = 30000000)
     public void bidEndScheduler() throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()

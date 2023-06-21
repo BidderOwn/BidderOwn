@@ -1,5 +1,5 @@
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+>
 <div th:replace="import::head"></div>
 <body>
 <div id="detail">
@@ -7,7 +7,8 @@
     <div class="flex flex-col items-center mt-5 overflow-y-scroll">
         <!--  이미지  -->
         <div class="w-[550px] h-[305px] truncate rounded-lg mb-[8px]">
-            <img class="object-cover h-full w-full" th:src="'http://localhost:8080/api/v1/image/item/' + ${item.getImages().get(0).getFileName()}">
+            <img class="object-cover h-full w-full"
+                 :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName">
         </div>
         <!--  설명  -->
         <div class="flex flex-col">
@@ -16,13 +17,13 @@
                 <!--   사용자 프로필   -->
                 <div class="flex items-center">
                     <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
-                    <div class="" th:text="${item.memberName}"></div>
+                    <div class="">{{ item.memberName }}</div>
                 </div>
                 <!--    비더, 댓글    -->
                 <div class="flex">
                         <span class="flex mr-2">
                             <img src="/image/person.png" class="w-[20px] h-[20px]">
-                            <span class="text-sm text-gray-600" th:text="${item.bids.size()}"></span>
+                            <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                         </span>
                     <span class="flex items-center">
                             <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
@@ -33,67 +34,46 @@
             <!--   제목, 버튼   -->
             <div class="flex justify-between items-center mt-1">
                 <div class="flex items-start">
-                    <div class="text-xl font-semibold text-gray-600" th:text="${item.title}"></div>
-                    <div th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'" class="text-sm text-gray-600 ml-1 pt-[2px]">경매종료</div>
+                    <div class="text-xl font-semibold text-gray-600">{{ item.title }}</div>
+                    <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
+                         class="text-sm text-gray-600 ml-1 pt-[2px]">BID_END
+                    </div>
                 </div>
 
                 <!--    버튼    -->
                 <div class="flex items-center">
                     <div v-if="isMe()" class="flex h-[35px]">
-                        <button class="border-solid border-[1px] h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100" v-on:click="deleteItem()">
+                        <button class="border-solid border-[1px] h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100"
+                                v-on:click="deleteItem()">
                             삭제하기
                         </button>
                     </div>
                     <div v-else class="flex h-[35px]">
-                        <button class="border-solid border-[1px]  h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100" v-on:click="handleChat()">
+                        <button class="border-solid border-[1px]  h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100"
+                                v-on:click="handleChat()">
                             채팅하기
                         </button>
                     </div>
-                    <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white" th:href="|@{'/bid/list?itemId='}| + ${item.id}">
+                    <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
+                       :href="'/bid/list?itemId=' + itemId">
                         <span v-if="isMe()">입찰내역</span>
-                        <span v-else th:if="${item.getItemStatus() == '경매중'}">입찰하기</span>
-                        <span v-else th:if="${item.getItemStatus()} == '경매종료' or ${item.getItemStatus()} == '판매완료'">입찰목록</span>
+                        <span v-else v-if="item.itemStatus === 'BIDDING'">입찰하기</span>
+                        <span v-else v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'">입찰목록</span>
                     </a>
                 </div>
             </div>
             <div class="text-sm text-gray-600">
-                <div class="truncate text-sm text-zinc-700">
-                    <script th:inline="javascript">
-                        const createdDate = /*[[${item.createdAt}]]*/ '';
-                        const timeAgo = getTimeAgo(new Date(createdDate));
-                        document.write(timeAgo);
-
-                        function getTimeAgo(date) {
-                            const currentDate = new Date();
-                            const timeDiff = currentDate - date;
-
-                            const minuteDiff = Math.floor(timeDiff / 1000 / 60);
-                            const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
-                            const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
-
-                            if (minuteDiff < 1) {
-                                return "방금 전";
-                            } else if (hourDiff < 1) {
-                                return `${minuteDiff}분 전`;
-                            } else if (dayDiff < 1) {
-                                return `${hourDiff}시간 전`;
-                            } else {
-                                return `${dayDiff}일 전`;
-                            }
-                        }
-                    </script>
-                </div>
-
+                <div class="truncate text-sm text-zinc-700">{{ getTimeAgo(item.expireAt) }}</div>
             </div>
-            <div class="text-lg text-indigo-400" th:text="|₩${item.minimumPrice}|"></div>
+            <div class="text-lg text-indigo-400">{{item.minimumPrice}}</div>
             <div class="flex">
-                <span class="text-sm text-gray-600" th:if="${item.minPrice != null}" th:text="|최저가 ₩${item.minPrice} ~ &nbsp|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.minPrice == null}" th:text= "|최저가&nbsp₩&nbsp~&nbsp|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.maxPrice != null}" th:text="|최고가 ₩${item.maxPrice}|"></span>
-                <span class="text-sm text-gray-600" th:if="${item.maxPrice == null}" th:text="|최고가&nbsp₩|"></span>
+                <span class="text-sm text-gray-600" v-if="item.minPrice != null">최저가 ₩{{ item.minPrice }}&nbsp~</span>
+                <span class="text-sm text-gray-600" v-if="item.minPrice === null">최저가 ₩&nbsp~</span>
+                <span class="text-sm text-gray-600" v-if="item.maxPrice != null">최고가 ₩{{ item.maxPrice }}</span>
+                <span class="text-sm text-gray-600" v-if="item.maxPrice == null">최고가 ₩</span>
             </div>
             <!--  본문  -->
-            <div class="mt-5 w-[550px]" th:text="${item.description}"></div>
+            <div class="mt-5 w-[550px]">{{ item.description }}</div>
         </div>
 
         <!--  댓글  -->
@@ -130,8 +110,7 @@
             </div>
         </div>
         <div class="mt-10"></div>
-        <input type="hidden" id="itemId" th:name="itemId" th:value="${ item.id }">
-        <input type="hidden" id="memberName" th:value="${ item.memberName }">
+        <input type="hidden" id="itemId" th:name="itemId" th:value="${ itemId }">
     </div>
 </div>
 <script>
@@ -141,7 +120,9 @@
             username: '',
             itemId: 0,
             comments: [],
-            commentMessage: ''
+            commentMessage: '',
+            item: '',
+            maxPrice: 0
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -150,6 +131,8 @@
         },
         methods: {
             initData() {
+                this.getItemDetail();
+                this.getComments();
                 axios.get('/api/v1/item/' + this.itemId + '/comments')
                     .then(response => {
                         this.comments = response.data.reverse();
@@ -192,7 +175,42 @@
                 }).then(response => {
                     window.location.href = 'http://localhost:8080/home';
                 }).catch();
+            },
+            getComments() {
+                axios.get('/api/v1/item/' + this.itemId + '/comments')
+                    .then(response => {
+                        this.comments = response.data.reverse();
+                    }).catch(error => {
+                    console.log(error);
+                });
+            },
+            getItemDetail() {
+                axios.get('/api/v1/item/' + this.itemId)
+                    .then(response => {
+                        this.item = response.data;
+                    }).catch(error => {
+                    console.log(error);
+                });
+            },
+            getTimeAgo(date) {
+                const currentDate = new Date();
+                const timeDiff = new Date(date) - currentDate;
+
+                const minuteDiff = Math.floor(timeDiff / 1000 / 60);
+                const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
+                const dayDiff = Math.floor(timeDiff / 1000 / 60 / 60 / 24);
+
+                if (minuteDiff < 1) {
+                    return "1분 안에 종료";
+                } else if (hourDiff < 1) {
+                    return `${minuteDiff}분 남음`;
+                } else if (dayDiff < 1) {
+                    return `${hourDiff}시간 남음`;
+                } else {
+                    return `${dayDiff}일 남음`;
+                }
             }
+
         }
     })
 </script>

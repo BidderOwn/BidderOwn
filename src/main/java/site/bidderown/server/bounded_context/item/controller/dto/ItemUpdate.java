@@ -5,13 +5,11 @@ import org.hibernate.validator.constraints.Length;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
 
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ItemUpdateDto extends BaseEntity {
+public class ItemUpdate extends BaseEntity {
 
     @NotBlank
     @Length(max = 30)
@@ -23,13 +21,13 @@ public class ItemUpdateDto extends BaseEntity {
 
 
     @Builder
-    public ItemUpdateDto(String title, String description) {
+    public ItemUpdate(String title, String description) {
         this.title = title;
         this.description = description;
     }
 
-    public static ItemUpdateDto of(Item item) {
-        return ItemUpdateDto.builder()
+    public static ItemUpdate of(Item item) {
+        return ItemUpdate.builder()
                 .title(item.getTitle())
                 .description(item.getDescription())
                 .build();

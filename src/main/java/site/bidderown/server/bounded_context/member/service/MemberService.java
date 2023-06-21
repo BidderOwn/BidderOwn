@@ -27,19 +27,15 @@ public class MemberService {
     @Transactional
     public Member loginAsSocial(String username) {
         Optional<Member> opMember = getOptionalMember(username);
-        Member member = opMember.orElseGet(()
+        return opMember.orElseGet(()
                 -> memberRepository.save(Member.of(username)));
-
-        return member;
     }
 
     @Transactional
     public Member join(String username, String password) {
         Optional<Member> opMember = getOptionalMember(username);
-        Member member = opMember.orElseGet(() ->
+        return opMember.orElseGet(() ->
                 memberRepository.save(Member.of(username, passwordEncoder.encode(password))));
-
-        return member;
     }
 
     public Member getMember(Long memberId) {
