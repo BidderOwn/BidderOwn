@@ -167,10 +167,12 @@
                 return this.item.memberName === this.username;
             },
             deleteItem() {
-                axios.delete('/api/v1/item/' + this.itemId)
-                    .then(response => {
-                        window.location.href = response.data;
-                    }).catch(error => console.log(error));
+                if (window.confirm("삭제하시겠습니까?")) {
+                    axios.delete('/api/v1/item/' + this.itemId)
+                        .then(response => {
+                            window.location.href = response.data;
+                        }).catch(error => console.log(error));
+                }
             },
             getComments() {
                 axios.get('/api/v1/item/' + this.itemId + '/comments')
