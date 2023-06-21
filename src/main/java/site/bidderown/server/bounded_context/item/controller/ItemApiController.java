@@ -60,11 +60,11 @@ public class ItemApiController {
     public ItemUpdate updateItem(
             @PathVariable Long id,
             @RequestBody @Valid ItemUpdate itemUpdate,
-            Principal principal
+            @AuthenticationPrincipal User user
     ){
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
 
-        if (!memberDetail.getName().equals(principal.getName())) {
+        if (!memberDetail.getName().equals(user.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
 
@@ -74,10 +74,10 @@ public class ItemApiController {
     @PostMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
-    public String deleteItem(@PathVariable Long id, Principal principal) {
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(principal.getName()));
+    public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
 
-        if (!memberDetail.getName().equals(principal.getName())) {
+        if (!memberDetail.getName().equals(user.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
         }
 
