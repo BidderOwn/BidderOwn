@@ -14,6 +14,7 @@ import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
+import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
@@ -89,5 +90,15 @@ public class ItemApiController {
     ) {
         itemService.handleSale(itemId, user.getUsername());
         return "/bid/list?itemId=" + itemId;
+    }
+
+    @GetMapping("/me")
+    public List<ItemSimpleResponse> getItem(@AuthenticationPrincipal User user) {
+        return itemService.getItems(user.getUsername()); //판매상품
+    }
+
+    @GetMapping("/bid/me")
+    public List<ItemSimpleResponse> getBidItem(@AuthenticationPrincipal User user) {
+        return itemService.getBidItems(user.getUsername()); //입찰내역
     }
 }

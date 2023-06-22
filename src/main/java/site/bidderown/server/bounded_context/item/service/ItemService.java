@@ -98,6 +98,15 @@ public class ItemService {
         return itemCustomRepository.findItems(sortCode, searchText, pageable);
     }
 
+    public List<ItemSimpleResponse> getItems(String memberName) {
+        Member member = memberService.getMember(memberName);
+        return itemRepository
+                .findByMemberAndDeletedIsFalse(member)
+                .stream()
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
+    }
+
     public List<ItemSimpleResponse> getItems(Long memberId) {
         return itemRepository
                 .findByMemberIdAndDeletedIsFalse(memberId)
@@ -108,6 +117,16 @@ public class ItemService {
 
     public List<ItemSimpleResponse> getBidItems(Long memberId) {
         Member member = memberService.getMember(memberId);
+        List<Bid> bids = member.getBids();
+        return bids.stream()
+                .map(Bid::getItem)
+                .filter(item -> !item.isDeleted())
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemSimpleResponse> getBidItems(String memberName) {
+        Member member = memberService.getMember(memberName);
         List<Bid> bids = member.getBids();
         return bids.stream()
                 .map(Bid::getItem)

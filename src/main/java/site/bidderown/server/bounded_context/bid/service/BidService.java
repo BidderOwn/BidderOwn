@@ -86,7 +86,7 @@ public class BidService {
 
     public void delete(Long bidId) {
         Bid findBid = bidRepository.findById(bidId)
-                .orElseThrow(() -> new NotFoundException("입찰이 없습니다."));
+                .orElseThrow(() -> new NotFoundException("입찰이 없습니다.", bidId + ""));
 
         bidRepository.delete(findBid);
     }

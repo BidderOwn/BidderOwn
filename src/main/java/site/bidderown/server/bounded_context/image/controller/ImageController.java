@@ -26,7 +26,7 @@ public class ImageController {
         try {
             return imageUtils.download(kind, fileName);
         } catch (IOException e) {
-            throw new NotFoundException(kind + "/" + fileName);
+            throw new NotFoundException(kind + "/" + fileName, "");
         }
     }
 }

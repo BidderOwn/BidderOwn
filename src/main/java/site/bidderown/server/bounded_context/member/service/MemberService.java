@@ -19,7 +19,6 @@ import java.util.Optional;
 public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public Member loginAsSocial(String username) {
