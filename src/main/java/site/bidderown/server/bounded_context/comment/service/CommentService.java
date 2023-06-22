@@ -3,13 +3,13 @@ package site.bidderown.server.bounded_context.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
-import site.bidderown.server.bounded_context.comment.repository.CommentCustomRepository;
 import site.bidderown.server.bounded_context.comment.repository.CommentRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final CommentCustomRepository commentCustomRepository;
     private final ItemService itemService;
     private final MemberService memberService;
     private final ApplicationEventPublisher publisher;
@@ -33,8 +32,7 @@ public class CommentService {
         Member writer = memberService.getMember(writerName);
         Comment comment = Comment.of(request, item, writer);
 
-        publisher.publishEvent(
-                EventItemSellerNotification.of(item));
+        publisher.publishEvent(EventItemSellerNotification.of(item));
 
         return commentRepository.save(comment);
     }
@@ -42,8 +40,9 @@ public class CommentService {
     public Comment create(CommentRequest request, Long itemId, Member writer) {
         Item item = itemService.getItem(itemId);
         Comment comment = Comment.of(request, item, writer);
-        publisher.publishEvent(
-                EventItemSellerNotification.of(item));
+
+        publisher.publishEvent(EventItemSellerNotification.of(item));
+
         return commentRepository.save(comment);
     }
 
@@ -51,7 +50,8 @@ public class CommentService {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(commentId));
     }
-    public List<CommentDetailResponse> getAll(Long itemId) {
+
+    public List<CommentDetailResponse> getComments(Long itemId) {
         return commentRepository
                 .findAllByItemId(itemId)
                 .stream()
@@ -59,23 +59,16 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public void delete(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+    @Transactional
+    public Long delete(Long commentId) {
+        Comment comment = getComment(commentId);
         commentRepository.delete(comment);
+        return commentId;
     }
 
-
-    public CommentResponse updateById(Long commentId, CommentRequest commentRequest, String name) {
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
-
-        findComment.update(commentRequest);
-
-        return CommentResponse.of(findComment);
-    }
-
-    public List<Long> getCommentItemIds(String username) {
-        return commentCustomRepository.findCommentItemIds(username);
+    public CommentResponse update(Long commentId, CommentRequest commentRequest) {
+        Comment comment = getComment(commentId);
+        comment.updateContent(commentRequest.getContent());
+        return CommentResponse.of(comment);
     }
 }

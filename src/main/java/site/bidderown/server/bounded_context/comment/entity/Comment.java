@@ -51,9 +51,8 @@ public class Comment extends BaseEntity {
                 .build();
     }
 
-    public void update(CommentRequest commentRequest){
-        this.content = commentRequest.getContent();
-        this.setUpdatedAt(LocalDateTime.now());
+    public void updateContent(String content){
+        this.content = content;
     }
 
 }
