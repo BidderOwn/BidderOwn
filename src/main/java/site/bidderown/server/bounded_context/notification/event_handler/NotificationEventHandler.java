@@ -28,6 +28,12 @@ public class NotificationEventHandler {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
+
+    /**
+     * @description 아이템에 입찰가를 제시한 사람(입찰자)에게 알림을 전송
+     * @param eventItemBidderNotification
+     * Item: 입찰가가 제시된 상품, Member: 입찰자, NotificationType 알림 타입
+     */
     @EventListener
     @Async
     public void listen(EventItemBidderNotification eventItemBidderNotification) {
@@ -56,6 +62,10 @@ public class NotificationEventHandler {
                 "");
     }
 
+    /**
+     * @description 상품 판매자에게 알림을 보냄
+     * @param eventItemSellerNotification 상품 엔티티, 알림 타입
+     */
     @EventListener
     @Async
     public void listen(EventItemSellerNotification eventItemSellerNotification) {
