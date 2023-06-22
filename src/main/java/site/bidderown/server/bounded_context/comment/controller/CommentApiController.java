@@ -9,7 +9,6 @@ import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetai
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -37,16 +36,20 @@ public class CommentApiController {
 
     @DeleteMapping("/{id}/comment")
     @PreAuthorize("isAuthenticated()")
-    public void deleteComment(@PathVariable("id") Long commentId) {
-        commentService.delete(commentId);
+    public void deleteComment(
+            @PathVariable("id") Long commentId,
+            @AuthenticationPrincipal User user
+    ) {
+        commentService.delete(commentId, user.getUsername());
     }
 
     @PutMapping("/{id}/comment")
     @PreAuthorize("isAuthenticated()")
     public CommentResponse updateComment(
-            @PathVariable Long id,
-            @RequestBody @Valid CommentRequest commentRequest
+            @PathVariable("id") Long commentId,
+            @RequestBody @Valid CommentRequest commentRequest,
+            @AuthenticationPrincipal User user
     ){
-        return commentService.update(id, commentRequest);
+        return commentService.update(commentId, commentRequest, user.getUsername());
     }
 }

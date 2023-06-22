@@ -72,8 +72,13 @@ public class ItemService {
     }
 
     @Transactional
-    public void updateDeleted(Long itemId) {
+    public void updateDeleted(Long itemId, String memberName) {
         Item item = getItem(itemId);
+
+        if (hasAuthorization(item, memberName)) {
+            throw new ForbiddenException("삭제 권한이 없습니다.");
+        }
+
         item.updateDeleted();
         publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_SELLER));
         publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_BIDDER));
@@ -139,8 +144,8 @@ public class ItemService {
     public void handleSale(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
-        if (item.getMember().getName().equals(memberName)) {
-            throw new ForbiddenException(memberName);
+        if (!hasAuthorization(item, memberName)) {
+            throw new ForbiddenException("판매완료 권한이 없습니다.");
         }
 
         item.soldOutItem();
@@ -154,5 +159,9 @@ public class ItemService {
         );
         publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_SELLER));
         publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_BIDDER));
+    }
+
+    private boolean hasAuthorization(Item item, String memberName) {
+        return item.getMember().getName().equals(memberName);
     }
 }

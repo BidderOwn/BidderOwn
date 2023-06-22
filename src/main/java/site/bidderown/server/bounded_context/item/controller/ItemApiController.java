@@ -10,11 +10,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
-import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
@@ -73,12 +71,7 @@ public class ItemApiController {
     @PreAuthorize("isAuthenticated()")
     public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
-
-        if (!memberDetail.getName().equals(user.getUsername())) {
-            throw new ForbiddenException("삭제 권한이 없습니다.");
-        }
-
-        itemService.updateDeleted(id);
+        itemService.updateDeleted(id, user.getUsername());
         return "/home";
     }
 

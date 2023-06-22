@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemSellerNotification;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
@@ -48,7 +49,7 @@ public class CommentService {
 
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.", commentId + ""));
+                .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않습니다.", commentId + ""));
     }
 
     public List<CommentDetailResponse> getComments(Long itemId) {
@@ -60,28 +61,29 @@ public class CommentService {
     }
 
     @Transactional
-    public Long delete(Long commentId) {
+    public Long delete(Long commentId, String memberName) {
         Comment comment = getComment(commentId);
+
+        if (!hasAuthorization(comment, memberName)) {
+            throw new ForbiddenException("댓글 삭제 권한이 없습니다.");
+        }
 
         commentRepository.delete(comment);
         return commentId;
     }
 
-    public CommentResponse updateById(Long commentId, CommentRequest commentRequest, String name) {
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.",  commentId + ""));
-
-        findComment.update(commentRequest);
-
-        return CommentResponse.of(findComment);
-    }
-
-    public List<Long> getCommentItemIds(String username) {
-        return commentCustomRepository.findCommentItemIds(username);
-
-    public CommentResponse update(Long commentId, CommentRequest commentRequest) {
+    public CommentResponse update(Long commentId, CommentRequest commentRequest, String memberName) {
         Comment comment = getComment(commentId);
+
+        if (!hasAuthorization(comment, memberName)) {
+            throw new ForbiddenException("댓글 수정 권한이 없습니다.");
+        }
+
         comment.updateContent(commentRequest.getContent());
         return CommentResponse.of(comment);
+    }
+
+    private boolean hasAuthorization(Comment comment, String memberName) {
+        return comment.getWriter().getName().equals(memberName);
     }
 }
