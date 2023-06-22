@@ -6,12 +6,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventSocketConnection;
-import site.bidderown.server.base.exception.NotFoundException;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.repository.MemberRepository;
-import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.Optional;
 
@@ -22,7 +19,6 @@ import java.util.Optional;
 public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public Member loginAsSocial(String username) {
@@ -40,12 +36,12 @@ public class MemberService {
 
     public Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException(memberId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다.", memberId + ""));
     }
 
     public Member getMember(String name) {
         return memberRepository.findByName(name)
-                .orElseThrow(() -> new NotFoundException(name));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 사용자입니다.", name));
     }
 
     public void clear() {

@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.event.EventSocketConnection;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
@@ -15,6 +16,7 @@ import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidCustomRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -47,6 +49,10 @@ public class BidService {
     @Transactional
     public Long handleBid(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
+
+        if(item.getItemStatus() == ItemStatus.BID_END || item.getItemStatus() == ItemStatus.SOLDOUT)
+            throw new BidEndItemException("입찰이 종료된 아이템입니다.", item.getId() + "");
+
         Member bidder = memberService.getMember(username);
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
@@ -80,7 +86,7 @@ public class BidService {
 
     public void delete(Long bidId) {
         Bid findBid = bidRepository.findById(bidId)
-                .orElseThrow(() -> new NotFoundException("입찰이 없습니다."));
+                .orElseThrow(() -> new NotFoundException("입찰이 없습니다.", bidId + ""));
 
         bidRepository.delete(findBid);
     }

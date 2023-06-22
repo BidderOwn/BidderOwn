@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventSocketConnection;
 import site.bidderown.server.base.event.EventSocketDisconnection;
 import site.bidderown.server.base.event.EventSoldOutNotification;
-import site.bidderown.server.base.exception.ForbiddenException;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.image.service.ImageService;
@@ -50,7 +50,7 @@ public class ItemService {
 
     public Item getItem(Long id) {
         return itemRepository.findByIdAndDeletedIsFalse(id)
-                .orElseThrow(() -> new NotFoundException(id));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
     }
 
     public ItemDetailResponse getItemDetail_V1(Long id) {
@@ -62,7 +62,7 @@ public class ItemService {
 
     public ItemDetailResponse getItemDetail(Long id) {
         return itemCustomRepository.findItemById(id)
-                .orElseThrow(() -> new NotFoundException(id));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
     }
 
     public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
@@ -98,6 +98,15 @@ public class ItemService {
         return itemCustomRepository.findItems(sortCode, searchText, pageable);
     }
 
+    public List<ItemSimpleResponse> getItems(String memberName) {
+        Member member = memberService.getMember(memberName);
+        return itemRepository
+                .findByMemberAndDeletedIsFalse(member)
+                .stream()
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
+    }
+
     public List<ItemSimpleResponse> getItems(Long memberId) {
         return itemRepository
                 .findByMemberIdAndDeletedIsFalse(memberId)
@@ -108,6 +117,16 @@ public class ItemService {
 
     public List<ItemSimpleResponse> getBidItems(Long memberId) {
         Member member = memberService.getMember(memberId);
+        List<Bid> bids = member.getBids();
+        return bids.stream()
+                .map(Bid::getItem)
+                .filter(item -> !item.isDeleted())
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemSimpleResponse> getBidItems(String memberName) {
+        Member member = memberService.getMember(memberName);
         List<Bid> bids = member.getBids();
         return bids.stream()
                 .map(Bid::getItem)

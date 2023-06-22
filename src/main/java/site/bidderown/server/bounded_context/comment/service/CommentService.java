@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.EventItemSellerNotification;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
@@ -48,7 +48,7 @@ public class CommentService {
 
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.", commentId + ""));
     }
 
     public List<CommentDetailResponse> getComments(Long itemId) {
@@ -62,9 +62,22 @@ public class CommentService {
     @Transactional
     public Long delete(Long commentId) {
         Comment comment = getComment(commentId);
+
         commentRepository.delete(comment);
         return commentId;
     }
+
+    public CommentResponse updateById(Long commentId, CommentRequest commentRequest, String name) {
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.",  commentId + ""));
+
+        findComment.update(commentRequest);
+
+        return CommentResponse.of(findComment);
+    }
+
+    public List<Long> getCommentItemIds(String username) {
+        return commentCustomRepository.findCommentItemIds(username);
 
     public CommentResponse update(Long commentId, CommentRequest commentRequest) {
         Comment comment = getComment(commentId);

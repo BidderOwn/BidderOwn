@@ -26,12 +26,6 @@ public class NotificationController {
     @GetMapping("/notifications")
     @PreAuthorize("isAuthenticated()")
     public String notificationList(Model model) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<Notification> list = notificationService.getNotifications(username);
-        model.addAttribute("notifications",
-                list.stream().map(NotificationResponse::of)
-                        .collect(Collectors.toList())
-        );
 
         return "usr/notification/list";
         // return dto 변환 코드 작성해야함
