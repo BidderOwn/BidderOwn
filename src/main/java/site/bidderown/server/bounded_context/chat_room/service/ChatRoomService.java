@@ -3,7 +3,7 @@ package site.bidderown.server.bounded_context.chat_room.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDetail;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
@@ -32,7 +32,7 @@ public class ChatRoomService {
 
     public ChatRoom getChatRoom(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(chatRoomId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채팅방입니다.", chatRoomId + ""));
     }
 
     @Transactional
@@ -57,7 +57,7 @@ public class ChatRoomService {
 
     public ChatRoomDetail getChatRoomDetail(Long id, String username) {
         ChatRoom chatRoom = chatRoomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채팅방입니다.", id + ""));
 
         ChatRoomInfo chatRoomInfo = chatRoomCustomRepository.findById(id);
 

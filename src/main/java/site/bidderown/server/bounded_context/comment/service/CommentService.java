@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import site.bidderown.server.base.event.EventItemSellerNotification;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
@@ -49,7 +49,7 @@ public class CommentService {
 
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.", commentId + ""));
     }
     public List<CommentDetailResponse> getAll(Long itemId) {
         return commentRepository
@@ -61,14 +61,14 @@ public class CommentService {
 
     public void delete(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.", commentId + ""));
         commentRepository.delete(comment);
     }
 
 
     public CommentResponse updateById(Long commentId, CommentRequest commentRequest, String name) {
         Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 댓글입니다.",  commentId + ""));
 
         findComment.update(commentRequest);
 
