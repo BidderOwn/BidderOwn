@@ -7,10 +7,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponses;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
@@ -47,11 +49,9 @@ public class BidApiController {
     @PreAuthorize("isAuthenticated()")
     @ResponseBody
     public String deleteBid(@PathVariable Long bidId, @AuthenticationPrincipal User user) {
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
-
-        if (!memberDetail.getName().equals(user.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
+        Bid bid = bidService.getBid(bidId);
+        if(!user.getUsername().equals(bid.getBidder().getName()))
+            throw new ForbiddenException("삭제 권한이 없습니다.");
 
         bidService.delete(bidId);
         return "ok";

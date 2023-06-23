@@ -67,6 +67,9 @@ public class BidService {
         bid.updatePrice(bidRequest.getItemPrice());
         return bid.getId();
     }
+    public Bid getBid(Long bidId){
+        return  bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
+    }
 
     private Long create(int price, Item item, Member bidder) {
         Bid bid = Bid.of(price, bidder, item);
