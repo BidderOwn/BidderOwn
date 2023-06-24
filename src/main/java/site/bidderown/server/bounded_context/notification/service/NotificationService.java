@@ -5,13 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemSellerNotification;
-import site.bidderown.server.base.event.EventItemBidderNotification;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
+import site.bidderown.server.bounded_context.notification.controller.dto.NewBidNotificationRequest;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationRepository;
@@ -39,31 +37,13 @@ public class NotificationService {
         return notificationRepository.findByReceiverAndReadDateIsNullOrderByCreatedAtDesc(member);
     }
 
-    @Transactional
-    public Notification create(EventItemBidderNotification eventItemBidderNotification) {
-        return notificationRepository.save(Notification.of(
-                eventItemBidderNotification.getItem(),
-                eventItemBidderNotification.getBidder(),
-                eventItemBidderNotification.getType()
-        ));
-    }
-
-    @Transactional
-    public void create(EventItemSellerNotification eventItemSellerNotification) {
-        notificationRepository.save(Notification.of(
-                eventItemSellerNotification.getItem(),
-                eventItemSellerNotification.getItem().getMember(),
-                eventItemSellerNotification.getType()
-        ));
-    }
-
     public void create(List<Notification> notifications) {
         notificationRepository.saveAll(notifications);
     }
 
     @Transactional
-    public void readAll() {
-        List<Notification> notifications = notificationRepository.findByReadDateIsNull();
+    public void readAll(String username) {
+        List<Notification> notifications = notificationRepository.findByReceiverNameAndReadDateIsNull(username);
         notifications.stream().forEach(Notification::read);
     }
 
@@ -76,27 +56,31 @@ public class NotificationService {
         notificationRepository.saveAll(notifications);
     }
 
-    public void createNewBidNotification(Long itemId) {
-        Item item = itemService.getItem(itemId);
+    @Transactional
+    public void createNewBidNotification(NewBidNotificationRequest request) {
+        Item item = itemService.getItem(request.getItemId());
         List<Notification> notifications = item.getBids().stream()
-//                .filter(bid -> !bid.getBidder().getName().equals(memberName))
+                .filter(bid -> !bid.getBidder().getName().equals(request.getMemberName()))
                 .map(bid -> Notification.of(item, bid.getBidder(), NotificationType.BID))
                 .collect(Collectors.toList());
+        notifications.add(Notification.of(item, item.getMember(), NotificationType.BID));
         createNotifications(notifications);
-        noticeNewBid(item);
+        noticeNewBid(item, request.getMemberName());
     }
 
-    private void noticeNewBid(Item item) {
+    public void noticeNewBid(Item item, String memberName) {
         item.getBids().stream()
-                .map(Bid::getId)
+                .filter(bid -> !bid.getBidder().getName().equals(memberName))
+                .map(bid -> bid.getBidder().getId())
                 .forEach(receiveId -> messagingTemplate.convertAndSend(socketPath + receiveId, ALARM_TYPE));
+
         messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
     }
 
+    @Transactional
     public void createNewCommentNotification(Long itemId) {
         Item item = itemService.getItem(itemId);
-        notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.SOLDOUT));
-
+        notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.COMMENT));
         noticeNewComment(item.getMember().getId());
     }
 
@@ -104,8 +88,7 @@ public class NotificationService {
         messagingTemplate.convertAndSend(socketPath + sellerId, ALARM_TYPE);
     }
 
-
-
+    @Transactional
     public void createSoldOutNotification(Long itemId) {
         Item item = itemService.getItem(itemId);
         List<Notification> notifications = item.getBids().stream()
@@ -115,9 +98,9 @@ public class NotificationService {
         noticeSoldOut(item);
     }
 
-    private void noticeSoldOut(Item item) {
+    public void noticeSoldOut(Item item) {
         item.getBids().stream()
-                .map(Bid::getId)
+                .map(bid -> bid.getBidder().getId())
                 .forEach(receiveId -> messagingTemplate.convertAndSend(socketPath + receiveId, ALARM_TYPE));
     }
 }
