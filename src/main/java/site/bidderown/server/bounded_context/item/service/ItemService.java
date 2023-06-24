@@ -5,7 +5,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
@@ -142,13 +141,6 @@ public class ItemService {
 
         item.soldOutItem();
         item.getBids().forEach(Bid::updateBidResultFail);
-        afterHandleSale(item);
-    }
-
-    private void afterHandleSale(Item item) {
-        publisher.publishEvent(
-                EventSoldOutNotification.of(item)
-        );
     }
 
     private boolean hasAuthorization(Item item, String memberName) {

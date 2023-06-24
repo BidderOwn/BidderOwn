@@ -80,6 +80,7 @@
                                     localStorage.setItem('notificationStatus', '1');
                                     $('#notification-icon').attr('src', '/image/notification_noti.png');
                                 } else {
+                                    if (window.location.href.includes("/chat/list")) return;
                                     localStorage.setItem('chatStatus', '1');
                                     $('#chat-icon').attr('src', '/image/chat_noti.png');
                                 }

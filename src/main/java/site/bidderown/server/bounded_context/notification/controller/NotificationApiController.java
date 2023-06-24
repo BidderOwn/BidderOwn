@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import site.bidderown.server.bounded_context.notification.controller.dto.NotificationResponse;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationApiController {
     private final NotificationService notificationService;
+
     @GetMapping("/api/v1/notifications")
     @PreAuthorize("isAuthenticated()")
     public List<NotificationResponse> notificationList() {
@@ -37,7 +37,7 @@ public class NotificationApiController {
     }
 
     @PutMapping("/api/v1/notification/readAll")
-    public void readAllNotification() {
-        notificationService.readAll();
+    public void readAllNotification(@AuthenticationPrincipal User user) {
+        notificationService.readAll(user.getUsername());
     }
 }

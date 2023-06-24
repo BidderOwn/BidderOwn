@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemBidderNotification;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
@@ -38,10 +37,6 @@ public class BidService {
         Member member = memberService.getMember(username);
         Bid bid = Bid.of(bidRequest, member, item);
         bidRepository.save(bid);
-
-        publisher.publishEvent(
-                EventItemBidderNotification.of(item, member)
-        );
     }
 
     /**

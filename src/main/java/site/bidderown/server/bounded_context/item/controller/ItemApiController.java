@@ -78,11 +78,11 @@ public class ItemApiController {
     @PutMapping("/sold-out")
     @PreAuthorize("isAuthenticated()")
     public String soldOut(
-            @RequestParam Long itemId,
+            @RequestBody ItemSoldOutRequest itemSoldOutRequest,
             @AuthenticationPrincipal User user
     ) {
-        itemService.soldOut(itemId, user.getUsername());
-        return "/bid/list?itemId=" + itemId;
+        itemService.soldOut(itemSoldOutRequest.getItemId(), user.getUsername());
+        return "/bid/list?itemId=" + itemSoldOutRequest.getItemId();
     }
 
     @GetMapping("/me")

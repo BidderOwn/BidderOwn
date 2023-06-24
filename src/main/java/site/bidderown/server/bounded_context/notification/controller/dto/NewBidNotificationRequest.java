@@ -8,5 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class NewBidNotificationRequest {
-    Long itemId;
+    private Long itemId;
+    private String memberName;
 }

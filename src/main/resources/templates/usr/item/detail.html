@@ -158,10 +158,13 @@
 
                 const socket = new SockJS("/ws-stomp");
                 const ws = Stomp.over(socket);
-                ws.send("/pub/notification/new-comment", {},
-                    JSON.stringify({
-                        sellerId: this.sellerId
-                    }));
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/new-comment", {},
+                        JSON.stringify({
+                            itemId: this.itemId
+                        }));
+                })
+
             },
             handleChat() {
                 axios.post('/api/v1/chat-room', {

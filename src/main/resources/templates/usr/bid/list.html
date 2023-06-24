@@ -31,7 +31,7 @@
         <div class="flex">
             <div class="text-2xl my-2 font-semibold">입찰 내역</div>
             <div v-if="username === sellerName && itemStatus === '경매중'" class="flex items-center ml-auto">
-                <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
+                <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 cursor-pointer rounded-md text-white"
                    v-on:click="soldOut"> 판매완료
                 </a>
             </div>
@@ -118,6 +118,8 @@
     <div class="mb-10"></div>
 </div>
 <script>
+    let socket;
+    let ws;
     new Vue({
         el: '#bid-list-app',
         data: {
@@ -163,15 +165,6 @@
                     alert("최소 100원부터 가능합니다.");
                     return;
                 }
-
-                axios.get('/api/v1/bid-ids')
-                    .then(response => {
-                        const itemIds = response.data;
-                        if (!itemIds.includes(this.itemId)) {
-                            this.connect(this.itemId);
-                        }
-                    }).catch(error => console.log(error));
-
                 axios.post('/api/v1/bid', {
                     itemId: this.itemId,
                     itemPrice: this.bidPriceInput
@@ -181,20 +174,15 @@
                 }).catch(error => {
                     console.log(error)
                 });
-
                 socket = new SockJS("/ws-stomp");
                 ws = Stomp.over(socket);
-                ws.send("/pub/notification/new-bid", {},
-                    JSON.stringify({
-                        itemId: this.itemId
-                    }));
-
-                ws.send("/pub/chat/notification", {},
-                    JSON.stringify({
-                        toUserId: this.toUserId,
-                        toUsername: this.username
-                    }));
-                this.bidPriceInput = 0;
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/new-bid", {},
+                        JSON.stringify({
+                            itemId: this.itemId,
+                            memberName: this.username
+                        }));
+                })
             },
             connect() {
                 socket = new SockJS("/ws-stomp");
@@ -222,23 +210,23 @@
                 }).catch(error => console.log(error));
             },
             soldOut() {
-                axios.post('/api/v1/item/sold-out', {
-                    itemId: this.itemId,
-                    itemPrice: this.bidPriceInput
+                axios.put('/api/v1/item/sold-out', {
+                    itemId: this.itemId
                 }).then(response => {
                     this.updateData();
-                    alert("입찰을 완료했습니다.");
+                    alert("판매를 완료했습니다.");
                 }).catch(error => {
                     console.log(error)
                 });
 
-                const socket = new SockJS("/ws-stomp");
-                const ws = Stomp.over(socket);
-                ws.send("/pub/notification/sold-out", {},
-                    JSON.stringify({
-                        itemId: this.itemId
-                    }));
-
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/sold-out", {},
+                        JSON.stringify({
+                            itemId: this.itemId
+                        }));
+                })
                 this.bidPriceInput = 0;
             },
 
