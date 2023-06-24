@@ -52,63 +52,41 @@
         }
 
         readNotification = () => {
-            localStorage.setItem('notificationStatus', 0);
+            localStorage.setItem('notificationStatus', "0");
             $('#notification-icon').attr('src', '/image/notification.png');
         }
 
         readChat = () => {
-            localStorage.setItem('chatStatus', 0);
+            localStorage.setItem('chatStatus', "0");
             $('#chat-icon').attr('src', '/image/chat.png');
         }
 
         socketConnect = () => {
             const username = localStorage.getItem('username');
 
-            if (username === null) return;
+            if (username === null || username === '') return;
 
-            axios.get('/api/v1/connection/me', {
-                auth: {
-                    username: username,
-                    password: ''
-                }
-            })
+            axios.get('/api/v1/socket-id')
                 .then(response => {
-                    const connections = response.data;
-                    connections.forEach(connection => {
-                        const connectionUrl = connection.connectionUrl;
-                        const connectionId = connection.connectionId;
+                    const socketPath = response.data;
+                    const socket = new SockJS("/ws-stomp");
+                    const ws = Stomp.over(socket);
 
-                        const socket = new SockJS("/ws-stomp");
-                        const ws = Stomp.over(socket);
-
-                        if (connectionUrl.includes('/sub/chat/user/')) {
-                            ws.connect({}, (frame) => {
-                                ws.subscribe(connectionUrl + connectionId,
-                                    (message) => {
-                                        if (message.body.toUsername !== username && !window.location.href.includes("/chat/list")) {
-                                            localStorage.setItem('chatStatus', '1');
-                                            $('#chat-icon').attr('src', '/image/chat_noti.png');
-                                        }
-                                    }
-                                );
-                            }, (error) => {
-                                console.log(error);
-                            })
-
-                        } else {
-                            ws.connect({}, (frame) => {
-                                ws.subscribe(connectionUrl + connectionId,
-                                    (message) => {
-                                        if (message.body !== username) {
-                                            localStorage.setItem('notificationStatus', '1');
-                                            $('#notification-icon').attr('src', '/image/notification_noti.png');
-                                        }
-                                    }
-                                );
-                            }, (error) => {
-                                console.log(error);
-                            })
-                        }
+                    ws.connect({}, (frame) => {
+                        ws.subscribe(socketPath,
+                            (message) => {
+                                console.log(message.body);
+                                if (message.body === 'NOTIFICATION') {
+                                    localStorage.setItem('notificationStatus', '1');
+                                    $('#notification-icon').attr('src', '/image/notification_noti.png');
+                                } else {
+                                    localStorage.setItem('chatStatus', '1');
+                                    $('#chat-icon').attr('src', '/image/chat_noti.png');
+                                }
+                            }
+                        );
+                    }, (error) => {
+                        console.log(error);
                     });
                 })
                 .catch(error => {

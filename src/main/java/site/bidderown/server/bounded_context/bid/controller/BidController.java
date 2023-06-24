@@ -27,6 +27,4 @@ public class BidController {
         model.addAttribute("itemId", itemId);
         return "usr/bid/list";
     }
-
-
 }

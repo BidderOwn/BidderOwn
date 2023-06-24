@@ -94,6 +94,7 @@ public class ItemCustomRepository {
                         Projections.constructor(
                                 ItemDetailResponse.class,
                                 item.id,
+                                item.member.id,
                                 item.title,
                                 item.description,
                                 item.member.name,

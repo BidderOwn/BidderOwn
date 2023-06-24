@@ -16,9 +16,6 @@ import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
-import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
-import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
 
 import java.util.List;
 
@@ -33,7 +30,6 @@ public class NotProd {
             ItemRepository itemRepository,
             CommentService commentService,
             ImageService imageService,
-            SocketConnectionService socketConnectionService,
             BidService bidService,
             ItemJdbcRepository itemJdbcRepository,
             BidJdbcRepository bidJdbcRepository
@@ -235,8 +231,6 @@ public class NotProd {
 
             for (int i = 0; i < 11; i++) {
                 imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-                socketConnectionService.create(members.get(i).getName(), SocketConnectionRequest.of(members.get(i).getId(), ConnectionType.CHAT));
-                socketConnectionService.create(members.get(i).getName(), SocketConnectionRequest.of(items.get(i).getId(), ConnectionType.ITEM_SELLER));
 
                 if (i == 10) {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
