@@ -26,8 +26,8 @@ public class NotificationService {
     }
 
     @Transactional
-    public void create(EventItemBidderNotification eventItemBidderNotification) {
-        notificationRepository.save(Notification.of(
+    public Notification create(EventItemBidderNotification eventItemBidderNotification) {
+        return notificationRepository.save(Notification.of(
                 eventItemBidderNotification.getItem(),
                 eventItemBidderNotification.getBidder(),
                 eventItemBidderNotification.getType()
