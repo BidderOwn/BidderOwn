@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import site.bidderown.server.base.event.EventSocketConnection;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 @Slf4j
 @RequiredArgsConstructor

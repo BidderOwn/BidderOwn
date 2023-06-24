@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventItemSellerNotification;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
@@ -33,16 +32,12 @@ public class CommentService {
         Member writer = memberService.getMember(writerName);
         Comment comment = Comment.of(request, item, writer);
 
-        publisher.publishEvent(EventItemSellerNotification.of(item));
-
         return commentRepository.save(comment);
     }
 
     public Comment create(CommentRequest request, Long itemId, Member writer) {
         Item item = itemService.getItem(itemId);
         Comment comment = Comment.of(request, item, writer);
-
-        publisher.publishEvent(EventItemSellerNotification.of(item));
 
         return commentRepository.save(comment);
     }

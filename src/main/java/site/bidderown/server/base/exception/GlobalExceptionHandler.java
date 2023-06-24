@@ -40,6 +40,7 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors()
                 .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
+        log.warn(ex.getMessage());
         return ResponseEntity.badRequest().body(errors);
     }
 

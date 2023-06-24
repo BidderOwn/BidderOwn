@@ -75,14 +75,14 @@ public class ItemApiController {
         return "/home";
     }
 
-    @PutMapping("/sale")
+    @PutMapping("/sold-out")
     @PreAuthorize("isAuthenticated()")
-    public String saleComplete(
-            @RequestParam Long itemId,
+    public String soldOut(
+            @RequestBody ItemSoldOutRequest itemSoldOutRequest,
             @AuthenticationPrincipal User user
     ) {
-        itemService.handleSale(itemId, user.getUsername());
-        return "/bid/list?itemId=" + itemId;
+        itemService.soldOut(itemSoldOutRequest.getItemId(), user.getUsername());
+        return "/bid/list?itemId=" + itemSoldOutRequest.getItemId();
     }
 
     @GetMapping("/me")

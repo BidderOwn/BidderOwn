@@ -1,21 +1,14 @@
 package site.bidderown.server.bounded_context.notification.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import site.bidderown.server.bounded_context.notification.controller.dto.NotificationResponse;
-import site.bidderown.server.bounded_context.notification.entity.Notification;
+import site.bidderown.server.bounded_context.notification.controller.dto.NewBidNotificationRequest;
+import site.bidderown.server.bounded_context.notification.controller.dto.NewCommentNotificationRequest;
+import site.bidderown.server.bounded_context.notification.controller.dto.SoldOutNotificationRequest;
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -25,9 +18,22 @@ public class NotificationController {
 
     @GetMapping("/notifications")
     @PreAuthorize("isAuthenticated()")
-    public String notificationList(Model model) {
-
+    public String notificationList() {
         return "usr/notification/list";
-        // return dto 변환 코드 작성해야함
+    }
+
+    @MessageMapping("/notification/new-bid")
+    public void noticeNewBid(NewBidNotificationRequest newBidNotificationRequest) {
+        notificationService.createNewBidNotification(newBidNotificationRequest);
+    }
+
+    @MessageMapping("/notification/new-comment")
+    public void noticeNewComment(NewCommentNotificationRequest newCommentNotificationRequest) {
+        notificationService.createNewCommentNotification(newCommentNotificationRequest.getItemId());
+    }
+
+    @MessageMapping("/notification/sold-out")
+    public void noticeBidEnd(SoldOutNotificationRequest soldOutNotificationRequest) {
+        notificationService.createSoldOutNotification(soldOutNotificationRequest.getItemId());
     }
 }

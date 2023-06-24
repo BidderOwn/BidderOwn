@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.chat.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,11 @@ public class ChatController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
 
+    @Value("${custom.socket.path}")
+    private String socketPath;
+
+    private String ALARM_TYPE = "CHAT";
+
     @MessageMapping("/chat/message")
     public void sendMessage(ChatMessageRequest chatMessageRequest) {
         ChatResponse chatResponse = chatService.create(chatMessageRequest);
@@ -24,8 +30,6 @@ public class ChatController {
 
     @MessageMapping("/chat/notification")
     public void chatNotification(ChatNotificationRequest chatNotificationRequest) {
-        messagingTemplate.convertAndSend("/sub/chat/user/" + chatNotificationRequest.getToUserId(),
-                chatNotificationRequest.getToUsername());
+        messagingTemplate.convertAndSend(socketPath + chatNotificationRequest.getToUserId(), ALARM_TYPE);
     }
-
 }

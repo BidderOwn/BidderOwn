@@ -155,6 +155,8 @@
             },
             sendMessage() {
                 if (this.message === "") return;
+
+                // 실시간 채팅
                 ws.send("/pub/chat/message", {},
                     JSON.stringify({
                         chatRoomId: this.chatRoomId,
@@ -162,6 +164,8 @@
                         message: this.message
                     }));
                 this.message = '';
+
+                // 채팅 아이콘 알림 표시
                 ws.send("/pub/chat/notification", {},
                     JSON.stringify({
                         toUserId: this.toUserId,

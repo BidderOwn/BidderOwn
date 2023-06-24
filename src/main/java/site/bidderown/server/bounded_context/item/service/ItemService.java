@@ -5,9 +5,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.event.EventSocketConnection;
-import site.bidderown.server.base.event.EventSocketDisconnection;
-import site.bidderown.server.base.event.EventSoldOutNotification;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.util.ImageUtils;
@@ -19,7 +16,6 @@ import site.bidderown.server.bounded_context.item.repository.ItemCustomRepositor
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,17 +76,12 @@ public class ItemService {
         }
 
         item.updateDeleted();
-        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_SELLER));
-        publisher.publishEvent(EventSocketDisconnection.of(itemId, ConnectionType.ITEM_BIDDER));
     }
 
     private Item _create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
-
-        publisher.publishEvent(EventSocketConnection.of(
-                member.getName(), item.getId(), ConnectionType.ITEM_SELLER));
 
         return item;
     }
@@ -141,7 +132,7 @@ public class ItemService {
     }
 
     @Transactional
-    public void handleSale(Long itemId, String memberName) {
+    public void soldOut(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
         if (!hasAuthorization(item, memberName)) {
@@ -150,15 +141,6 @@ public class ItemService {
 
         item.soldOutItem();
         item.getBids().forEach(Bid::updateBidResultFail);
-        afterHandleSale(item);
-    }
-
-    private void afterHandleSale(Item item) {
-        publisher.publishEvent(
-                EventSoldOutNotification.of(item)
-        );
-        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_SELLER));
-        publisher.publishEvent(EventSocketDisconnection.of(item.getId(), ConnectionType.ITEM_BIDDER));
     }
 
     private boolean hasAuthorization(Item item, String memberName) {

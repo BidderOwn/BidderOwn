@@ -44,14 +44,18 @@ public class TimeUtils {
     }
 
     public static LocalDateTime setExpireAt(Integer period) {
-        LocalDateTime currentTime = LocalDateTime.now();
-        return LocalDateTime.of(currentTime.getYear(), currentTime.getMonth(), currentTime.getDayOfMonth() +  period, currentTime.getHour(), 0, 0);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime plusNDay = now.plus(period, ChronoUnit.DAYS);
+        return LocalDateTime.of(
+                plusNDay.getYear(),
+                plusNDay.getMonth(),
+                plusNDay.getDayOfMonth(),
+                plusNDay.getHour(), 0, 0);
     }
 
     public static LocalDateTime getCurrentOClockPlus(int hour) {
         LocalDateTime now = LocalDateTime.now();
         return now.plusHours(hour).truncatedTo(ChronoUnit.HOURS);
-//        return  LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour() + hour, 0, 0);
     }
 
     public static LocalDateTime getCurrentOClock() {

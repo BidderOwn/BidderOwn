@@ -122,7 +122,8 @@
             comments: [],
             commentMessage: '',
             item: '',
-            maxPrice: 0
+            maxPrice: 0,
+            sellerId: 0,
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -154,6 +155,16 @@
                     this.comments.unshift(response.data);
                     this.commentMessage = ''
                 })
+
+                const socket = new SockJS("/ws-stomp");
+                const ws = Stomp.over(socket);
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/new-comment", {},
+                        JSON.stringify({
+                            itemId: this.itemId
+                        }));
+                })
+
             },
             handleChat() {
                 axios.post('/api/v1/chat-room', {
@@ -186,6 +197,7 @@
                 axios.get('/api/v1/item/' + this.itemId)
                     .then(response => {
                         this.item = response.data;
+                        this.sellerId = response.data.sellerId;
                     }).catch(error => {
                     console.log(error);
                 });
