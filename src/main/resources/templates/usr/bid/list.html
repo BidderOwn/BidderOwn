@@ -4,14 +4,14 @@
 <div th:replace="header::div"></div>
 
 <div id="bid-list-app">
-    <!--  채팅 박스  -->
     <div class="flex flex-col h-[800px] w-7/12 w-[550px] mt-6" id="app">
-        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName && itemStatus === '경매중'">입찰하기</div>
+        <!-- 입찰하기 알림 텍스트-->
+        <div class="text-3xl my-3 font-semibold" v-if="username !== sellerName && itemStatus === 'BIDDING'">입찰하기</div>
 
-        <!-- 입찰하기 -->
-        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName && itemStatus === '경매중'">
+        <!-- 입찰 폼 -->
+        <form id="bidForm" class="flex justify-between" v-if="username !== sellerName && itemStatus === 'BIDDING'">
+            <!-- 입력 란 -->
             <div class="flex items-start justify-center ">
-                <!--       입찰 폼       -->
                 <div class="flex items-baseline ">
                     <input type="hidden" id="itemId" name="itemId" th:value="${itemId}">
                     <input type="number" step="100" id="itemPrice" name="itemPrice" class="w-80 font-semibold"
@@ -25,18 +25,20 @@
                 </button>
             </div>
         </form>
-        <div v-if="sellerName !== username && itemStatus === '경매중'">
+        <!-- 밑 줄 -->
+        <div v-if="sellerName !== username && itemStatus === 'BIDDING'">
             <div class="border border-inherit mb-5"></div>
         </div>
+        <!-- 입찰 내역 텍스트, 판매 완료 버튼-->
         <div class="flex">
             <div class="text-2xl my-2 font-semibold">입찰 내역</div>
-            <div v-if="username === sellerName && itemStatus === '경매중'" class="flex items-center ml-auto">
+            <div v-if="username === sellerName && itemStatus === 'BIDDING'" class="flex items-center ml-auto">
                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 cursor-pointer rounded-md text-white"
                    v-on:click="soldOut"> 판매완료
                 </a>
             </div>
         </div>
-        <!--     상단 아이템       -->
+        <!--     상단 입찰 아이템 상세정보       -->
         <div class="flex my-2 mr-4">
             <div class="w-[110px] h-[80px] truncate rounded-lg">
                 <!--                <img src="http://localhost:8080/api/v1/image/item/banana.jpg">-->
@@ -45,13 +47,13 @@
             <div class="flex flex-col justify-center ml-2">
                 <div class="flex justify-start items-center mt-1">
                     <div class="text-xl  font-bold text-gray-600"> {{ itemTitle }}</div>
-                    <div v-if="itemStatus === '경매종료' || itemStatus === '판매완료'" class="text-sm text-gray-600 ml-1">경매종료
+                    <div v-if="itemStatus === 'BID_END' || itemStatus === 'SOLDOUT'" class="text-sm text-gray-600 ml-1">경매종료
                     </div>
                 </div>
 
 
                 <div class="text-sm text-indigo-400">희망금액 {{ desiredPrice }} 원</div>
-                <div v-if="itemStatus === '경매중'"> {{ expireAt }}</div>
+                <div v-if="itemStatus === 'BIDDING'"> {{ expireAt }}</div>
             </div>
 
             <div class="flex flex-col justify-center ml-2 ml-auto">
@@ -99,7 +101,7 @@
                                    v-on:click="deleteBid(bid.bidId)">취소하기
                                 </a>
                             </div>
-                            <div v-if="username === sellerName && (itemStatus === '경매중' || itemStatus === '경매종료')"
+                            <div v-if="username === sellerName && (itemStatus === 'BIDDING' || itemStatus === 'BID_END')"
                                  class="items-center  mr-2">
                                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                                    v-on:click="handleChat(bid.bidderName)">채팅하기
