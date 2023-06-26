@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-public class ItemServiceTest_eui9179 {
+public class ItemServiceTest {
 
     @Autowired
     private ItemRepository itemRepository;
@@ -67,7 +67,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 전체 조회 테스트 - 최신순 sortCode 1")
     @Test
-    public void test001() {
+    void test001() {
         //given
         int sortCode = 1;
         String searchText = "test";
@@ -85,7 +85,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2")
     @Test
-    public void test002() {
+    void test002() {
         //given
         int sortCode = 2;
         String searchText = "test";
@@ -103,7 +103,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2")
     @Test
-    public void test003() {
+    void test003() {
         //given
         int sortCode = 3;
         String searchText = "test";
@@ -121,7 +121,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 검색 테스트 - 검색어 제목 'test_title_1'")
     @Test
-    public void test004() {
+    void test004() {
         //given
         String searchText = "test_title_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -157,7 +157,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 검색 테스트 - 검색어(작성자) 'test_member_1'")
     @Test
-    public void test006() {
+    void test006() {
         //given
         String searchText = "test_member_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -174,7 +174,7 @@ public class ItemServiceTest_eui9179 {
 
     @DisplayName("상품 정렬, 검색 테스트 - 인기순, 검색어 'test_'")
     @Test
-    public void test007() {
+    void test007() {
         //given
         String searchText = "test_";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -189,29 +189,24 @@ public class ItemServiceTest_eui9179 {
         assertThat(items.size()).isEqualTo(5);
     }
 
+    /**
+     * @description 테스트 아이템 초기화
+     * @param member
+     * @throws IOException
+     */
     private void initItemData(Member member) throws IOException {
+        String testTitlePrefix = "test_title_";
+        String testDescriptionPrefix = "test_description_";
         for (int i = 0; i < ITEM_SIZE; i++) {
             createTestItem(
                     new ItemRequest(
-                            "test_title_" + i,
+                            testTitlePrefix + i,
                             1000,
                             i + 1,
-                            "test_description_" + i,
+                            testDescriptionPrefix + i,
                             List.of(generateMockImageFile())
                     ), member
             );
-        }
-    }
-
-    /**
-     * @description  '/resources/images/test' 경로에 있는 파일을 자동으로 삭제해줌
-     */
-    private void deleteTestImage () {
-        String path = pathResolver.resolve("images", "test").toUri().getPath();
-        File folder = new File(path);
-        File[] files = folder.listFiles();
-        for (File file : files) {
-            System.out.println(file.delete());
         }
     }
 
@@ -238,5 +233,17 @@ public class ItemServiceTest_eui9179 {
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "test");
         imageService.create(item, fileNames);
         return item;
+    }
+
+    /**
+     * @description  '/resources/images/test' 경로에 있는 파일을 자동으로 삭제해줌
+     */
+    private void deleteTestImage () {
+        String path = pathResolver.resolve("images", "test").toUri().getPath();
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+        for (File file : files) {
+            System.out.println(file.delete());
+        }
     }
 }
