@@ -49,6 +49,9 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
     }
 
+    /**
+     * @description 성능 테스트를 위해 남겨 둔 메서드입니다. getItemDetail() 사용하시면 됩니다.
+     */
     public ItemDetailResponse getItemDetail_V1(Long id) {
         Item item = getItem(id);
         Integer minPrice = itemCustomRepository.minItemPrice(id);
@@ -86,6 +89,9 @@ public class ItemService {
         return item;
     }
 
+    /**
+     * @description 성능 테스트를 위해 남겨둔 메서드입니다. getItems() 사용하시면 됩니다.
+     */
     public List<ItemsResponse> getItems_V1(int sortCode, String searchText, Pageable pageable) {
         return itemCustomRepository.findItems_v1(sortCode, searchText, pageable);
     }
