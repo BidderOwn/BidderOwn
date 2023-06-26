@@ -114,7 +114,7 @@ public class ItemCustomRepository {
     }
 
     /**
-     * @description 홈 화면에 보여줄 아이템 리스트, 성능 테스트를 위해 남겨두었음
+     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
      */
     public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
         List<Item> items = queryFactory.selectFrom(item)
