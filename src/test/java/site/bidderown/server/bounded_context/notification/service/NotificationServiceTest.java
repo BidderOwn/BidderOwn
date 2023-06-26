@@ -80,13 +80,15 @@ class NotificationServiceTest {
         /**
          * 알림을 등록한 뒤 알림의 DB에서 조회해 온 findNotification의 멤버값들을 각각 비교합니다.
          */
+        //given
         Member seller = createUser("member1");
         Item item = createItem(seller, "item1", "itemDescription", 10000);
 
+        //when
         Notification notification = notificationService.create(Notification.of(item, seller, NotificationType.BID));
-
         Notification findNotification = notificationRepository.findById(notification.getId()).orElse(null);
 
+        //then
         Assertions.assertEquals(notification.getItem() , findNotification.getItem());
         Assertions.assertEquals(notification.getReceiver() , findNotification.getReceiver());
         Assertions.assertEquals(notification.getNotificationType() , findNotification.getNotificationType());
@@ -98,9 +100,12 @@ class NotificationServiceTest {
         /**
          * 알림을 등록을 일괄 처리한 뒤 DB에서 조회해 온 알림 목록의 사이즈를 비교해봅니다.
          */
+        //given
         Member seller = createUser("member1");
         Item item = createItem(seller, "item1", "itemDescription", 10000);
 
+
+        //when
         List<Notification> notifications = new ArrayList<>();
 
         notifications.add(notificationService.create(Notification.of(item, seller, NotificationType.BID)));
@@ -110,6 +115,8 @@ class NotificationServiceTest {
         notificationService.create(notifications);
 
         List<Notification> findNotifications = notificationService.getNotifications(seller.getName());
+
+        //then
         assertThat(findNotifications.size()).isEqualTo(4);
 
     }
@@ -122,9 +129,11 @@ class NotificationServiceTest {
          *  모든 알림에서 자신의 알림의 수 만큼만 줄어들게 됩니다.
          *  모든 알림의 수 == 읽은 후 모든 알림의 수 - 읽은 양
          */
+        //given
         Member seller = createUser("member1");
         Item item = createItem(seller, "item1", "itemDescription", 10000);
 
+        //when
         List<Notification> notifications = new ArrayList<>();
 
         notifications.add(notificationService.create(Notification.of(item, seller, NotificationType.BID)));
@@ -138,6 +147,8 @@ class NotificationServiceTest {
 
         notificationService.readAll(seller.getName());
 
+
+        //then
         assertThat(notificationRepository.findAllByReadDateIsNull().size()).isEqualTo(before - readAmount);
     }
     @Test
@@ -148,14 +159,18 @@ class NotificationServiceTest {
          *  읽기 전 true
          *  읽은 후 false
          */
+        //given
         Member seller = createUser("member1");
         Item item = createItem(seller, "item1", "itemDescription", 10000);
 
         Notification notification = notificationService.create(Notification.of(item, seller, NotificationType.BID));
         assertThat(notificationService.checkNotRead(seller.getName())).isTrue();
 
+        //when
         notification.read();
 
+
+        //then
         assertThat(notificationService.checkNotRead(seller.getName())).isFalse();
     }
 
