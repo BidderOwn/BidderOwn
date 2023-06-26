@@ -25,7 +25,6 @@ public class ImageUtils {
 
     public String upload(MultipartFile file, String kind) {
         try {
-            //
             if(!isImageFile(file.getContentType())) return null;
             String originalFileName = file.getOriginalFilename();
             String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
@@ -65,12 +64,8 @@ public class ImageUtils {
 
     //확장자가 이미지 파일인지 확인
     public boolean isImageFile(String contentType) {
-        if(contentType.contains("image/jpeg")
+        return contentType.contains("image/jpeg")
                 || contentType.contains("image/png")
-                || contentType.contains("image/gif")) {
-            return true;
-        }
-        return false;
+                || contentType.contains("image/gif");
     }
-
 }
