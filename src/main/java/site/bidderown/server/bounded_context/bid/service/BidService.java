@@ -37,7 +37,7 @@ public class BidService {
     @Transactional
     public void create(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
-        if (isYourItem(item, username)) {
+        if (isMyItem(item, username)) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
         Member member = memberService.getMember(username);
@@ -79,7 +79,7 @@ public class BidService {
 
     @Transactional
     public Long create(int price, Item item, Member bidder) {
-        if(isYourItem(item, bidder.getName())) {
+        if(isMyItem(item, bidder.getName())) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
         Bid bid = Bid.of(price, bidder, item);
@@ -121,7 +121,7 @@ public class BidService {
         return bid.getBidder().getName().equals(bidderName);
     }
 
-    public boolean isYourItem(Item item, String bidderName) {
+    public boolean isMyItem(Item item, String bidderName) {
         return item.getMember().getName().equals(bidderName);
     }
 }
