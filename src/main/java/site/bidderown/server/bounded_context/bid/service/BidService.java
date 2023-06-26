@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
@@ -32,8 +33,13 @@ public class BidService {
     private final ItemService itemService;
     private final ApplicationEventPublisher publisher;
 
+
+    @Transactional
     public void create(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
+        if (isMyItem(item, username)) {
+            throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
+        }
         Member member = memberService.getMember(username);
         Bid bid = Bid.of(bidRequest, member, item);
         bidRepository.save(bid);
@@ -71,7 +77,11 @@ public class BidService {
         return  bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
     }
 
-    private Long create(int price, Item item, Member bidder) {
+    @Transactional
+    public Long create(int price, Item item, Member bidder) {
+        if(isMyItem(item, bidder.getName())) {
+            throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
+        }
         Bid bid = Bid.of(price, bidder, item);
         return bidRepository.save(bid).getId();
     }
@@ -87,9 +97,13 @@ public class BidService {
         bidRepository.deleteAll();
     }
 
-    public void delete(Long bidId) {
+    public void delete(Long bidId, String bidderName) {
+
         Bid findBid = bidRepository.findById(bidId)
                 .orElseThrow(() -> new NotFoundException("입찰이 없습니다.", bidId + ""));
+        if(!hasAuthorization(findBid, bidderName)) {
+            throw new ForbiddenException("입찰 삭제 권한이 없습니다.");
+        }
 
         bidRepository.delete(findBid);
     }
@@ -101,5 +115,13 @@ public class BidService {
 
     public List<Long> getBidItemIds(String username) {
         return bidCustomRepository.findBidItemIds(username);
+    }
+
+    public boolean hasAuthorization(Bid bid, String bidderName) {
+        return bid.getBidder().getName().equals(bidderName);
+    }
+
+    public boolean isMyItem(Item item, String bidderName) {
+        return item.getMember().getName().equals(bidderName);
     }
 }

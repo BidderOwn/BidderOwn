@@ -47,14 +47,8 @@ public class BidApiController {
     }
     @DeleteMapping("/api/v1/bid/{bidId}")
     @PreAuthorize("isAuthenticated()")
-    @ResponseBody
-    public String deleteBid(@PathVariable Long bidId, @AuthenticationPrincipal User user) {
-        Bid bid = bidService.getBid(bidId);
-        if(!user.getUsername().equals(bid.getBidder().getName()))
-            throw new ForbiddenException("삭제 권한이 없습니다.");
-
-        bidService.delete(bidId);
-        return "ok";
+    public void deleteBid(@PathVariable Long bidId, @AuthenticationPrincipal User user) {
+        bidService.delete(bidId, user.getUsername());
     }
 }
 
