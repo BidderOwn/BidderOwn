@@ -192,7 +192,7 @@ public class NotProd {
 
             itemRepository.saveAll(items);
 
-            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(0).getName());
+            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
             bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
 
             bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
