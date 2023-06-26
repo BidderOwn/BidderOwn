@@ -35,7 +35,6 @@ import site.bidderown.server.bounded_context.notification.repository.dto.JdbcNot
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -108,16 +107,18 @@ public class ItemJobConfiguration {
         LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("startDateTime", startDateTime);
-        parameters.put("endDateTime", endDateTime);
+        parameters.put("start", startDateTime);
+        parameters.put("end", endDateTime);
+        parameters.put("itemStatus", ItemStatus.BIDDING);
 
         JpaPagingItemReader<Item> itemReader = new JpaPagingItemReaderBuilder<Item>()
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString( // TODO expireAt으로 변경
                         "SELECT i " +
-                                "FROM Item i " +
-                                "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "FROM Item i " +
+                        "WHERE i.createdAt >= :start AND i.createdAt < :end " +
+                        "AND  i.itemStatus = :itemStatus")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .saveState(false)
@@ -134,18 +135,20 @@ public class ItemJobConfiguration {
         LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("startDateTime", startDateTime);
-        parameters.put("endDateTime", endDateTime);
-        parameters.put("itemStatus", ItemStatus.BIDDING);
+        parameters.put("start", startDateTime);
+        parameters.put("end", endDateTime);
+        parameters.put("itemStatus", ItemStatus.BID_END);
 
         JpaPagingItemReader<Bid> itemReader = new JpaPagingItemReaderBuilder<Bid>()
                 .name("bidEndStepItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString( // TODO expireAt으로 변경
                         "SELECT b " +
-                                "FROM Bid b " +
-                                "JOIN  b.item i " +
-                                "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "FROM Bid b " +
+                        "JOIN  b.item i " +
+                        "WHERE i.createdAt >= :start AND i.createdAt < :end " +
+                        "AND  i.itemStatus = :itemStatus"
+                )
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .saveState(false)
