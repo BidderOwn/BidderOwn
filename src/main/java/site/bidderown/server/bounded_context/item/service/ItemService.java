@@ -74,7 +74,7 @@ public class ItemService {
     public void updateDeleted(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
-        if (hasAuthorization(item, memberName)) {
+        if (!hasAuthorization(item, memberName)) {
             throw new ForbiddenException("삭제 권한이 없습니다.");
         }
 
