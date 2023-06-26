@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.resolver.PathResolver;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.image.service.ImageService;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -27,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -65,9 +67,18 @@ public class ItemServiceTest {
         deleteTestImage();
     }
 
+    @Test
+    @DisplayName("상품 등록")
+    void test001() {
+        List<Item> item = itemRepository.findByTitle("test_title_0");
+
+        assertEquals("test_title_0", item.get(0).getTitle());
+
+    }
+
     @DisplayName("상품 전체 조회 테스트 - 최신순 sortCode 1")
     @Test
-    void test001() {
+    void test002() {
         //given
         int sortCode = 1;
         String searchText = "test";
@@ -85,7 +96,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2")
     @Test
-    void test002() {
+    void test003() {
         //given
         int sortCode = 2;
         String searchText = "test";
@@ -103,7 +114,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 정렬 테스트 - 경매종료 마감순 sortCode 2")
     @Test
-    void test003() {
+    void test004() {
         //given
         int sortCode = 3;
         String searchText = "test";
@@ -121,7 +132,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 검색 테스트 - 검색어 제목 'test_title_1'")
     @Test
-    void test004() {
+    void test005() {
         //given
         String searchText = "test_title_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -138,7 +149,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 검색 테스트 - 검색어 내용 'test_description_1'")
     @Test
-    public void test005() {
+    public void test006() {
         //given
         String searchText = "test_description_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -157,7 +168,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 검색 테스트 - 검색어(작성자) 'test_member_1'")
     @Test
-    void test006() {
+    void test007() {
         //given
         String searchText = "test_member_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -174,7 +185,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 정렬, 검색 테스트 - 인기순, 검색어 'test_'")
     @Test
-    void test007() {
+    void test008() {
         //given
         String searchText = "test_";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
@@ -187,6 +198,29 @@ public class ItemServiceTest {
                 Comparator.comparing(ItemsResponse::getBidCount, Comparator.reverseOrder())
         );
         assertThat(items.size()).isEqualTo(5);
+    }
+
+
+    @Test
+    @DisplayName("단일 상품 조회")
+    void test009() {
+        List<Item> item = itemRepository.findByTitle("test_title_0");
+        ItemDetailResponse itemDetailResponse= ItemDetailResponse.of(item.get(0),1000,10000);
+
+        ItemDetailResponse itemDetail = itemService.getItemDetail(itemDetailResponse.getId());
+
+        assertEquals("test_title_0", itemDetail.getTitle());
+
+
+    }
+
+    @Test
+    @DisplayName("상품 삭제(권한 검사까지)")
+    void test010() {
+        Member member = memberService.getMember("test_member_1");
+        List<Item> item = itemRepository.findByTitle("test_title_1");
+        itemService.updateDeleted(item.get(0).getId(),member.getName()); //상품 상태가 true로 바뀜
+        assertEquals(item.get(0).isDeleted(), true);
     }
 
     /**
