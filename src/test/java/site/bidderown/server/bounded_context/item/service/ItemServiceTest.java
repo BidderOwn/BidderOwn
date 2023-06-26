@@ -101,7 +101,7 @@ public class ItemServiceTest {
         );
     }
 
-    @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2")
+    @DisplayName("상품 정렬 테스트 - 경매종료 마감순 sortCode 2")
     @Test
     void test003() {
         //given
