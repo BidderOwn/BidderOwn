@@ -38,7 +38,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 채팅방입니다.", chatRoomId + ""));
     }
 
-    @Transactional
+
     public ChatRoom create(Member seller, Member buyer, Item item) {
         return chatRoomRepository.save(ChatRoom.of(seller, buyer, item));
     }
@@ -53,7 +53,7 @@ public class ChatRoomService {
             throw new SoldOutItemException("판매가 종료된 아이템입니다.", item.getId() + "");
 
         Optional<ChatRoom> opChatRoom = chatRoomRepository
-                .findChatRoomBySellerAndBuyerAndItem(seller, buyer, item);
+                .findChatRoomByBuyerAndItem(buyer, item);;
 
         return opChatRoom.orElseGet(() ->
                 create(seller, buyer, item)).getId();
