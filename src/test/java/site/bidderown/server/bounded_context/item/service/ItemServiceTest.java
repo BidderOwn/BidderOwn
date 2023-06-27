@@ -217,17 +217,34 @@ public class ItemServiceTest {
     }
 
     @Test
-    @DisplayName("상품 삭제(권한 검사까지)")
+    @DisplayName("상품 만든사람이 상품 삭제")
     void test010() {
         Member member = memberService.getMember("test_member_1");
         List<Item> item = itemRepository.findByTitle("test_title_1");
-        itemService.updateDeleted(item.get(0).getId(), member.getName()); //상품 상태가 true로 바뀜
+        itemService.updateDeleted(item.get(0).getId(), member.getName());
         assertTrue(item.get(0).isDeleted());
+    }
+
+    @Test
+    @DisplayName("권한 없는 사람이 상품 삭제")
+    void test011() {
+        //given
+        Member member1 = memberService.getMember("test_member_1");
+        Member member2 = memberService.getMember("test_member_2");
+        Item item = itemRepository.findByMemberAndDeletedIsFalse(member1).get(0);
+
+        //when
+        Throwable exception = Assertions.assertThrows(
+                ForbiddenException.class,
+                () -> itemService.updateDeleted(item.getId(), member2.getName())
+        );
+        //then
+        assertThat(exception.getMessage().contains("삭제 권한이 없습니다")).isTrue();
     }
 
     @DisplayName("상품 판매완료 테스트")
     @Test
-    void test011() {
+    void test012() {
         //given
         Member member1 = memberService.getMember("test_member_1");
         Item item = itemRepository.findByMemberAndDeletedIsFalse(member1).get(0);
@@ -241,7 +258,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 판매완료 권한 실패 테스트 -> ForbiddenException")
     @Test
-    void test012() {
+    void test013() {
         //given
         Member member1 = memberService.getMember("test_member_1");
         Member member2 = memberService.getMember("test_member_2");
@@ -259,7 +276,7 @@ public class ItemServiceTest {
 
     @DisplayName("상품 판매완료 입찰 추가 테스트 -> BidEndItemException")
     @Test
-    void test013() {
+    void test014() {
         //given
         Member member1 = memberService.getMember("test_member_1");
         Item item = itemRepository.findByMemberAndDeletedIsFalse(member1).get(0);
