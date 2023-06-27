@@ -44,11 +44,13 @@ public class Comment extends BaseEntity {
         Item item,
         Member writer
     ) {
-        return Comment.builder()
+        Comment comment = Comment.builder()
                 .content(request.getContent())
                 .item(item)
                 .writer(writer)
                 .build();
+        item.getComments().add(comment);
+        return comment;
     }
 
     public void updateContent(String content){
