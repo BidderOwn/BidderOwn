@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -14,6 +15,7 @@ import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,9 @@ public class NotificationService {
     public void create(List<Notification> notifications) {
         notificationRepository.saveAll(notifications);
     }
+    public Notification create(Notification notification) {
+        return notificationRepository.save(notification);
+    }
 
     @Transactional
     public void readAll(String username) {
@@ -52,55 +57,53 @@ public class NotificationService {
         return notificationRepository.existsByReceiverAndReadDateIsNull(member);
     }
 
-    public void createNotifications(List<Notification> notifications) {
-        notificationRepository.saveAll(notifications);
+    public List<Notification> createNotifications(List<Notification> notifications) {
+        return notificationRepository.saveAll(notifications);
     }
 
     @Transactional
-    public void createNewBidNotification(NewBidNotificationRequest request) {
+    public List<Notification> createNewBidNotification(NewBidNotificationRequest request) {
         Item item = itemService.getItem(request.getItemId());
-        List<Notification> notifications = item.getBids().stream()
+        List<Notification> notifications = new ArrayList<>();
+
+        item.getBids().stream()
                 .filter(bid -> !bid.getBidder().getName().equals(request.getMemberName()))
-                .map(bid -> Notification.of(item, bid.getBidder(), NotificationType.BID))
-                .collect(Collectors.toList());
+                .forEach(bid ->
+                {
+                    sendNotification(bid.getBidder().getId());
+                    notifications.add(Notification.of(item, bid.getBidder(), NotificationType.BID));
+                });
+
         notifications.add(Notification.of(item, item.getMember(), NotificationType.BID));
-        createNotifications(notifications);
-        noticeNewBid(item, request.getMemberName());
+        sendNotification(item.getMember().getId());
+
+        return createNotifications(notifications);
     }
-
-    public void noticeNewBid(Item item, String memberName) {
-        item.getBids().stream()
-                .filter(bid -> !bid.getBidder().getName().equals(memberName))
-                .map(bid -> bid.getBidder().getId())
-                .forEach(receiveId -> messagingTemplate.convertAndSend(socketPath + receiveId, ALARM_TYPE));
-
+    @Transactional
+    public Notification createNewCommentNotification(Long itemId) {
+        Item item = itemService.getItem(itemId);
+        sendNotification(item.getMember().getId());
         messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
+
+        return notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.COMMENT));
+
     }
 
     @Transactional
-    public void createNewCommentNotification(Long itemId) {
+    public List<Notification> createSoldOutNotification(Long itemId) {
         Item item = itemService.getItem(itemId);
-        notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.COMMENT));
-        noticeNewComment(item.getMember().getId());
-    }
+        List<Notification> notifications = new ArrayList<>();
 
-    private void noticeNewComment(Long sellerId) {
-        messagingTemplate.convertAndSend(socketPath + sellerId, ALARM_TYPE);
-    }
-
-    @Transactional
-    public void createSoldOutNotification(Long itemId) {
-        Item item = itemService.getItem(itemId);
-        List<Notification> notifications = item.getBids().stream()
-                .map(bid -> Notification.of(item, bid.getBidder(), NotificationType.SOLDOUT))
-                .collect(Collectors.toList());
-        createNotifications(notifications);
-        noticeSoldOut(item);
-    }
-
-    public void noticeSoldOut(Item item) {
         item.getBids().stream()
-                .map(bid -> bid.getBidder().getId())
-                .forEach(receiveId -> messagingTemplate.convertAndSend(socketPath + receiveId, ALARM_TYPE));
+                .forEach(bid ->
+                {
+                    sendNotification(bid.getBidder().getId());
+                    notifications.add(Notification.of(item, bid.getBidder(), NotificationType.SOLDOUT));
+                });
+
+        return createNotifications(notifications);
+    }
+    public void sendNotification(Long receiverId){
+        messagingTemplate.convertAndSend(socketPath + receiverId, ALARM_TYPE);
     }
 }

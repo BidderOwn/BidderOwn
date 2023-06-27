@@ -14,4 +14,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Boolean existsByReceiverAndReadDateIsNull(Member receiver);
 
     List<Notification> findByReceiverNameAndReadDateIsNull(String receiverName);
+
+    List<Notification> findAllByReadDateIsNull();
 }
