@@ -24,7 +24,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> findByIdAndDeletedIsFalse(Long id);
 
     Page<Item> findAll(Pageable pageable);
+
     List<Item> findByTitle(String title);
+
     @Modifying
     @Query("update Item i " +
             "SET i.itemStatus=:itemStatus " +

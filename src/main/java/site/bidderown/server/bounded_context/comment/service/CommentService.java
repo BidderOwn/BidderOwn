@@ -1,7 +1,6 @@
 package site.bidderown.server.bounded_context.comment.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
@@ -25,8 +24,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ItemService itemService;
     private final MemberService memberService;
-    private final ApplicationEventPublisher publisher;
 
+    @Transactional
     public Comment create(CommentRequest request, Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
         Member writer = memberService.getMember(writerName);
@@ -35,6 +34,7 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    @Transactional
     public Comment create(CommentRequest request, Long itemId, Member writer) {
         Item item = itemService.getItem(itemId);
         Comment comment = Comment.of(request, item, writer);
@@ -49,7 +49,7 @@ public class CommentService {
 
     public List<CommentDetailResponse> getComments(Long itemId) {
         return commentRepository
-                .findAllByItemId(itemId)
+                .findCommentsByItemIdOrderByIdDesc(itemId)
                 .stream()
                 .map(CommentDetailResponse::of)
                 .collect(Collectors.toList());
