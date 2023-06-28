@@ -344,7 +344,8 @@ public class ItemServiceTest {
         File[] files = folder.listFiles();
         assert files != null;
         for (File file : files) {
-            System.out.println(file.delete());
+            if (file.getName().contains("abc.txt")) continue;
+            file.delete();
         }
     }
 }
