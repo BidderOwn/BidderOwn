@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
+import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
@@ -14,9 +15,11 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"dev", "test"})
@@ -191,6 +194,37 @@ public class NotProd {
             );
 
             itemRepository.saveAll(items);
+
+            // 아이템 등록
+            List<BulkInsertItem> itemList = new ArrayList<>();
+            List<BulkInsertBid> bidList = new ArrayList<>();
+
+            for(long i = 1; i <= 100_000; i++) {
+                if (i % 2 == 0) {
+                    itemList.add(BulkInsertItem.builder()
+                            .memberId(member1.getId())
+                            .title("testTitle")
+                            .description("testDescription")
+                            .minimumPrice(10000)
+                            .build());
+                } else {
+                    itemList.add(BulkInsertItem.builder()
+                            .memberId(member2.getId())
+                            .title("testTitle")
+                            .description("testDescription")
+                            .minimumPrice(10000)
+                            .build());
+                }
+                bidList.add(BulkInsertBid.builder()
+                        .price(10000)
+                        .bidderId(kakaoMember1.getId())
+                        .itemId(i)
+                        .build());
+            }
+
+            itemJdbcRepository.insertItemList(itemList);
+            bidJdbcRepository.insertBidList(bidList);
+
 
             bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
             bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());

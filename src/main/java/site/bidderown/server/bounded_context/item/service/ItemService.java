@@ -97,7 +97,8 @@ public class ItemService {
     }
 
     public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems(sortCode, searchText, pageable);
+//        return itemCustomRepository.findItems(sortCode, searchText, pageable);
+        return itemCustomRepository.findItems_v1(sortCode, searchText, pageable);
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
