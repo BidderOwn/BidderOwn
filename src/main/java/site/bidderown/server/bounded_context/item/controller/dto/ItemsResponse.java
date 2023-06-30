@@ -1,15 +1,12 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemsResponse {
     private Long id;
@@ -59,6 +56,36 @@ public class ItemsResponse {
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
                 .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus())
+                .build();
+    }
+
+    public static ItemsResponse of(Item item, Integer bidCount, Integer commentsCount, Integer minPrice, Integer maxPrice) {
+        return ItemsResponse.builder()
+                .id(item.getId())
+                .title(item.getTitle())
+                .minimumPrice(item.getMinimumPrice())
+                .expireAt(item.getExpireAt())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .commentsCount(commentsCount)
+                .bidCount(bidCount)
+                .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus())
+                .build();
+    }
+
+    public static ItemsResponse of(Item item, Integer bidCount, Integer commentsCount, Integer minPrice, Integer maxPrice, String thumbnailImageName) {
+        return ItemsResponse.builder()
+                .id(item.getId())
+                .title(item.getTitle())
+                .minimumPrice(item.getMinimumPrice())
+                .expireAt(item.getExpireAt())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .commentsCount(commentsCount)
+                .bidCount(bidCount)
+                .thumbnailImageName(thumbnailImageName)
                 .itemStatus(item.getItemStatus())
                 .build();
     }

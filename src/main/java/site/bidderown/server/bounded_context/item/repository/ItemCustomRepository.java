@@ -9,13 +9,17 @@ import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.core.instrument.util.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -73,7 +77,7 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageId()))
+                .on(image.id.eq(itemThumbnailImageMaxId()))
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted()
@@ -83,6 +87,72 @@ public class ItemCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
+
+    /**
+     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
+     */
+    public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = queryFactory.selectFrom(item)
+                .where(eqToSearchText(searchText))
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return items.stream()
+                .map(item -> ItemsResponse.of(
+                        item,
+                        minItemPrice(item.getId()),
+                        maxItemPrice(item.getId()))
+                )
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemsResponse> findItems_v2(int sortCode, String searchText, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                item.comments.size(),
+                                item.bids.size(),
+                                itemThumbnailImageFileName(),
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted()
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public static class ResponseTest {
+        private Long id;
+        private String title;
+        private int minimumPrice;
+        private Integer maxPrice;
+        private Integer minPrice;
+        private Integer commentsCount;
+        private Integer bidCount;
+        private String imageName;
+        private String thumbnailImageName;
+        private ItemStatus itemStatus;
+        private LocalDateTime expireAt;
+
+    }
+
 
     /**
      * @param id 상품 아이디
@@ -108,45 +178,33 @@ public class ItemCustomRepository {
                         ))
                 .from(item)
                 .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageId()))
+                .on(image.id.eq(itemThumbnailImageMaxId()))
                 .where(item.id.eq(id), eqNotDeleted())
                 .fetchOne());
     }
 
-    /**
-     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
-     */
-    public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = queryFactory.selectFrom(item)
-                .orderBy(orderBySortCode(sortCode))
-                .where(eqToSearchText(searchText))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        return items.stream()
-                .map(item -> ItemsResponse.of(
-                        item,
-                        minItemPrice(item.getId()),
-                        maxItemPrice(item.getId()))
-                )
-                .collect(Collectors.toList());
+    private Expression<Long> itemThumbnailImageMaxId() {
+        return JPAExpressions.select(image.id.min())
+                .from(image)
+                .where(image.item.eq(item));
     }
 
-    private Expression<Long> itemThumbnailImageId() {
-        return JPAExpressions.select(image.id)
+    private Expression<String> itemThumbnailImageFileName() {
+        return JPAExpressions.select(image.fileName)
                 .from(image)
-                .where(image.item.eq(item))
-                .limit(1)
-                .orderBy(image.id.asc());
+                .where(image.id.eq(itemThumbnailImageMaxId()));
     }
 
     private Expression<Integer> itemBidMaxPrice() {
-        return JPAExpressions.select(bid.price.max()).from(bid).where(bid.item.eq(item));
+        return JPAExpressions.select(bid.price.max())
+                .from(bid)
+                .where(bid.item.eq(item));
     }
 
     private Expression<Integer> itemBidMinPrice() {
-        return JPAExpressions.select(bid.price.min()).from(bid).where(bid.item.eq(item));
+        return JPAExpressions.select(bid.price.min())
+                .from(bid)
+                .where(bid.item.eq(item));
     }
 
     public Integer minItemPrice(Long itemId) {
