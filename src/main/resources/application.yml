@@ -1,10 +1,6 @@
 spring:
   profiles:
-    active: dev
-    include: dev
-  jpa:
-    hibernate:
-      ddl-auto: update
+    active: dev, rdb
   security:
     oauth2:
       client:
