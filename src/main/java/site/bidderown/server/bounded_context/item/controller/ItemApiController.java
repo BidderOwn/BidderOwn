@@ -36,32 +36,32 @@ public class ItemApiController {
         return itemService.getItems(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/list-v1")
+    @GetMapping("/list-no-dsl")
     public List<ItemsResponse> getItemsV1(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
-        return itemService.getItems_V1(sortCode, searchText, pageable);
+        return itemService.getItems_no_dsl(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/list-v2")
+    @GetMapping("/list-dsl-page")
     public List<ItemsResponse> getItemsV2(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
-        return itemService.getItems_V2(sortCode, searchText, pageable);
+        return itemService.getItems_dsl_page(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/list-no-offset")
+    @GetMapping("/list-dsl-no-offset")
     public List<ItemsResponse> getItemsV2(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             @RequestParam(name = "id", required = false) Long lastItemId,
             @RequestParam(name = "pageSize", defaultValue = "0") int pageSize
     ) {
-        return itemService.getItems_no_offset(lastItemId, sortCode, searchText, pageSize);
+        return itemService.getItems_dsl_no_offset(lastItemId, sortCode, searchText, pageSize);
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })

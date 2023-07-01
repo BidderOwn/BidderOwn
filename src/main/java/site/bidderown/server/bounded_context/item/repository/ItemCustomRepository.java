@@ -1,6 +1,5 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -14,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.util.TimeUtils;
-import site.bidderown.server.bounded_context.image.entity.Image;
-import site.bidderown.server.bounded_context.image.repository.ImageRepository;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -23,7 +20,6 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -91,7 +87,7 @@ public class ItemCustomRepository {
     /**
      * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
      */
-    public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
         List<Item> items = queryFactory.selectFrom(item)
                 .where(eqToSearchText(searchText))
                 .orderBy(orderBySortCode(sortCode))
@@ -108,7 +104,7 @@ public class ItemCustomRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemsResponse> findItems_v2(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -136,7 +132,7 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    public List<ItemsResponse> findItemsNoOffset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+    public List<ItemsResponse> findItems_dsl_no_Offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
         return queryFactory
                 .select(
                         Projections.constructor(

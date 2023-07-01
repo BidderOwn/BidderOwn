@@ -1,7 +1,6 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,16 +89,16 @@ public class ItemService {
     /**
      * @description 성능 테스트를 위해 남겨둔 메서드입니다. getItems() 사용하시면 됩니다.
      */
-    public List<ItemsResponse> getItems_V1(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_v1(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems_no_dsl(sortCode, searchText, pageable);
     }
 
-    public List<ItemsResponse> getItems_V2(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_v2(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems_dsl_page(sortCode, searchText, pageable);
     }
 
-    public List<ItemsResponse> getItems_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
-        return itemCustomRepository.findItemsNoOffset(lastItemId, sortCode, searchText, pageSize);
+    public List<ItemsResponse> getItems_dsl_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+        return itemCustomRepository.findItems_dsl_no_Offset(lastItemId, sortCode, searchText, pageSize);
     }
 
     public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {
