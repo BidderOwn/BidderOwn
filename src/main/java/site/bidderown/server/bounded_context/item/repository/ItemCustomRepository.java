@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.item.repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -9,21 +10,20 @@ import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.core.instrument.util.StringUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.util.TimeUtils;
+import site.bidderown.server.bounded_context.image.entity.Image;
+import site.bidderown.server.bounded_context.image.repository.ImageRepository;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -136,23 +136,33 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    @Getter @Setter
-    @AllArgsConstructor
-    public static class ResponseTest {
-        private Long id;
-        private String title;
-        private int minimumPrice;
-        private Integer maxPrice;
-        private Integer minPrice;
-        private Integer commentsCount;
-        private Integer bidCount;
-        private String imageName;
-        private String thumbnailImageName;
-        private ItemStatus itemStatus;
-        private LocalDateTime expireAt;
-
+    public List<ItemsResponse> findItemsNoOffset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                item.comments.size(),
+                                item.bids.size(),
+                                itemThumbnailImageFileName(),
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqNotDeleted(),
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .limit(pageSize)
+                .fetch();
     }
-
 
     /**
      * @param id 상품 아이디
@@ -181,6 +191,15 @@ public class ItemCustomRepository {
                 .on(image.id.eq(itemThumbnailImageMaxId()))
                 .where(item.id.eq(id), eqNotDeleted())
                 .fetchOne());
+    }
+
+    private BooleanExpression ltItemId(Long itemId) {
+        if (itemId == null) {
+            return null;
+        }
+
+        return item.id.lt(itemId);
+
     }
 
     private Expression<Long> itemThumbnailImageMaxId() {
@@ -270,13 +289,5 @@ public class ItemCustomRepository {
         LocalDateTime end = TimeUtils.getCurrentOClockPlus(1);
 
         return item.createdAt.between(start, end); // TODO expireAt으로 변경
-    }
-
-    private BooleanExpression ltItemId(Long itemId) {
-        if (itemId == null) {
-            return null;
-        }
-
-        return item.id.lt(itemId);
     }
 }

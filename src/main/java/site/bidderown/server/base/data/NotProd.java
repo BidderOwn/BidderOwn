@@ -203,14 +203,14 @@ public class NotProd {
                 if (i % 2 == 0) {
                     itemList.add(BulkInsertItem.builder()
                             .memberId(member1.getId())
-                            .title("testTitle")
+                            .title("testTitle_" + i)
                             .description("testDescription")
                             .minimumPrice(10000)
                             .build());
                 } else {
                     itemList.add(BulkInsertItem.builder()
                             .memberId(member2.getId())
-                            .title("testTitle")
+                            .title("testTitle_" + i)
                             .description("testDescription")
                             .minimumPrice(10000)
                             .build());

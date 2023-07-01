@@ -31,7 +31,6 @@ public class ItemService {
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
-    private final ApplicationEventPublisher publisher;
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
@@ -85,7 +84,6 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
-
         return item;
     }
 
@@ -98,6 +96,10 @@ public class ItemService {
 
     public List<ItemsResponse> getItems_V2(int sortCode, String searchText, Pageable pageable) {
         return itemCustomRepository.findItems_v2(sortCode, searchText, pageable);
+    }
+
+    public List<ItemsResponse> getItems_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+        return itemCustomRepository.findItemsNoOffset(lastItemId, sortCode, searchText, pageSize);
     }
 
     public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {

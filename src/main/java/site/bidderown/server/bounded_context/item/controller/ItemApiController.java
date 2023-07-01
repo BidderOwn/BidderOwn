@@ -36,7 +36,7 @@ public class ItemApiController {
         return itemService.getItems(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/listv1")
+    @GetMapping("/list-v1")
     public List<ItemsResponse> getItemsV1(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
@@ -45,13 +45,23 @@ public class ItemApiController {
         return itemService.getItems_V1(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/listv2")
+    @GetMapping("/list-v2")
     public List<ItemsResponse> getItemsV2(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
         return itemService.getItems_V2(sortCode, searchText, pageable);
+    }
+
+    @GetMapping("/list-no-offset")
+    public List<ItemsResponse> getItemsV2(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            @RequestParam(name = "id", required = false) Long lastItemId,
+            @RequestParam(name = "pageSize", defaultValue = "0") int pageSize
+    ) {
+        return itemService.getItems_no_offset(lastItemId, sortCode, searchText, pageSize);
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })

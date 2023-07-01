@@ -91,7 +91,7 @@
             page: 0,
             size: 9,
             searchText: '',
-            prefix: '/api/v1/item/list',
+            prefix: '/api/v1/item/list-no-offset',
         },
         created() {
             this.username = document.getElementById('username').value;
@@ -102,12 +102,7 @@
         },
         methods: {
             addData() {
-                axios.get(this.prefix + this.getQuery(), {
-                    params: {
-                        page: this.page,
-                        size: this.size
-                    }
-                }).then(response => {
+                axios.get(this.prefix + this.getQuery() + this.getLastItemId()).then(response => {
                     response.data.forEach(item => {
                         this.items.push(
                             {
@@ -178,6 +173,14 @@
                     }
                     query += 'q=' + this.searchText;
                 }
+                return query;
+            },
+            getLastItemId() {
+                let query = '';
+                if (this.items.length > 0) {
+                    query += "&id=" + this.items[this.items.length - 1].id;
+                }
+                query += "&pageSize=" + this.size;
                 return query;
             }
         }

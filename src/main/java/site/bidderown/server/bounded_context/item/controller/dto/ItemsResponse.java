@@ -45,6 +45,50 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
+    @Builder
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            Integer commentsCount,
+            Integer bidCount,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.commentsCount = commentsCount;
+        this.bidCount = bidCount;
+        this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
+    @Builder
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            Integer maxPrice,
+            Integer minPrice,
+            Integer commentsCount,
+            Integer bidCount,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.maxPrice = maxPrice;
+        this.minPrice = minPrice;
+        this.commentsCount = commentsCount;
+        this.bidCount = bidCount;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
     public static ItemsResponse of(Item item, Integer minPrice, Integer maxPrice) {
         return ItemsResponse.builder()
                 .id(item.getId())
