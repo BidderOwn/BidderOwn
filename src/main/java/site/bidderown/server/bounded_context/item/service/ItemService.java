@@ -36,7 +36,6 @@ public class ItemService {
         return _create(request, member);
     }
 
-
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return _create(request, member);
@@ -83,6 +82,7 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
+        item.setThumbnailImageFileName(fileNames.get(0));
         return item;
     }
 
@@ -94,14 +94,15 @@ public class ItemService {
     }
 
     public List<ItemsResponse> getItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_dsl_page(sortCode, searchText, pageable);
+        return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
     }
 
-    public List<ItemsResponse> getItems_dsl_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
-        return itemCustomRepository.findItems_dsl_no_Offset(lastItemId, sortCode, searchText, pageSize);
+    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        if (sortCode != 1) return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
+        return itemCustomRepository.findItems_no_offset(lastItemId, sortCode, searchText, pageable.getPageSize());
     }
 
-    public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> getItems_origin(int sortCode, String searchText, Pageable pageable) {
         return itemCustomRepository.findItems(sortCode, searchText, pageable);
     }
 

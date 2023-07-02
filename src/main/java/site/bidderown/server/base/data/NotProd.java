@@ -195,35 +195,11 @@ public class NotProd {
 
             itemRepository.saveAll(items);
 
-            // 아이템 등록
-            List<BulkInsertItem> itemList = new ArrayList<>();
-            List<BulkInsertBid> bidList = new ArrayList<>();
-
-            for(long i = 1; i <= 100_000; i++) {
-                if (i % 2 == 0) {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member1.getId())
-                            .title("testTitle_" + i)
-                            .description("testDescription")
-                            .minimumPrice(10000)
-                            .build());
-                } else {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member2.getId())
-                            .title("testTitle_" + i)
-                            .description("testDescription")
-                            .minimumPrice(10000)
-                            .build());
-                }
-                bidList.add(BulkInsertBid.builder()
-                        .price(10000)
-                        .bidderId(kakaoMember1.getId())
-                        .itemId(i)
-                        .build());
+            for (int i = 0; i < 11; i++) {
+                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+                itemRepository.save(items.get(i));
             }
-
-            itemJdbcRepository.insertItemList(itemList);
-            bidJdbcRepository.insertBidList(bidList);
 
 
             bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
@@ -264,14 +240,35 @@ public class NotProd {
             bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
 
             for (int i = 0; i < 11; i++) {
-                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-
                 if (i == 10) {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
                 } else {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
                 }
             }
+
+            // 아이템 등록
+            List<BulkInsertItem> itemList = new ArrayList<>();
+
+            for(long i = 1; i <= 100_000; i++) {
+                if (i % 2 == 0) {
+                    itemList.add(BulkInsertItem.builder()
+                            .memberId(member1.getId())
+                            .title("not_prod_title_" + i)
+                            .description("not_prod_description")
+                            .minimumPrice(10000)
+                            .build());
+                } else {
+                    itemList.add(BulkInsertItem.builder()
+                            .memberId(member2.getId())
+                            .title("not_prod_title_" + i)
+                            .description("not_prod_description")
+                            .minimumPrice(10000)
+                            .build());
+                }
+            }
+
+            itemJdbcRepository.insertItemList(itemList);
         };
     }
 }

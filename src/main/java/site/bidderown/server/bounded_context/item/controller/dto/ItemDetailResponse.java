@@ -65,7 +65,7 @@ public class ItemDetailResponse {
                 .expireAt(item.getExpireAt())
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
-                .thumbnailImageName(item.getImages().get(0).getFileName())
+                .thumbnailImageName(item.getThumbnailImageFileName())
                 .bidCount(item.getBids().size())
                 .itemStatus(item.getItemStatus())
                 .build();

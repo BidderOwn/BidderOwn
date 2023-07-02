@@ -20,7 +20,7 @@ public class ItemJdbcRepository {
 
 
     public void insertItemList(List<BulkInsertItem> itemList){
-        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id) values (?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id, bid_count, comment_count) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -32,6 +32,8 @@ public class ItemJdbcRepository {
                         ps.setString(6, itemList.get(i).getDescription());
                         ps.setLong(7, itemList.get(i).getMinimumPrice());
                         ps.setLong(8, itemList.get(i).getMemberId());
+                        ps.setLong(9, 0L);
+                        ps.setLong(10, 0L);
                     }
 
                     @Override

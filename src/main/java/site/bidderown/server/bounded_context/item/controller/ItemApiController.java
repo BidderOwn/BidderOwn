@@ -33,7 +33,7 @@ public class ItemApiController {
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
-        return itemService.getItems(sortCode, searchText, pageable);
+        return itemService.getItems_origin(sortCode, searchText, pageable);
     }
 
     @GetMapping("/list-no-dsl")
@@ -59,9 +59,9 @@ public class ItemApiController {
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             @RequestParam(name = "id", required = false) Long lastItemId,
-            @RequestParam(name = "pageSize", defaultValue = "0") int pageSize
+            Pageable pageable
     ) {
-        return itemService.getItems_dsl_no_offset(lastItemId, sortCode, searchText, pageSize);
+        return itemService.getItems(lastItemId, sortCode, searchText, pageable);
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })

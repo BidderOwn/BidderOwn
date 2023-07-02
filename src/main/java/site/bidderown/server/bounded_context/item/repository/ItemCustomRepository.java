@@ -64,8 +64,8 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                item.comments.size(),
-                                item.bids.size(),
+                                item.commentCount,
+                                item.bidCount,
                                 image.fileName,
                                 item.itemStatus,
                                 item.expireAt
@@ -104,7 +104,7 @@ public class ItemCustomRepository {
                 .collect(Collectors.toList());
     }
 
-    public List<ItemsResponse> findItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems_pagination(int sortCode, String searchText, Pageable pageable) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -114,9 +114,9 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                item.comments.size(),
-                                item.bids.size(),
-                                itemThumbnailImageFileName(),
+                                item.commentCount,
+                                item.bidCount,
+                                item.thumbnailImageFileName,
                                 item.itemStatus,
                                 item.expireAt
                         )
@@ -132,7 +132,7 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    public List<ItemsResponse> findItems_dsl_no_Offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+    public List<ItemsResponse> findItems_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -142,9 +142,9 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                item.comments.size(),
-                                item.bids.size(),
-                                itemThumbnailImageFileName(),
+                                item.commentCount,
+                                item.bidCount,
+                                item.thumbnailImageFileName,
                                 item.itemStatus,
                                 item.expireAt
                         )
@@ -177,14 +177,12 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                image.fileName,
-                                item.bids.size(),
+                                item.thumbnailImageFileName,
+                                item.bidCount,
                                 item.itemStatus,
                                 item.expireAt
                         ))
                 .from(item)
-                .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageMaxId()))
                 .where(item.id.eq(id), eqNotDeleted())
                 .fetchOne());
     }
@@ -248,7 +246,7 @@ public class ItemCustomRepository {
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
-            case 2 -> orderSpecifiers.add(item.bids.size().desc());
+            case 2 -> orderSpecifiers.add(item.bidCount.desc());
             case 3 -> orderSpecifiers.add(item.expireAt.asc());
         }
         orderSpecifiers.add(item.id.desc());

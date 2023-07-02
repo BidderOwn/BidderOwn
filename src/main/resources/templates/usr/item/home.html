@@ -59,7 +59,7 @@
                         </span>
                         <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최고가&nbsp₩&nbsp</span>
                     </div>
-                    <div class="text-sm text-gray-600" v-if="item.itemStatus === '경매중'">{{ item.expireAt }}</div>
+                    <div class="text-sm text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
                     <div v-else>&nbsp</div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
             page: 0,
             size: 9,
             searchText: '',
-            prefix: '/api/v1/item/list-no-offset',
+            prefix: '/api/v1/item/list-dsl-no-offset',
         },
         created() {
             this.username = document.getElementById('username').value;
@@ -177,10 +177,10 @@
             },
             getLastItemId() {
                 let query = '';
-                if (this.items.length > 0) {
+                if (this.items.length > 0 && this.selected === '1') {
                     query += "&id=" + this.items[this.items.length - 1].id;
                 }
-                query += "&pageSize=" + this.size;
+                query += "&page=" + this.page + "&size=" + this.size;
                 return query;
             }
         }
