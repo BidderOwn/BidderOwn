@@ -27,8 +27,20 @@ public class ItemApiController {
     private final ItemService itemService;
     private final MemberService memberService;
 
+    // No offset 적용하여 최신순 쿼리 성능 개선 (N + 1 문제 해결, 성능 최상)
     @GetMapping("/list")
     public List<ItemsResponse> getItems(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            @RequestParam(name = "id", required = false) Long lastItemId,
+            Pageable pageable
+    ) {
+        return itemService.getItems(lastItemId, sortCode, searchText, pageable);
+    }
+
+    //기존 코드 (N + 1 해결, 성능 최하)
+    @GetMapping("/list-origin")
+    public List<ItemsResponse> getItemsOrigin(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
@@ -36,32 +48,14 @@ public class ItemApiController {
         return itemService.getItems_origin(sortCode, searchText, pageable);
     }
 
-    @GetMapping("/list-no-dsl")
-    public List<ItemsResponse> getItemsV1(
+    //JPA 사용 (N + 1 문제 발생, 성능 보통)
+    @GetMapping("/list-jpa")
+    public List<ItemsResponse> getItemsJpa(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
             @RequestParam(name = "q", defaultValue = "") String searchText,
             Pageable pageable
     ) {
         return itemService.getItems_no_dsl(sortCode, searchText, pageable);
-    }
-
-    @GetMapping("/list-dsl-page")
-    public List<ItemsResponse> getItemsV2(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            Pageable pageable
-    ) {
-        return itemService.getItems_dsl_page(sortCode, searchText, pageable);
-    }
-
-    @GetMapping("/list-dsl-no-offset")
-    public List<ItemsResponse> getItemsV2(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            @RequestParam(name = "id", required = false) Long lastItemId,
-            Pageable pageable
-    ) {
-        return itemService.getItems(lastItemId, sortCode, searchText, pageable);
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })

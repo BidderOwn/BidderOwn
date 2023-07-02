@@ -45,50 +45,6 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
-    @Builder
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
-            Integer commentsCount,
-            Integer bidCount,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
-    ) {
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.commentsCount = commentsCount;
-        this.bidCount = bidCount;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
-    @Builder
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
-            Integer maxPrice,
-            Integer minPrice,
-            Integer commentsCount,
-            Integer bidCount,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
-    ) {
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.commentsCount = commentsCount;
-        this.bidCount = bidCount;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
     public static ItemsResponse of(Item item, Integer minPrice, Integer maxPrice) {
         return ItemsResponse.builder()
                 .id(item.getId())
@@ -97,39 +53,9 @@ public class ItemsResponse {
                 .expireAt(item.getExpireAt())
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
-                .commentsCount(item.getComments().size())
-                .bidCount(item.getBids().size())
+                .commentsCount(item.getCommentCount())
+                .bidCount(item.getBidCount())
                 .thumbnailImageName(item.getThumbnailImage())
-                .itemStatus(item.getItemStatus())
-                .build();
-    }
-
-    public static ItemsResponse of(Item item, Integer bidCount, Integer commentsCount, Integer minPrice, Integer maxPrice) {
-        return ItemsResponse.builder()
-                .id(item.getId())
-                .title(item.getTitle())
-                .minimumPrice(item.getMinimumPrice())
-                .expireAt(item.getExpireAt())
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
-                .commentsCount(commentsCount)
-                .bidCount(bidCount)
-                .thumbnailImageName(item.getThumbnailImage())
-                .itemStatus(item.getItemStatus())
-                .build();
-    }
-
-    public static ItemsResponse of(Item item, Integer bidCount, Integer commentsCount, Integer minPrice, Integer maxPrice, String thumbnailImageName) {
-        return ItemsResponse.builder()
-                .id(item.getId())
-                .title(item.getTitle())
-                .minimumPrice(item.getMinimumPrice())
-                .expireAt(item.getExpireAt())
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
-                .commentsCount(commentsCount)
-                .bidCount(bidCount)
-                .thumbnailImageName(thumbnailImageName)
                 .itemStatus(item.getItemStatus())
                 .build();
     }
