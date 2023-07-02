@@ -246,29 +246,6 @@ public class NotProd {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
                 }
             }
-
-            // 아이템 등록
-            List<BulkInsertItem> itemList = new ArrayList<>();
-
-            for(long i = 1; i <= 100_000; i++) {
-                if (i % 2 == 0) {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member1.getId())
-                            .title("not_prod_title_" + i)
-                            .description("not_prod_description")
-                            .minimumPrice(10000)
-                            .build());
-                } else {
-                    itemList.add(BulkInsertItem.builder()
-                            .memberId(member2.getId())
-                            .title("not_prod_title_" + i)
-                            .description("not_prod_description")
-                            .minimumPrice(10000)
-                            .build());
-                }
-            }
-
-            itemJdbcRepository.insertItemList(itemList);
         };
     }
 }
