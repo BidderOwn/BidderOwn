@@ -126,7 +126,6 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-//        List<ItemsResponse> items = itemService.getItems(sortCode, searchText, pageRequest);
         List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
 
         //then
@@ -144,7 +143,6 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-//        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
         List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
@@ -162,7 +160,6 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-//        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
         List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
@@ -182,7 +179,6 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-//        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
         List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
@@ -200,7 +196,6 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-//        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
         List<ItemsResponse> items = itemService.getItems(null, 2, searchText, pageRequest);
 
         //then
