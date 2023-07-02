@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
@@ -15,11 +14,9 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"dev", "test"})
