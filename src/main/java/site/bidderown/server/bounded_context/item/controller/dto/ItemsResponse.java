@@ -1,15 +1,12 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemsResponse {
     private Long id;
@@ -56,8 +53,8 @@ public class ItemsResponse {
                 .expireAt(item.getExpireAt())
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
-                .commentsCount(item.getComments().size())
-                .bidCount(item.getBids().size())
+                .commentsCount(item.getCommentCount())
+                .bidCount(item.getBidCount())
                 .thumbnailImageName(item.getThumbnailImage())
                 .itemStatus(item.getItemStatus())
                 .build();

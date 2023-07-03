@@ -35,8 +35,9 @@ public class Comment extends BaseEntity {
             Member writer
     ) {
         this.content = content;
-        this.item = item;
         this.writer = writer;
+        this.item = item;
+        this.item.getComments().add(this);
     }
 
     public static Comment of (
@@ -44,13 +45,11 @@ public class Comment extends BaseEntity {
         Item item,
         Member writer
     ) {
-        Comment comment = Comment.builder()
+        return Comment.builder()
                 .content(request.getContent())
                 .item(item)
                 .writer(writer)
                 .build();
-        item.getComments().add(comment);
-        return comment;
     }
 
     public void updateContent(String content){

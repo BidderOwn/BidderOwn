@@ -64,8 +64,8 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                item.comments.size(),
-                                item.bids.size(),
+                                item.commentCount,
+                                item.bidCount,
                                 image.fileName,
                                 item.itemStatus,
                                 item.expireAt
@@ -73,7 +73,7 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageId()))
+                .on(image.id.eq(itemThumbnailImageMaxId()))
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted()
@@ -81,6 +81,82 @@ public class ItemCustomRepository {
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    /**
+     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
+     */
+    public List<ItemsResponse> findItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = queryFactory.selectFrom(item)
+                .where(eqToSearchText(searchText))
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return items.stream()
+                .map(item -> ItemsResponse.of(
+                        item,
+                        minItemPrice(item.getId()),
+                        maxItemPrice(item.getId()))
+                )
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemsResponse> findItems_pagination(int sortCode, String searchText, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                item.commentCount,
+                                item.bidCount,
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted()
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    public List<ItemsResponse> findItems_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                itemBidMaxPrice(),
+                                itemBidMinPrice(),
+                                item.commentCount,
+                                item.bidCount,
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqNotDeleted(),
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .limit(pageSize)
                 .fetch();
     }
 
@@ -101,52 +177,47 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                image.fileName,
-                                item.bids.size(),
+                                item.thumbnailImageFileName,
+                                item.bidCount,
                                 item.itemStatus,
                                 item.expireAt
                         ))
                 .from(item)
-                .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageId()))
                 .where(item.id.eq(id), eqNotDeleted())
                 .fetchOne());
     }
 
-    /**
-     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
-     */
-    public List<ItemsResponse> findItems_v1(int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = queryFactory.selectFrom(item)
-                .orderBy(orderBySortCode(sortCode))
-                .where(eqToSearchText(searchText))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+    private BooleanExpression ltItemId(Long itemId) {
+        if (itemId == null) {
+            return null;
+        }
 
-        return items.stream()
-                .map(item -> ItemsResponse.of(
-                        item,
-                        minItemPrice(item.getId()),
-                        maxItemPrice(item.getId()))
-                )
-                .collect(Collectors.toList());
+        return item.id.lt(itemId);
+
     }
 
-    private Expression<Long> itemThumbnailImageId() {
-        return JPAExpressions.select(image.id)
+    private Expression<Long> itemThumbnailImageMaxId() {
+        return JPAExpressions.select(image.id.min())
                 .from(image)
-                .where(image.item.eq(item))
-                .limit(1)
-                .orderBy(image.id.asc());
+                .where(image.item.eq(item));
+    }
+
+    private Expression<String> itemThumbnailImageFileName() {
+        return JPAExpressions.select(image.fileName)
+                .from(image)
+                .where(image.id.eq(itemThumbnailImageMaxId()));
     }
 
     private Expression<Integer> itemBidMaxPrice() {
-        return JPAExpressions.select(bid.price.max()).from(bid).where(bid.item.eq(item));
+        return JPAExpressions.select(bid.price.max())
+                .from(bid)
+                .where(bid.item.eq(item));
     }
 
     private Expression<Integer> itemBidMinPrice() {
-        return JPAExpressions.select(bid.price.min()).from(bid).where(bid.item.eq(item));
+        return JPAExpressions.select(bid.price.min())
+                .from(bid)
+                .where(bid.item.eq(item));
     }
 
     public Integer minItemPrice(Long itemId) {
@@ -175,7 +246,7 @@ public class ItemCustomRepository {
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
-            case 2 -> orderSpecifiers.add(item.bids.size().desc());
+            case 2 -> orderSpecifiers.add(item.bidCount.desc());
             case 3 -> orderSpecifiers.add(item.expireAt.asc());
         }
         orderSpecifiers.add(item.id.desc());
@@ -212,13 +283,5 @@ public class ItemCustomRepository {
         LocalDateTime end = TimeUtils.getCurrentOClockPlus(1);
 
         return item.createdAt.between(start, end); // TODO expireAt으로 변경
-    }
-
-    private BooleanExpression ltItemId(Long itemId) {
-        if (itemId == null) {
-            return null;
-        }
-
-        return item.id.lt(itemId);
     }
 }

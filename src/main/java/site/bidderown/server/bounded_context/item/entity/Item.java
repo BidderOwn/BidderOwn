@@ -22,7 +22,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Item extends BaseEntity {
+public class Item extends ItemBase {
 
     @Column(length = 30)
     private String title;
@@ -60,6 +60,8 @@ public class Item extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
+
+    private String thumbnailImageFileName;
 
     @Builder
     private Item(
@@ -118,6 +120,10 @@ public class Item extends BaseEntity {
 
     public void updateDeleted() {
         this.deleted = true;
+    }
+
+    public void setThumbnailImageFileName(String thumbnailImageFileName) {
+        this.thumbnailImageFileName = thumbnailImageFileName;
     }
 }
 

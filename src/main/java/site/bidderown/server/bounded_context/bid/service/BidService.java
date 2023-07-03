@@ -31,28 +31,25 @@ public class BidService {
     private final BidCustomRepository bidCustomRepository;
     private final MemberService memberService;
     private final ItemService itemService;
-    private final ApplicationEventPublisher publisher;
-
 
     @Transactional
     public void create(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
+
         if (isMyItem(item, username)) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
+
+        item.increaseBidCount();
+
         Member member = memberService.getMember(username);
-        Bid bid = Bid.of(bidRequest, member, item);
-        bidRepository.save(bid);
+        bidRepository.save(Bid.of(bidRequest, member, item));
     }
 
     /**
      * @description 입찰가 제시
      * 1. 중복 -> 가격 변경
      * 2. 없으면 새로 생성
-     *
-     * @param bidRequest
-     * @param username
-     * @return
      */
     @Transactional
     public Long handleBid(BidRequest bidRequest, String username) {
@@ -65,11 +62,13 @@ public class BidService {
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
         if (opBid.isEmpty()) {
+            item.increaseBidCount();
             return create(bidRequest.getItemPrice(), item, bidder);
         }
 
         Bid bid = opBid.get();
         bid.updatePrice(bidRequest.getItemPrice());
+
         return bid.getId();
     }
 
@@ -105,6 +104,7 @@ public class BidService {
             throw new ForbiddenException("입찰 삭제 권한이 없습니다.");
         }
 
+        findBid.getItem().decreaseBidCount();
         bidRepository.delete(findBid);
     }
 

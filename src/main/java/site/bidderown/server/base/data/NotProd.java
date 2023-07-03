@@ -192,6 +192,13 @@ public class NotProd {
 
             itemRepository.saveAll(items);
 
+            for (int i = 0; i < 11; i++) {
+                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+                itemRepository.save(items.get(i));
+            }
+
+
             bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
             bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
 
@@ -230,8 +237,6 @@ public class NotProd {
             bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
 
             for (int i = 0; i < 11; i++) {
-                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-
                 if (i == 10) {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
                 } else {

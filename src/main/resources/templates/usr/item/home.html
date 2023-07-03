@@ -59,7 +59,7 @@
                         </span>
                         <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최고가&nbsp₩&nbsp</span>
                     </div>
-                    <div class="text-sm text-gray-600" v-if="item.itemStatus === '경매중'">{{ item.expireAt }}</div>
+                    <div class="text-sm text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
                     <div v-else>&nbsp</div>
                 </div>
             </div>
@@ -102,12 +102,7 @@
         },
         methods: {
             addData() {
-                axios.get(this.prefix + this.getQuery(), {
-                    params: {
-                        page: this.page,
-                        size: this.size
-                    }
-                }).then(response => {
+                axios.get(this.prefix + this.getQuery() + this.getLastItemId()).then(response => {
                     response.data.forEach(item => {
                         this.items.push(
                             {
@@ -178,6 +173,14 @@
                     }
                     query += 'q=' + this.searchText;
                 }
+                return query;
+            },
+            getLastItemId() {
+                let query = '';
+                if (this.items.length > 0 && this.selected === '1') {
+                    query += "&id=" + this.items[this.items.length - 1].id;
+                }
+                query += "&page=" + this.page + "&size=" + this.size;
                 return query;
             }
         }

@@ -1,7 +1,6 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,13 +30,11 @@ public class ItemService {
     private final MemberService memberService;
     private final ImageService imageService;
     private final ImageUtils imageUtils;
-    private final ApplicationEventPublisher publisher;
 
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
         return _create(request, member);
     }
-
 
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
@@ -47,16 +44,6 @@ public class ItemService {
     public Item getItem(Long id) {
         return itemRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-    }
-
-    /**
-     * @description 성능 테스트를 위해 남겨 둔 메서드입니다. getItemDetail() 사용하시면 됩니다.
-     */
-    public ItemDetailResponse getItemDetail_V1(Long id) {
-        Item item = getItem(id);
-        Integer minPrice = itemCustomRepository.minItemPrice(id);
-        Integer maxPrice = itemCustomRepository.maxItemPrice(id);
-        return ItemDetailResponse.of(item, minPrice, maxPrice);
     }
 
     public ItemDetailResponse getItemDetail(Long id) {
@@ -85,18 +72,34 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
         imageService.create(item, fileNames);
-
+        item.setThumbnailImageFileName(fileNames.get(0));
         return item;
+    }
+
+    /**
+     * @param lastItemId 현재 상품리스트의 id 최소값
+     * @param sortCode 1 - 최신순, 2 - 인기순, 3 - 경매마감순
+     * @param searchText 검색어
+     * @param pageable 최신순 - pageSize만 이용, 나머지 - Pageable 이용
+     * @return List<ItemResponse>
+     */
+    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        if (sortCode != 1) return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
+        return itemCustomRepository.findItems_no_offset(lastItemId, sortCode, searchText, pageable.getPageSize());
     }
 
     /**
      * @description 성능 테스트를 위해 남겨둔 메서드입니다. getItems() 사용하시면 됩니다.
      */
-    public List<ItemsResponse> getItems_V1(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_v1(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems_no_dsl(sortCode, searchText, pageable);
     }
 
-    public List<ItemsResponse> getItems(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> getItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
+    }
+
+    public List<ItemsResponse> getItems_origin(int sortCode, String searchText, Pageable pageable) {
         return itemCustomRepository.findItems(sortCode, searchText, pageable);
     }
 

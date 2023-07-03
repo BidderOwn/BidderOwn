@@ -59,7 +59,7 @@ public class ItemServiceTest {
     @Autowired
     private BidService bidService;
 
-    private final int PAGE_SIZE = 10;
+    private final int PAGE_SIZE = 9;
     private final int ITEM_SIZE = 5;
 
     @BeforeEach
@@ -90,7 +90,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -108,7 +108,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -126,7 +126,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -143,7 +143,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(1);
@@ -160,7 +160,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(1);
@@ -179,7 +179,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -196,7 +196,7 @@ public class ItemServiceTest {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
 
         //when
-        List<ItemsResponse> items = itemService.getItems(0, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(null, 2, searchText, pageRequest);
 
         //then
         assertThat(items).isSortedAccordingTo(
