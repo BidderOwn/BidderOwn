@@ -36,5 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 application-secret.yml
-application-rdb.yml
+application-db.yml
 /resources/images/item/*
