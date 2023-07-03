@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev, rdb
+    active: dev, db
   security:
     oauth2:
       client:
