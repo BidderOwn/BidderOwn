@@ -105,6 +105,10 @@ public class Item extends ItemBase {
         this.itemStatus = ItemStatus.SOLDOUT;
     }
 
+    public void bidEndItem() {
+        this.itemStatus = ItemStatus.BID_END;
+    }
+
     // 낙찰 받은 사람
     private Member getWinner() {
         if (bids.isEmpty()) return null;
