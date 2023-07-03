@@ -16,6 +16,6 @@ public class ItemEventHandler {
     @EventListener
     @Async
     public void listen(BidEndEvent bidEndEvent) {
-        itemService.bidEndItem(bidEndEvent.getItemId());
+        itemService.closeBid(bidEndEvent.getItemId());
     }
 }

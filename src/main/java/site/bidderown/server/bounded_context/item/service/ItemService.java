@@ -148,9 +148,9 @@ public class ItemService {
     }
 
     @Transactional
-    public void bidEndItem(Long itemId) {
+    public void closeBid(Long itemId) {
         Item item = getItem(itemId);
-        item.bidEndItem();
+        item.closeBid();
     }
 
     private Item _create(ItemRequest request, Member member) {
