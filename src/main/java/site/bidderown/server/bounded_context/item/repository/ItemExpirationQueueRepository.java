@@ -31,7 +31,7 @@ public class ItemExpirationQueueRepository {
     }
 
     public boolean contains(Long itemId) {
-        return !Objects.isNull(valueOperation.get(String.valueOf(itemId)));
+        return !Objects.isNull(valueOperation.get(key + itemId));
     }
 }
 

@@ -153,6 +153,10 @@ public class ItemService {
         item.closeBid();
     }
 
+    public boolean containExpirationQueue(Item item) {
+        return itemExpirationQueueRepository.contains(item.getId());
+    }
+
     private Item _create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);

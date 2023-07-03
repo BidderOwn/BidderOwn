@@ -55,8 +55,9 @@ public class BidService {
     public Long handleBid(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
 
-        if(item.getItemStatus() == ItemStatus.BID_END || item.getItemStatus() == ItemStatus.SOLDOUT)
+        if (!availableBid(item)) {
             throw new BidEndItemException("입찰이 종료된 아이템입니다.", item.getId() + "");
+        }
 
         Member bidder = memberService.getMember(username);
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
@@ -123,5 +124,11 @@ public class BidService {
 
     public boolean isMyItem(Item item, String bidderName) {
         return item.getMember().getName().equals(bidderName);
+    }
+
+    private boolean availableBid(Item item) {
+        return (item.getItemStatus() != ItemStatus.BID_END) &&
+                (item.getItemStatus() != ItemStatus.SOLDOUT) &&
+                (itemService.containExpirationQueue(item));
     }
 }
