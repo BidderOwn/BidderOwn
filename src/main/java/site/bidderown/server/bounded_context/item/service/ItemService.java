@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
-import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -27,15 +28,17 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemExpirationQueueRepository itemExpirationQueueRepository;
     private final MemberService memberService;
     private final ImageService imageService;
-    private final ImageUtils imageUtils;
 
+    @Transactional
     public Item create(ItemRequest request, Long memberId) {
         Member member = memberService.getMember(memberId);
         return _create(request, member);
     }
 
+    @Transactional
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return _create(request, member);
@@ -66,14 +69,6 @@ public class ItemService {
         }
 
         item.updateDeleted();
-    }
-
-    private Item _create(ItemRequest request, Member member) {
-        Item item = itemRepository.save(Item.of(request, member));
-        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "item");
-        imageService.create(item, fileNames);
-        item.setThumbnailImageFileName(fileNames.get(0));
-        return item;
     }
 
     /**
@@ -152,7 +147,35 @@ public class ItemService {
         item.getBids().forEach(Bid::updateBidResultFail);
     }
 
+    @Transactional
+    public void closeBid(Long itemId) {
+        Item item = getItem(itemId);
+        item.closeBid();
+    }
+
+    public boolean containExpirationQueue(Item item) {
+        return itemExpirationQueueRepository.contains(item.getId());
+    }
+
+    private Item _create(ItemRequest request, Member member) {
+        Item item = itemRepository.save(Item.of(request, member));
+        String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
+        item.setThumbnailImageFileName(thumbnailImageFileName);
+
+        addExpirationQueue(item, request.getPeriod());
+
+        return item;
+    }
+
+    private String saveAndGetThumbnailImageFileName(List<MultipartFile> images, Item item) {
+        return imageService.create(images, item);
+    }
+
     private boolean hasAuthorization(Item item, String memberName) {
         return item.getMember().getName().equals(memberName);
+    }
+
+    private void addExpirationQueue(Item item, int expire) {
+        itemExpirationQueueRepository.save(item.getId(), expire);
     }
 }

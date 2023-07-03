@@ -11,3 +11,10 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+custom:
+  redis:
+    embedded:
+      port: 6377

@@ -2,7 +2,6 @@ package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
@@ -103,6 +102,10 @@ public class Item extends ItemBase {
 
     public void soldOutItem() {
         this.itemStatus = ItemStatus.SOLDOUT;
+    }
+
+    public void closeBid() {
+        this.itemStatus = ItemStatus.BID_END;
     }
 
     // 낙찰 받은 사람

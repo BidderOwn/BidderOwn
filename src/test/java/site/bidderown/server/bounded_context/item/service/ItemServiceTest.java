@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +61,12 @@ public class ItemServiceTest {
 
     @Autowired
     private BidService bidService;
+
+    @Autowired
+    private ItemExpirationQueueRepository itemExpirationQueueRepository;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     private final int PAGE_SIZE = 9;
     private final int ITEM_SIZE = 5;
@@ -293,6 +302,56 @@ public class ItemServiceTest {
         assertThat(exception.getMessage().contains("종료")).isTrue();
     }
 
+    @DisplayName("상품 저장 레디스 테스트")
+    @Test
+    void test015() throws IOException {
+        //given
+        Member member1 = memberService.getMember("test_member_1");
+
+        //when
+        Item item = createTestItem(
+                new ItemRequest(
+                        "redis_test",
+                        1000,
+                        3,
+                        "redis_description",
+                        List.of(generateMockImageFile())
+                ), member1);
+
+        //then
+        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+
+        assertThat(isContain).isTrue();
+    }
+
+    @DisplayName("상품 만료 레디스 테스트")
+    @Test
+    void test016() throws IOException, InterruptedException {
+        //given
+        Member member1 = memberService.getMember("test_member_1");
+        int timeout = 1;
+        //when
+        Item item = createTestItem(
+                new ItemRequest(
+                        "redis_test",
+                        1000,
+                        3,
+                        "redis_description",
+                        List.of(generateMockImageFile())
+                ), member1);
+
+        redisTemplate.opsForValue().set("itemQueue:" + item.getId(), "", timeout, TimeUnit.SECONDS);
+
+        //then
+        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+        assertThat(isContain).isTrue();
+
+        Thread.sleep((timeout * 1000) + 100);
+
+        isContain = itemExpirationQueueRepository.contains(item.getId());
+        assertThat(isContain).isFalse();
+    }
+
     /**
      * @description 테스트 아이템 초기화
      */
@@ -329,10 +388,11 @@ public class ItemServiceTest {
      * @description 테스트 아이템 생성 함수
      * item 이미지 파일 저장 경로: '/resources/images/test'
      */
-    private void createTestItem(ItemRequest request, Member member) {
+    private Item createTestItem(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "test");
         imageService.create(item, fileNames);
+        return item;
     }
 
     /**

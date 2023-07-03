@@ -25,7 +25,6 @@ public class Notification extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member receiver;
 
-
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
