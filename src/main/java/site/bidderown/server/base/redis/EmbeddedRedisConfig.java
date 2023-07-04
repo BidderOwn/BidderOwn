@@ -8,10 +8,10 @@ import redis.embedded.RedisServer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-@Profile({"dev", "test"})
+@Profile({"prod", "dev", "test"})
 @Configuration
 public class EmbeddedRedisConfig {
-    @Value("${custom.redis.embedded.port}")
+    @Value("${spring.redis.port}")
     private int redisPort;
 
     private RedisServer redisServer;

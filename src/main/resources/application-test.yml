@@ -17,5 +17,3 @@ spring:
 custom:
   redis:
     item_queue: 'ITEM_TEST_QUEUE:'
-    embedded:
-      port: 6377

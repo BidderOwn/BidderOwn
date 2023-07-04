@@ -22,5 +22,3 @@ spring:
 custom:
   redis:
     item_queue: 'ITEM_QUEUE:'
-    embedded:
-      port: 6378
