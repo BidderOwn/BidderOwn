@@ -18,3 +18,9 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
+
+custom:
+  redis:
+    item_queue: 'ITEM_QUEUE:'
+    embedded:
+      port: 6378
