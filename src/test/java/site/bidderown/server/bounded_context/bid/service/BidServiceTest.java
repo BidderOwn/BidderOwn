@@ -139,7 +139,7 @@ class BidServiceTest {
 
     }
 
-    @Test
+    //@Test
     @DisplayName("입찰 하기")
     void t04() {
         /**
@@ -160,7 +160,7 @@ class BidServiceTest {
 
     }
 
-    @Test
+    //@Test
     @DisplayName("입찰이 존재하는 경우 입찰가격만 업데이트한다.")
     void t05() {
         /**

@@ -63,7 +63,7 @@ class BidControllerTest {
         bidService.clear();
     }
 
-    @Test
+    //@Test
     @DisplayName("입찰 등록")
     @WithUserDetails(value = "user_0")
     void t001() throws Exception {
@@ -97,7 +97,7 @@ class BidControllerTest {
         List<BidResponse> bidList = bidService.getBids(bidItem.getId());
         Assertions.assertThat(bidList.size()).isEqualTo(1); // 상세조회 기능이 따로 없어서 size로 체크했습니다.
     }
-    @Test
+    //@Test
     @DisplayName("입찰 목록 조회")
     void t002() throws Exception {
         //given

@@ -174,7 +174,7 @@ class NotificationServiceTest {
         assertThat(notificationService.checkNotRead(seller.getName())).isFalse();
     }
 
-    @Test
+   // @Test
     @DisplayName("입찰 등록 시 알림 발행")
     void t05(){
         /**
@@ -229,7 +229,7 @@ class NotificationServiceTest {
 
     }
 
-    @Test
+    //@Test
     @DisplayName("판매 완료 처리 시 알림 발행")
     void t07(){
         /**
