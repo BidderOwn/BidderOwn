@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev, db
+    active: dev
   security:
     oauth2:
       client:
@@ -22,9 +22,12 @@ spring:
     job:
       names: ${job.name:NONE}
 
-  redis:
-    host: 127.0.0.1
-    port: 6379
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true # null 캐싱 여부
+      host: localhost
+      port: 6379
 
 custom:
   socket:
