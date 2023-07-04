@@ -27,6 +27,3 @@ custom:
     path: '/sub/alarm/'
     alarm_type_notification: 'NOTIFICATION'
     alarm_type_chat: 'CHAT'
-
-  redis:
-    item_queue: 'itemQueue:'
