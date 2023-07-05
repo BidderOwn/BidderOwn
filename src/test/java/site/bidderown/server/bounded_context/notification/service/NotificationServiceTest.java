@@ -1,25 +1,20 @@
 package site.bidderown.server.bounded_context.notification.service;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.service.BidService;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
-import site.bidderown.server.bounded_context.comment.entity.Comment;
-import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 import site.bidderown.server.bounded_context.notification.controller.dto.NewBidNotificationRequest;
@@ -27,10 +22,9 @@ import site.bidderown.server.bounded_context.notification.entity.Notification;
 import site.bidderown.server.bounded_context.notification.entity.NotificationType;
 import site.bidderown.server.bounded_context.notification.repository.NotificationRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,13 +43,21 @@ class NotificationServiceTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
     @Autowired
     private MemberService memberService;
+
     @Autowired
     private ImageService imageService;
+
     @Autowired
     private BidService bidService;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Value("${custom.redis.item_queue}")
+    private String redisKey;
 
 
     Member createUser(String username){
@@ -71,6 +73,7 @@ class NotificationServiceTest {
                     .minimumPrice(minimumPrice)
                     .build(), member));
         imageService.create(item, List.of("image1.jpeg"));
+        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
         return item;
     }
 

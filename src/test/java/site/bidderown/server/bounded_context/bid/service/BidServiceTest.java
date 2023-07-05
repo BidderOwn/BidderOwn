@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
@@ -25,6 +27,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -50,6 +53,12 @@ class BidServiceTest {
     @Autowired
     ImageService imageService;
 
+    @Value("${custom.redis.item_queue}")
+    private String redisKey;
+
+    @Autowired
+    RedisTemplate<String, Object> redisTemplate;
+
     Member createUser(String username){
         return memberService.join(username,"1234");
     }
@@ -63,6 +72,7 @@ class BidServiceTest {
                                 .period(3)
                                 .minimumPrice(minimumPrice)
                                 .build(), member));
+        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
         imageService.create(item, List.of("image1.jpeg"));
         return item;
     }
