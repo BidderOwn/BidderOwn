@@ -54,8 +54,7 @@ public class ItemJobConfiguration {
     private final int CHUNK_SIZE = 5000;
 
     @Bean
-    public Job bidEndJob(CommandLineRunner initData) throws Exception {
-        initData.run();
+    public Job bidEndJob() throws Exception {
         return jobBuilderFactory.get("bidEndJob")
                 .incrementer(new RunIdIncrementer())
                 .start(bidEndStep())
