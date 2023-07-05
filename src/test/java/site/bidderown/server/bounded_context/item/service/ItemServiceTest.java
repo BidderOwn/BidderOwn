@@ -308,35 +308,51 @@ public class ItemServiceTest {
 
     @DisplayName("상품 저장 레디스 테스트")
     @Test
-    void test015() {
+    void test015() throws IOException {
         //given
-        Long itemId = 1L;
+        Member member1 = memberService.getMember("test_member_1");
 
         //when
-        redisTemplate.opsForValue().set(redisKey + itemId, "", 3, TimeUnit.SECONDS);
+        Item item = createTestItem(
+                new ItemRequest(
+                        "redis_test",
+                        1000,
+                        3,
+                        "redis_description",
+                        List.of(generateMockImageFile())
+                ), member1);
 
         //then
-        boolean isContain = itemExpirationQueueRepository.contains(itemId);
+        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+
         assertThat(isContain).isTrue();
     }
 
     @DisplayName("상품 만료 레디스 테스트")
     @Test
-    void test016() throws InterruptedException {
+    void test016() throws IOException, InterruptedException {
         //given
-        Long itemId = 1L;
+        Member member1 = memberService.getMember("test_member_1");
         int timeout = 1;
 
         //when
-        redisTemplate.opsForValue().set(redisKey + itemId, "", timeout, TimeUnit.SECONDS);
+        Item item = itemRepository.save(Item.of(new ItemRequest(
+                "redis_test",
+                1000,
+                3,
+                "redis_description",
+                List.of(generateMockImageFile())
+        ), member1));
+
+        redisTemplate.opsForValue().set(redisKey + item.getId(), "", timeout, TimeUnit.SECONDS);
 
         //then
-        boolean isContain = itemExpirationQueueRepository.contains(itemId);
+        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
         assertThat(isContain).isTrue();
 
-        Thread.sleep((timeout * 1000) + 100);
+        Thread.sleep((timeout * 1000) + 200);
 
-        isContain = itemExpirationQueueRepository.contains(itemId);
+        isContain = itemExpirationQueueRepository.contains(item.getId());
         assertThat(isContain).isFalse();
     }
 
@@ -380,6 +396,7 @@ public class ItemServiceTest {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "test");
         imageService.create(item, fileNames);
+        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
         return item;
     }
 
