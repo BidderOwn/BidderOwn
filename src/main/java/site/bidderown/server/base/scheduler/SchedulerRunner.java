@@ -13,6 +13,9 @@ public class SchedulerRunner {
 
     private final ItemCounterScheduler itemCounterScheduler;
 
+    /**
+     * 30초마다 아이템 댓글, 입찰 개수 업데이트
+     */
     @Scheduled(cron = "0/30 * * * * *")
     public void itemCounterRun() {
         itemCounterScheduler.run();

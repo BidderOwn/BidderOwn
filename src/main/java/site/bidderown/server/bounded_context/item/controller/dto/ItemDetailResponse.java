@@ -22,6 +22,7 @@ public class ItemDetailResponse {
     private ItemStatus itemStatus;
     private LocalDateTime expireAt;
 
+
     @Builder
     public ItemDetailResponse(
             Long id,

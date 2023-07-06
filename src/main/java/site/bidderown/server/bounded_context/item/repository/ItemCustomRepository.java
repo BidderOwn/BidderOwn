@@ -12,16 +12,12 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
-import site.bidderown.server.bounded_context.item.entity.Item;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
 import static site.bidderown.server.bounded_context.image.entity.QImage.image;
@@ -107,12 +103,6 @@ public class ItemCustomRepository {
                 .where(image.item.eq(item));
     }
 
-    private Expression<String> itemThumbnailImageFileName() {
-        return JPAExpressions.select(image.fileName)
-                .from(image)
-                .where(image.id.eq(itemThumbnailImageMaxId()));
-    }
-
     private Expression<Integer> itemBidMaxPrice() {
         return JPAExpressions.select(bid.price.max())
                 .from(bid)
@@ -123,20 +113,6 @@ public class ItemCustomRepository {
         return JPAExpressions.select(bid.price.min())
                 .from(bid)
                 .where(bid.item.eq(item));
-    }
-
-    public Integer minItemPrice(Long itemId) {
-        return queryFactory.select(bid.price.min())
-                .where(item.id.eq(itemId))
-                .from(bid)
-                .fetchOne();
-    }
-
-    public Integer maxItemPrice(Long itemId) {
-        return queryFactory.select(bid.price.max())
-                .where(item.id.eq(itemId))
-                .from(bid)
-                .fetchOne();
     }
 
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
@@ -172,12 +148,5 @@ public class ItemCustomRepository {
 
     private BooleanExpression eqToSeller(StringExpression searchText) {
         return item.member.name.like(searchText);
-    }
-
-    private BooleanExpression betweenCurrentTime() {
-        LocalDateTime start = TimeUtils.getCurrentOClock();
-        LocalDateTime end = TimeUtils.getCurrentOClockPlus(1);
-
-        return item.createdAt.between(start, end); // TODO expireAt으로 변경
     }
 }

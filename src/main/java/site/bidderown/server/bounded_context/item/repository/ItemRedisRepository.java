@@ -24,10 +24,10 @@ public class ItemRedisRepository {
     @Value("${custom.redis.item.bidding.info-key}")
     private String biddingItemInfoKey;
 
-    @Value("${custom.redis.item.bidding.comment-count}")
+    @Value("${custom.redis.item.bidding.comment-count-key}")
     private String commentCountKey;
 
-    @Value("${custom.redis.item.bidding.bid-count}")
+    @Value("${custom.redis.item.bidding.bid-count-key}")
     private String bidCountKey;
 
     private final RedisTemplate<String, Object> redisTemplate;

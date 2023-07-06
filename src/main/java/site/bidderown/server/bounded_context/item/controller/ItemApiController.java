@@ -27,7 +27,6 @@ public class ItemApiController {
     private final ItemService itemService;
     private final MemberService memberService;
 
-    // No offset 적용하여 최신순 쿼리 성능 개선 (N + 1 문제 해결, 성능 최상)
     @GetMapping("/list")
     public List<ItemsResponse> getItems(
             @RequestParam(name="s", defaultValue = "1") int sortCode,

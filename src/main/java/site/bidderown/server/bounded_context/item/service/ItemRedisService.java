@@ -12,10 +12,10 @@ import java.util.List;
 @Service
 public class ItemRedisService {
 
-    @Value("${custom.redis.item.bidding.comment-count}")
+    @Value("${custom.redis.item.bidding.comment-count-key}")
     private String commentCountKey;
 
-    @Value("${custom.redis.item.bidding.bid-count}")
+    @Value("${custom.redis.item.bidding.bid-count-key}")
     private String bidCountKey;
 
     private final ItemRedisRepository itemRedisRepository;

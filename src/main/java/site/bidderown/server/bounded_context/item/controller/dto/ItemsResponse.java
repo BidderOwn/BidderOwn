@@ -26,31 +26,6 @@ public class ItemsResponse {
             int minimumPrice,
             Integer maxPrice,
             Integer minPrice,
-            Integer commentsCount,
-            Integer bidCount,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
-    ) {
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.commentsCount = commentsCount;
-        this.bidCount = bidCount;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
-    @Builder
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
-            Integer maxPrice,
-            Integer minPrice,
             String thumbnailImageName,
             ItemStatus itemStatus,
             LocalDateTime expireAt

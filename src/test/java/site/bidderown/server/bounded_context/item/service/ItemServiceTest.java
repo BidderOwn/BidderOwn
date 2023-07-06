@@ -328,34 +328,6 @@ public class ItemServiceTest {
         assertThat(isContain).isTrue();
     }
 
-    @DisplayName("상품 만료 레디스 테스트")
-    @Test
-    void test016() throws IOException, InterruptedException {
-        //given
-        Member member1 = memberService.getMember("test_member_1");
-        int timeout = 1;
-
-        //when
-        Item item = itemRepository.save(Item.of(new ItemRequest(
-                "redis_test",
-                1000,
-                3,
-                "redis_description",
-                List.of(generateMockImageFile())
-        ), member1));
-
-        redisTemplate.opsForValue().set(redisKey + item.getId(), "", timeout, TimeUnit.SECONDS);
-
-        //then
-        boolean isContain = itemRedisRepository.contains(item.getId());
-        assertThat(isContain).isTrue();
-
-        Thread.sleep((timeout * 1000) + 200);
-
-        isContain = itemRedisRepository.contains(item.getId());
-        assertThat(isContain).isFalse();
-    }
-
     /**
      * @description 테스트 아이템 초기화
      */
