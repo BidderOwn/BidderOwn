@@ -2,10 +2,12 @@ package site.bidderown.server.bounded_context.comment.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
-import site.bidderown.server.bounded_context.item.entity.Item;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findCommentsByItemIdOrderByIdDesc(Long itemId);
+
+    List<Comment> findCommentsByCreatedAtAfter(LocalDateTime createdAt);
 }

@@ -179,8 +179,10 @@
                 let query = '';
                 if (this.items.length > 0 && this.selected === '1') {
                     query += "&id=" + this.items[this.items.length - 1].id;
+                } else if (this.selected !== '1') {
+                    query += "&page=" + this.page
                 }
-                query += "&page=" + this.page + "&size=" + this.size;
+                query += "&size=" + this.size;
                 return query;
             }
         }

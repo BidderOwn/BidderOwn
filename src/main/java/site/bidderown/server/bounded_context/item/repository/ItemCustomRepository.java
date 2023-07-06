@@ -33,28 +33,13 @@ public class ItemCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     /**
-     * @description  offset 적용하지 않고 가져오는 법, 성능 향상을 위해 남겨둠
-     */
-    public List<Item> paginationNoOffsetBuilder(Long itemId, int pageSize) {
-        return queryFactory
-                .selectFrom(item)
-                .where(
-                        ltItemId(itemId),
-                        betweenCurrentTime()
-                )
-                .orderBy(item.id.desc())
-                .limit(pageSize)
-                .fetch();
-    }
-
-    /**
      * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
      * @param searchText 검색어(제목, 내용, 작성자)
      * @param pageable   페이징: 9
      * @return 홈화면에 보여질 아이템 리스트
      * @description https://www.notion.so/eui9179/20230-06-20-90075e3fdf484754843adcae04134f76?pvs=4
      */
-    public List<ItemsResponse> findItems(int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -64,86 +49,6 @@ public class ItemCustomRepository {
                                 item.minimumPrice,
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
-                                item.commentCount,
-                                item.bidCount,
-                                image.fileName,
-                                item.itemStatus,
-                                item.expireAt
-                        )
-                )
-                .from(item)
-                .leftJoin(item.images, image)
-                .on(image.id.eq(itemThumbnailImageMaxId()))
-                .where(
-                        eqToSearchText(searchText),
-                        eqNotDeleted()
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    /**
-     * @description 성능 테스트를 위해 남겨둔 메서드입니다. findItems()를 사용하시면 됩니다.
-     */
-    public List<ItemsResponse> findItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = queryFactory.selectFrom(item)
-                .where(eqToSearchText(searchText))
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        return items.stream()
-                .map(item -> ItemsResponse.of(
-                        item,
-                        minItemPrice(item.getId()),
-                        maxItemPrice(item.getId()))
-                )
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemsResponse> findItems_pagination(int sortCode, String searchText, Pageable pageable) {
-        return queryFactory
-                .select(
-                        Projections.constructor(
-                                ItemsResponse.class,
-                                item.id,
-                                item.title,
-                                item.minimumPrice,
-                                itemBidMaxPrice(),
-                                itemBidMinPrice(),
-                                item.commentCount,
-                                item.bidCount,
-                                item.thumbnailImageFileName,
-                                item.itemStatus,
-                                item.expireAt
-                        )
-                )
-                .from(item)
-                .where(
-                        eqToSearchText(searchText),
-                        eqNotDeleted()
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    public List<ItemsResponse> findItems_no_offset(Long lastItemId, int sortCode, String searchText, int pageSize) {
-        return queryFactory
-                .select(
-                        Projections.constructor(
-                                ItemsResponse.class,
-                                item.id,
-                                item.title,
-                                item.minimumPrice,
-                                itemBidMaxPrice(),
-                                itemBidMinPrice(),
-                                item.commentCount,
-                                item.bidCount,
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
                                 item.expireAt
@@ -156,7 +61,8 @@ public class ItemCustomRepository {
                         eqToSearchText(searchText)
                 )
                 .orderBy(orderBySortCode(sortCode))
-                .limit(pageSize)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
     }
 
@@ -178,7 +84,6 @@ public class ItemCustomRepository {
                                 itemBidMaxPrice(),
                                 itemBidMinPrice(),
                                 item.thumbnailImageFileName,
-                                item.bidCount,
                                 item.itemStatus,
                                 item.expireAt
                         ))
@@ -234,19 +139,10 @@ public class ItemCustomRepository {
                 .fetchOne();
     }
 
-    public Integer avgItemPrice(Long itemId) {
-        Double avg = queryFactory.select(bid.price.avg())
-                .where(item.id.eq(itemId))
-                .from(bid)
-                .fetchOne();
-        if (avg != null) return avg.intValue();
-        return null;
-    }
-
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
         switch (sortCode) {
-            case 2 -> orderSpecifiers.add(item.bidCount.desc());
+            case 2 -> orderSpecifiers.add(item.bids.size().desc());
             case 3 -> orderSpecifiers.add(item.expireAt.asc());
         }
         orderSpecifiers.add(item.id.desc());

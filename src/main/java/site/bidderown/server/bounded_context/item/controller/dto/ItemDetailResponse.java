@@ -1,15 +1,12 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemDetailResponse {
     private Long id;
@@ -50,6 +47,33 @@ public class ItemDetailResponse {
         this.minPrice = minPrice;
         this.thumbnailImageName = thumbnailImageName;
         this.bidCount = bidCount;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
+    @Builder
+    public ItemDetailResponse(
+            Long id,
+            Long sellerId,
+            String title,
+            String description,
+            String memberName,
+            int minimumPrice,
+            Integer maxPrice,
+            Integer minPrice,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        this.id = id;
+        this.sellerId = sellerId;
+        this.title = title;
+        this.description = description;
+        this.memberName = memberName;
+        this.minimumPrice = minimumPrice;
+        this.maxPrice = maxPrice;
+        this.minPrice = minPrice;
+        this.thumbnailImageName = thumbnailImageName;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
     }

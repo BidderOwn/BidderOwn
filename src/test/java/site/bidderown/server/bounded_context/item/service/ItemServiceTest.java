@@ -22,7 +22,7 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
-import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -64,12 +64,12 @@ public class ItemServiceTest {
     private BidService bidService;
 
     @Autowired
-    private ItemExpirationQueueRepository itemExpirationQueueRepository;
+    private ItemRedisRepository itemRedisRepository;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${custom.redis.item_queue}")
+    @Value("${custom.redis.item.bidding.info-key}")
     private String redisKey;
 
     private final int PAGE_SIZE = 9;
@@ -323,7 +323,7 @@ public class ItemServiceTest {
                 ), member1);
 
         //then
-        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+        boolean isContain = itemRedisRepository.contains(item.getId());
 
         assertThat(isContain).isTrue();
     }
@@ -347,12 +347,12 @@ public class ItemServiceTest {
         redisTemplate.opsForValue().set(redisKey + item.getId(), "", timeout, TimeUnit.SECONDS);
 
         //then
-        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+        boolean isContain = itemRedisRepository.contains(item.getId());
         assertThat(isContain).isTrue();
 
         Thread.sleep((timeout * 1000) + 200);
 
-        isContain = itemExpirationQueueRepository.contains(item.getId());
+        isContain = itemRedisRepository.contains(item.getId());
         assertThat(isContain).isFalse();
     }
 

@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
@@ -21,7 +22,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Item extends ItemBase {
+public class Item extends BaseEntity {
 
     @Column(length = 30)
     private String title;

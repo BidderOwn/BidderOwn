@@ -12,7 +12,7 @@ import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
-import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRedisService itemRedisService;
     private final ItemCustomRepository itemCustomRepository;
-    private final ItemExpirationQueueRepository itemExpirationQueueRepository;
     private final MemberService memberService;
     private final ImageService imageService;
 
@@ -50,8 +50,10 @@ public class ItemService {
     }
 
     public ItemDetailResponse getItemDetail(Long id) {
-        return itemCustomRepository.findItemById(id)
+        ItemDetailResponse item = itemCustomRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
+        item.setBidCount(itemRedisService.getBidCount(item.getId()));
+        return item;
     }
 
     public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
@@ -71,31 +73,13 @@ public class ItemService {
         item.updateDeleted();
     }
 
-    /**
-     * @param lastItemId 현재 상품리스트의 id 최소값
-     * @param sortCode 1 - 최신순, 2 - 인기순, 3 - 경매마감순
-     * @param searchText 검색어
-     * @param pageable 최신순 - pageSize만 이용, 나머지 - Pageable 이용
-     * @return List<ItemResponse>
-     */
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        if (sortCode != 1) return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
-        return itemCustomRepository.findItems_no_offset(lastItemId, sortCode, searchText, pageable.getPageSize());
-    }
-
-    /**
-     * @description 성능 테스트를 위해 남겨둔 메서드입니다. getItems() 사용하시면 됩니다.
-     */
-    public List<ItemsResponse> getItems_no_dsl(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_no_dsl(sortCode, searchText, pageable);
-    }
-
-    public List<ItemsResponse> getItems_dsl_page(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems_pagination(sortCode, searchText, pageable);
-    }
-
-    public List<ItemsResponse> getItems_origin(int sortCode, String searchText, Pageable pageable) {
-        return itemCustomRepository.findItems(sortCode, searchText, pageable);
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        items.forEach(itemsResponse -> {
+            itemsResponse.setBidCount(itemRedisService.getBidCount(itemsResponse.getId()));
+            itemsResponse.setCommentsCount(itemRedisService.getCommentCount(itemsResponse.getId()));
+        });
+        return items;
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
@@ -153,16 +137,12 @@ public class ItemService {
         item.closeBid();
     }
 
-    public boolean containExpirationQueue(Item item) {
-        return itemExpirationQueueRepository.contains(item.getId());
-    }
-
     private Item _create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
 
-        addExpirationQueue(item, request.getPeriod());
+        itemRedisService.addExpirationQueue(item, request.getPeriod());
 
         return item;
     }
@@ -173,9 +153,5 @@ public class ItemService {
 
     private boolean hasAuthorization(Item item, String memberName) {
         return item.getMember().getName().equals(memberName);
-    }
-
-    private void addExpirationQueue(Item item, int expire) {
-        itemExpirationQueueRepository.save(item.getId(), expire);
     }
 }

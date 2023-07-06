@@ -146,10 +146,6 @@
                     return;
                 }
                 axios.post('/api/v1/item/' + this.itemId + '/comment', {
-                    auth: {
-                        username: this.username,
-                        password: ''
-                    },
                     content: this.commentMessage
                 }).then(response => {
                     this.comments.unshift(response.data);
