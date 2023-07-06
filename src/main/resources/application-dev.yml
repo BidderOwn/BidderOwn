@@ -14,9 +14,3 @@ spring:
 #      hibernate:
 #        format_sql: true
 #        show_sql: true
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            clientId: '0604c0cada4293ab7d8f98999c83c35e'
