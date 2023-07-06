@@ -43,7 +43,7 @@ public class MemberController {
         model.addAttribute("items", items);
         model.addAttribute("bidItems",bidItems);
 
-        return "/usr/my_page";
+        return "usr/my_page";
     }
 
     @GetMapping("/form-login")
