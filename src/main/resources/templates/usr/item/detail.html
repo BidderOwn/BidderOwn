@@ -167,7 +167,7 @@
                     buyerName: this.username,
                     itemId: this.itemId
                 }).then(response => {
-                    window.location.href = 'http://localhost:8080' + response.data;
+                    window.location.href = window.location.protocol + "//" + window.location.host + response.data;
                 }).catch(error => console.log(error));
             },
             isMe() {

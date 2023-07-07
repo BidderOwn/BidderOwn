@@ -48,7 +48,7 @@
         search = () => {
             const searchText = document.getElementById('search-input').value;
             if (searchText === '') return;
-            window.location.href = 'http://localhost:8080/home?q=' + searchText;
+            window.location.href = window.location.protocol + "//" + window.location.host + "/home?q=" + searchText;
         }
 
         readNotification = () => {
