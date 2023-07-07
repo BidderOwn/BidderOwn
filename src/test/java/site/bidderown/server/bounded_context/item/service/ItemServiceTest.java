@@ -11,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.base.resolver.PathResolver;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.service.BidService;
@@ -55,9 +54,6 @@ public class ItemServiceTest {
     private ImageService imageService;
 
     @Autowired
-    private PathResolver pathResolver;
-
-    @Autowired
     private BidService bidService;
 
     @Autowired
@@ -75,7 +71,6 @@ public class ItemServiceTest {
 
     @AfterEach
     void afterEach() {
-        deleteTestImage();
     }
 
     @Test
@@ -361,19 +356,5 @@ public class ItemServiceTest {
         imageService.create(item, fileNames);
         itemRedisService.createWithExpire(item, 3);
         return item;
-    }
-
-    /**
-     * @description '/resources/images/test' 경로에 있는 파일을 자동으로 삭제해줌
-     */
-    private void deleteTestImage() {
-        String path = pathResolver.resolve("images", "test").toUri().getPath();
-        File folder = new File(path);
-        File[] files = folder.listFiles();
-        assert files != null;
-        for (File file : files) {
-            if (file.getName().contains("abc.txt")) continue;
-            file.delete();
-        }
     }
 }

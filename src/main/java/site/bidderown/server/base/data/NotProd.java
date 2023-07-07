@@ -191,11 +191,14 @@ public class NotProd {
             itemRepository.saveAll(items);
 
             for (int i = 0; i < 11; i++) {
-                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+                imageService.create(items.get(i), List.of("image.PNG"));
+//              imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+                items.get(i).setThumbnailImageFileName("image.PNG");
                 itemRepository.save(items.get(i));
+                System.out.println(items.get(i).getImages());
                 itemRedisRepository.save(items.get(i).getId(), 3);
             }
+
 
 
             bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());

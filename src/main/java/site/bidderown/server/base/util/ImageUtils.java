@@ -1,12 +1,18 @@
 package site.bidderown.server.base.util;
 
+import com.amazonaws.SdkClientException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import site.bidderown.server.base.resolver.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,23 +27,35 @@ import java.util.stream.Collectors;
 @Component
 public class ImageUtils {
 
-    private final PathResolver pathResolver;
+    private final AmazonS3 amazonS3;
+
+    @Value("${cloud.aws.bucketName}")
+    private String bucketName;
+
+    @Value("${cloud.aws.filePath}")
+    private String filePath;
 
     public String upload(MultipartFile file, String kind) {
         try {
             if(!isImageFile(file.getContentType())) return null;
-            String originalFileName = file.getOriginalFilename();
-            String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-            long nowDate = System.currentTimeMillis();
-            long timeStamp = new Timestamp(nowDate).getTime();
-            String fileName = kind + "_" + timeStamp + ext;
 
-            String filePath = pathResolver.getImagePathString(kind, fileName);
-            file.transferTo(new File(filePath));
+            String fileName =  createFileName(file.getOriginalFilename(), kind);
+            ObjectMetadata oj = new ObjectMetadata();
+            oj.setContentLength(file.getInputStream().available());
+
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, file.getInputStream(), new ObjectMetadata());
+            // 객체의 권한을 공개로 설정(버킷에서 확인 가능)
+            putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead);
+            // 파일 업로드
+            amazonS3.putObject(putObjectRequest);
 
             return fileName;
-        } catch (Exception e) {
-            log.info(e.toString());
+        } catch (AmazonS3Exception e) {
+            e.printStackTrace();
+        } catch(SdkClientException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
@@ -48,18 +66,20 @@ public class ImageUtils {
                 .collect(Collectors.toList());
     }
 
-    public Resource download(String kind, String fileName) throws IOException {
-        Path path = pathResolver.resolve("images", kind, fileName);
-        return new InputStreamResource(Files.newInputStream(path));
-    }
-
-    public void delete(String kind, String fileName) throws IOException {
-        String filePath = pathResolver.getImagePathString(kind, fileName);
-        File file = new File(filePath);
-
-        if (file.exists()) {
-            file.delete();
+    public void delete(String fileName) throws IOException {
+        try {
+            amazonS3.deleteObject(bucketName, fileName);
+        } catch (AmazonS3Exception e) {
+            e.printStackTrace();
+        } catch(SdkClientException e) {
+            e.printStackTrace();
         }
+    }
+    private String createFileName(String originalFilename, String kind) {
+        String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+        long nowDate = System.currentTimeMillis();
+        long timeStamp = new Timestamp(nowDate).getTime();
+        return kind + "_" + timeStamp + ext;
     }
 
     //확장자가 이미지 파일인지 확인

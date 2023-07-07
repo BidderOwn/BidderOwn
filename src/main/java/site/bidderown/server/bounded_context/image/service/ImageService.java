@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.image.service;
 
+import jdk.jfr.Description;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,9 @@ public class ImageService {
         return fileNames.get(0);
     }
 
+    /**
+     * @description 파일 업로드 로직 제외, 더미 데이터 or 테스트 전용
+     * */
     @Transactional
     public String create(Item item, List<String> fileNames) {
         imageRepository.saveAll(
@@ -45,4 +49,5 @@ public class ImageService {
         );
         return fileNames.get(0);
     }
+
 }

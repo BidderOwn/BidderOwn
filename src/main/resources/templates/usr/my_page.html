@@ -32,7 +32,7 @@
              v-for="(item, i) in items">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
                  alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
@@ -84,7 +84,7 @@
              v-for="item in bidItems">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
                  alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
