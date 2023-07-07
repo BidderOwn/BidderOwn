@@ -2,7 +2,6 @@ package site.bidderown.server.bounded_context.bid.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
@@ -16,10 +15,12 @@ import site.bidderown.server.bounded_context.bid.repository.BidCustomRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class BidService {
     private final BidCustomRepository bidCustomRepository;
     private final MemberService memberService;
     private final ItemService itemService;
+    private final ItemRedisService itemRedisService;
 
     @Transactional
     public void create(BidRequest bidRequest, String username) {
@@ -39,8 +41,6 @@ public class BidService {
         if (isMyItem(item, username)) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
-
-        item.increaseBidCount();
 
         Member member = memberService.getMember(username);
         bidRepository.save(Bid.of(bidRequest, member, item));
@@ -63,7 +63,6 @@ public class BidService {
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
         if (opBid.isEmpty()) {
-            item.increaseBidCount();
             return create(bidRequest.getItemPrice(), item, bidder);
         }
 
@@ -75,6 +74,10 @@ public class BidService {
 
     public Bid getBid(Long bidId){
         return  bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
+    }
+
+    public List<Bid> getBidsAfter(LocalDateTime createdAt) {
+        return bidRepository.findBidsByCreatedAtAfter(createdAt);
     }
 
     @Transactional
@@ -105,7 +108,6 @@ public class BidService {
             throw new ForbiddenException("입찰 삭제 권한이 없습니다.");
         }
 
-        findBid.getItem().decreaseBidCount();
         bidRepository.delete(findBid);
     }
 
@@ -129,6 +131,6 @@ public class BidService {
     private boolean availableBid(Item item) {
         return (item.getItemStatus() != ItemStatus.BID_END) &&
                 (item.getItemStatus() != ItemStatus.SOLDOUT) &&
-                (itemService.containExpirationQueue(item));
+                (itemRedisService.containsKey(item));
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
-import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -31,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,13 +61,7 @@ public class ItemServiceTest {
     private BidService bidService;
 
     @Autowired
-    private ItemExpirationQueueRepository itemExpirationQueueRepository;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Value("${custom.redis.item_queue}")
-    private String redisKey;
+    private ItemRedisService itemRedisService;
 
     private final int PAGE_SIZE = 9;
     private final int ITEM_SIZE = 5;
@@ -323,37 +314,9 @@ public class ItemServiceTest {
                 ), member1);
 
         //then
-        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
+        boolean isContain = itemRedisService.containsKey(item);
 
         assertThat(isContain).isTrue();
-    }
-
-    @DisplayName("상품 만료 레디스 테스트")
-    @Test
-    void test016() throws IOException, InterruptedException {
-        //given
-        Member member1 = memberService.getMember("test_member_1");
-        int timeout = 1;
-
-        //when
-        Item item = itemRepository.save(Item.of(new ItemRequest(
-                "redis_test",
-                1000,
-                3,
-                "redis_description",
-                List.of(generateMockImageFile())
-        ), member1));
-
-        redisTemplate.opsForValue().set(redisKey + item.getId(), "", timeout, TimeUnit.SECONDS);
-
-        //then
-        boolean isContain = itemExpirationQueueRepository.contains(item.getId());
-        assertThat(isContain).isTrue();
-
-        Thread.sleep((timeout * 1000) + 200);
-
-        isContain = itemExpirationQueueRepository.contains(item.getId());
-        assertThat(isContain).isFalse();
     }
 
     /**
@@ -396,7 +359,7 @@ public class ItemServiceTest {
         Item item = itemRepository.save(Item.of(request, member));
         List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "test");
         imageService.create(item, fileNames);
-        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
+        itemRedisService.createWithExpire(item, 3);
         return item;
     }
 

@@ -14,7 +14,7 @@ import site.bidderown.server.base.event.BidEndEvent;
 @Component
 public class ExpirationListener implements MessageListener {
 
-    @Value("${custom.redis.item_queue}")
+    @Value("${custom.redis.item.bidding.info-key}")
     private String itemQueueKey;
 
     private final ApplicationEventPublisher publisher;

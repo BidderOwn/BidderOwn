@@ -22,17 +22,11 @@ public class QItem extends EntityPathBase<Item> {
 
     public static final QItem item = new QItem("item");
 
-    public final QItemBase _super = new QItemBase(this);
-
-    //inherited
-    public final NumberPath<Integer> bidCount = _super.bidCount;
+    public final site.bidderown.server.base.base_entity.QBaseEntity _super = new site.bidderown.server.base.base_entity.QBaseEntity(this);
 
     public final ListPath<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid> bids = this.<site.bidderown.server.bounded_context.bid.entity.Bid, site.bidderown.server.bounded_context.bid.entity.QBid>createList("bids", site.bidderown.server.bounded_context.bid.entity.Bid.class, site.bidderown.server.bounded_context.bid.entity.QBid.class, PathInits.DIRECT2);
 
     public final ListPath<site.bidderown.server.bounded_context.chat_room.entity.ChatRoom, site.bidderown.server.bounded_context.chat_room.entity.QChatRoom> chatRooms = this.<site.bidderown.server.bounded_context.chat_room.entity.ChatRoom, site.bidderown.server.bounded_context.chat_room.entity.QChatRoom>createList("chatRooms", site.bidderown.server.bounded_context.chat_room.entity.ChatRoom.class, site.bidderown.server.bounded_context.chat_room.entity.QChatRoom.class, PathInits.DIRECT2);
-
-    //inherited
-    public final NumberPath<Integer> commentCount = _super.commentCount;
 
     public final ListPath<site.bidderown.server.bounded_context.comment.entity.Comment, site.bidderown.server.bounded_context.comment.entity.QComment> comments = this.<site.bidderown.server.bounded_context.comment.entity.Comment, site.bidderown.server.bounded_context.comment.entity.QComment>createList("comments", site.bidderown.server.bounded_context.comment.entity.Comment.class, site.bidderown.server.bounded_context.comment.entity.QComment.class, PathInits.DIRECT2);
 

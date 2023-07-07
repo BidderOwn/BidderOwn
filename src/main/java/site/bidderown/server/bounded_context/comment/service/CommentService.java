@@ -15,6 +15,7 @@ import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,6 @@ public class CommentService {
         Item item = itemService.getItem(itemId);
         Member writer = memberService.getMember(writerName);
         Comment comment = Comment.of(request, item, writer);
-        item.increaseCommentCount();
 
         return commentRepository.save(comment);
     }
@@ -39,8 +39,7 @@ public class CommentService {
     public Comment create(CommentRequest request, Long itemId, Member writer) {
         Item item = itemService.getItem(itemId);
         Comment comment = Comment.of(request, item, writer);
-        item.increaseCommentCount();
-        
+
         return commentRepository.save(comment);
     }
 
@@ -65,7 +64,6 @@ public class CommentService {
             throw new ForbiddenException("댓글 삭제 권한이 없습니다.");
         }
 
-        comment.getItem().decreaseCommentCount();
         commentRepository.delete(comment);
         return commentId;
     }
@@ -79,6 +77,10 @@ public class CommentService {
 
         comment.updateContent(commentRequest.getContent());
         return CommentResponse.of(comment);
+    }
+
+    public List<Comment> getCommentsAfter(LocalDateTime createdAt) {
+        return commentRepository.findCommentsByCreatedAtAfter(createdAt);
     }
 
     private boolean hasAuthorization(Comment comment, String memberName) {

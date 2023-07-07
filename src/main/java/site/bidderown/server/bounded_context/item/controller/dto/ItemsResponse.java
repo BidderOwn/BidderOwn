@@ -1,7 +1,6 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
 import lombok.*;
-import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.LocalDateTime;
@@ -27,8 +26,6 @@ public class ItemsResponse {
             int minimumPrice,
             Integer maxPrice,
             Integer minPrice,
-            Integer commentsCount,
-            Integer bidCount,
             String thumbnailImageName,
             ItemStatus itemStatus,
             LocalDateTime expireAt
@@ -38,25 +35,8 @@ public class ItemsResponse {
         this.minimumPrice = minimumPrice;
         this.maxPrice = maxPrice;
         this.minPrice = minPrice;
-        this.commentsCount = commentsCount;
-        this.bidCount = bidCount;
         this.thumbnailImageName = thumbnailImageName;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
-    }
-
-    public static ItemsResponse of(Item item, Integer minPrice, Integer maxPrice) {
-        return ItemsResponse.builder()
-                .id(item.getId())
-                .title(item.getTitle())
-                .minimumPrice(item.getMinimumPrice())
-                .expireAt(item.getExpireAt())
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
-                .commentsCount(item.getCommentCount())
-                .bidCount(item.getBidCount())
-                .thumbnailImageName(item.getThumbnailImage())
-                .itemStatus(item.getItemStatus())
-                .build();
     }
 }

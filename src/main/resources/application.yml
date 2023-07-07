@@ -31,4 +31,9 @@ custom:
     alarm_type_notification: 'NOTIFICATION'
     alarm_type_chat: 'CHAT'
   redis:
-    item_queue: 'ITEM_QUEUE:'
+    item:
+      bidding:
+        info-key: 'bidding-item:'
+        updated-at-key: 'bidding-item:updated-at'
+        comment-count-key: 'comment-count'
+        bid-count-key: 'bid-count'

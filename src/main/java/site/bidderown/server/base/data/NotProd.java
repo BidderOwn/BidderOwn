@@ -5,15 +5,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.repository.ItemExpirationQueueRepository;
-import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -32,9 +30,7 @@ public class NotProd {
             CommentService commentService,
             ImageService imageService,
             BidService bidService,
-            ItemJdbcRepository itemJdbcRepository,
-            BidJdbcRepository bidJdbcRepository,
-            ItemExpirationQueueRepository itemExpirationQueueRepository
+            ItemRedisRepository itemRedisRepository
     ) {
         return args -> {
 
@@ -198,7 +194,7 @@ public class NotProd {
                 imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
                 items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
                 itemRepository.save(items.get(i));
-                itemExpirationQueueRepository.save(items.get(i).getId(), 3);
+                itemRedisRepository.save(items.get(i).getId(), 3);
             }
 
 
