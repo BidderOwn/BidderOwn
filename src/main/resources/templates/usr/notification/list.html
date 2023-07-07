@@ -151,7 +151,7 @@
                 })
             },
             clickNotification(itemId) {
-                window.location.href = 'http://localhost:8080/item/' + itemId;
+                window.location.href = window.location.protocol + "//" + window.location.host + '/item/' + itemId;
             }
         }
     })

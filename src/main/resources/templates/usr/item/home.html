@@ -116,7 +116,7 @@
                                 expireAt: this.getTimeAgo(item.expireAt),
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
-                                thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName,
+                                thumbnailImageUrl: window.location.protocol + "//" + window.location.host + "/api/v1/image/item/" + item.thumbnailImageName,
                             },
                         )
                     })
@@ -132,7 +132,7 @@
                 this.addData();
             },
             clickItem(itemId) {
-                window.location.href = 'http://localhost:8080/item/' + itemId;
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item/" + itemId;
             },
             getTimeAgo(date) {
                 const currentDate = new Date();
@@ -156,7 +156,8 @@
                 return price !== null;
             },
             addItem() {
-                window.location.href = 'http://localhost:8080/item';
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item";
+
             },
             getQuery() {
                 let query = '';
