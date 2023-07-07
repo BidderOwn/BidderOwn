@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.heart.entity.Heart;
+import site.bidderown.server.bounded_context.heart.repository.HeartRepository;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -30,6 +32,7 @@ public class ItemService {
     private final ItemCustomRepository itemCustomRepository;
     private final MemberService memberService;
     private final ImageService imageService;
+    private final HeartRepository heartRepository;
 
     @Transactional
     public Item create(ItemRequest request, Long memberId) {
@@ -52,6 +55,7 @@ public class ItemService {
         ItemDetailResponse item = itemCustomRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
         item.setBidCount(itemRedisService.getBidCount(item.getId()));
+        item.setHeartCount(itemRedisService.getHeartCount(item.getId()));
         return item;
     }
 
@@ -77,6 +81,7 @@ public class ItemService {
         items.forEach(itemsResponse -> {
             itemsResponse.setBidCount(itemRedisService.getBidCount(itemsResponse.getId()));
             itemsResponse.setCommentsCount(itemRedisService.getCommentCount(itemsResponse.getId()));
+            itemsResponse.setHeartsCount(itemRedisService.getHeartCount(itemsResponse.getId()));
         });
         return items;
     }
@@ -114,6 +119,15 @@ public class ItemService {
         return bids.stream()
                 .map(Bid::getItem)
                 .filter(item -> !item.isDeleted())
+                .map(ItemSimpleResponse::of)
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemSimpleResponse> getLikeItems(String memberName) {
+        Member member = memberService.getMember(memberName);
+        List<Heart> hearts = heartRepository.findByMemberId(member.getId());
+        return hearts.stream()
+                .map(Heart::getItem)
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
     }

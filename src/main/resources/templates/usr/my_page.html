@@ -117,6 +117,57 @@
     <div class="border border-inherit"></div>
   </div>
   <div class="border border-inherit"></div>
+
+  <div class="text-lg mt-4  font-semibold text-gray-500">찜한 상품</div>
+
+  <!--   가로선   -->
+  <div class="border border-inherit mt-1"></div>
+  <div class="flex justify-start h-2/6 w-full">
+    <!--   세로선 시작선    -->
+    <div class="border border-inherit h-full"></div>
+    <!--   채팅방     -->
+    <div class="flex flex-col justify-between w-[550px] overflow-y-auto">
+      <div class="flex flex-col">
+        <!--     채팅방 아이템     -->
+        <div class="flex p-2 items-center justify-between"
+             v-for="item in likeItems">
+          <!--      사진      -->
+          <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
+            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+                 alt="Item Image" class="object-cover h-full w-full">
+          </div>
+          <!--      상품명, 가격, 남은시간     -->
+          <div class="flex flex-col items-start ml-2">
+            <!--       상품명       -->
+            <div class="flex items-baseline">
+              <div class="text-lg font-semibold">{{item.title}}</div>
+              <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
+                   class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료
+              </div>
+            </div>
+            <!--       가격       -->
+            <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
+            <!--       남은 시간       -->
+            <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
+              {{item.expireAt}}
+            </div>
+          </div>
+
+          <div class="flex  text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 w-[70px] font-bold items-center justify-end"
+                    v-on:click="moveToItemDetail(item.itemId)">
+              상품 상세
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--   세로선 채팅창 오른쪽     -->
+    <div class="border border-inherit"></div>
+  </div>
+  <div class="border border-inherit"></div>
   <div class="flex justify-center mt-10">
     <form method="post" action="/logout">
       <button type="submit">로그아웃</button>
@@ -131,7 +182,7 @@
       username: '',
       items: [],
       bidItems: [],
-
+      likeItems: [],
     },
     created() {
       this.username = localStorage.getItem('username');
@@ -141,6 +192,7 @@
       initData() {
         this.getItems();
         this.getBidItems();
+        this.getLikeItems();
       },
       getItems() {
         axios.get('/api/v1/item/me')
@@ -153,6 +205,12 @@
         axios.get('/api/v1/item/bid/me')
                 .then(response => {
                   this.bidItems = response.data;
+                })
+      },
+      getLikeItems() {
+        axios.get('/api/v1/item/like/me')
+                .then(response => {
+                  this.likeItems = response.data;
                 })
       },
       moveToItemDetail(itemId) {

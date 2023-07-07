@@ -21,6 +21,13 @@
                 </div>
                 <!--    비더, 댓글    -->
                 <div class="flex">
+                    <span class="flex mr-2">
+                        <button id="likeItem" @click="likeItem()">
+                            <img v-if="!likeStatus" src="/image/empty_heart.png" class="w-[20px] h-[20px]">
+                            <img v-else src="/image/full_heart.png" class="w-[20px] h-[20px]">
+                        </button>
+                        <span class="text-sm text-gray-600">{{ item.heartCount }}</span>
+                    </span>
                         <span class="flex mr-2">
                             <img src="/image/person.png" class="w-[20px] h-[20px]">
                             <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
@@ -124,6 +131,7 @@
             item: '',
             maxPrice: 0,
             sellerId: 0,
+            likeStatus: false,
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -223,6 +231,14 @@
                     window.location.href = response.data;
                 }).catch(error => {
                     // TODO 예외 처리 403
+                })
+            },
+            likeItem() {
+                axios.post('/api/v1/item/' + this.itemId + '/likes')
+                    .then(response => {
+                        this.likeStatus = response.data.likeStatus;
+                    }).catch(error => {
+                    console.log(error);
                 })
             }
         }

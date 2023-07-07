@@ -39,6 +39,8 @@ public class QItem extends EntityPathBase<Item> {
 
     public final DateTimePath<java.time.LocalDateTime> expireAt = createDateTime("expireAt", java.time.LocalDateTime.class);
 
+    public final ListPath<site.bidderown.server.bounded_context.heart.entity.Heart, site.bidderown.server.bounded_context.heart.entity.QHeart> hearts = this.<site.bidderown.server.bounded_context.heart.entity.Heart, site.bidderown.server.bounded_context.heart.entity.QHeart>createList("hearts", site.bidderown.server.bounded_context.heart.entity.Heart.class, site.bidderown.server.bounded_context.heart.entity.QHeart.class, PathInits.DIRECT2);
+
     //inherited
     public final NumberPath<Long> id = _super.id;
 

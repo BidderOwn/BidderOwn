@@ -95,4 +95,9 @@ public class ItemApiController {
     public List<ItemSimpleResponse> getBidItem(@AuthenticationPrincipal User user) {
         return itemService.getBidItems(user.getUsername()); //입찰내역
     }
+
+    @GetMapping("/like/me")
+    public List<ItemSimpleResponse> getLikeItem(@AuthenticationPrincipal User user) {
+        return itemService.getLikeItems(user.getUsername());
+    }
 }
