@@ -15,6 +15,7 @@ import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 import site.bidderown.server.bounded_context.notification.controller.dto.NewBidNotificationRequest;
@@ -54,15 +55,12 @@ class NotificationServiceTest {
     private BidService bidService;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Value("${custom.redis.item_queue}")
-    private String redisKey;
-
+    private ItemRedisService itemRedisService;
 
     Member createUser(String username){
         return memberService.join(username,"1234");
     }
+
     Item createItem(Member member, String itemTitle, String itemDescription, Integer minimumPrice){
         Item item = itemRepository.save(
                 Item.of(
@@ -73,7 +71,7 @@ class NotificationServiceTest {
                     .minimumPrice(minimumPrice)
                     .build(), member));
         imageService.create(item, List.of("image1.jpeg"));
-        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
+        itemRedisService.createWithExpire(item, 3);
         return item;
     }
 

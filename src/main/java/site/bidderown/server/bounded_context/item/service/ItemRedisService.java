@@ -20,11 +20,11 @@ public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
 
-    public boolean containExpirationQueue(Item item) {
+    public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
     }
 
-    public void addExpirationQueue(Item item, int expire) {
+    public void createWithExpire(Item item, int expire) {
         itemRedisRepository.save(item.getId(), expire);
     }
 

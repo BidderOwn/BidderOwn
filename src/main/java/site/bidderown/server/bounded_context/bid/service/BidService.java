@@ -2,7 +2,6 @@ package site.bidderown.server.bounded_context.bid.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
@@ -132,6 +131,6 @@ public class BidService {
     private boolean availableBid(Item item) {
         return (item.getItemStatus() != ItemStatus.BID_END) &&
                 (item.getItemStatus() != ItemStatus.SOLDOUT) &&
-                (itemRedisService.containExpirationQueue(item));
+                (itemRedisService.containsKey(item));
     }
 }

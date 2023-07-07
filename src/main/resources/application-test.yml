@@ -21,4 +21,4 @@ custom:
         info-key: 'bidding-test-item:'
         updated-at-key: 'bidding-item:updated-at'
         comment-count-key: 'comment-count'
-        bid-count-key: 'bid- count'
+        bid-count-key: 'bid-count'

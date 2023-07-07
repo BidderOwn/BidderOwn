@@ -20,6 +20,7 @@ import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -51,10 +52,10 @@ class BidServiceTest {
     ItemRepository itemRepository;
 
     @Autowired
-    ImageService imageService;
+    ItemRedisService itemRedisService;
 
-    @Value("${custom.redis.item_queue}")
-    private String redisKey;
+    @Autowired
+    ImageService imageService;
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
@@ -72,7 +73,7 @@ class BidServiceTest {
                                 .period(3)
                                 .minimumPrice(minimumPrice)
                                 .build(), member));
-        redisTemplate.opsForValue().set(redisKey + item.getId(), "", 3, TimeUnit.SECONDS);
+        itemRedisService.createWithExpire(item, 3);
         imageService.create(item, List.of("image1.jpeg"));
         return item;
     }

@@ -12,7 +12,6 @@ import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
-import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -142,7 +141,7 @@ public class ItemService {
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
 
-        itemRedisService.addExpirationQueue(item, request.getPeriod());
+        itemRedisService.createWithExpire(item, request.getPeriod());
 
         return item;
     }
