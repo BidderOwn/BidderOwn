@@ -209,7 +209,7 @@
                     const data = response.data;
                     this.toUserId = data.toUserId;
                     this.itemPrice = data.price;
-                    this.itemImageUrl = 'http://localhost:8080/api/v1/image/item/' + data.itemImageName;
+                    this.itemImageUrl = 'https://kr.object.ncloudstorage.com/s3bucket/' + data.itemImageName;
                     this.itemTitle = data.itemTitle;
                     this.itemId = data.itemId;
                 }).catch(error => {

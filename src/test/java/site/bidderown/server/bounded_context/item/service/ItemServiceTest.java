@@ -11,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.base.resolver.PathResolver;
 import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.service.BidService;
@@ -29,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,9 +55,6 @@ public class ItemServiceTest {
     private ImageService imageService;
 
     @Autowired
-    private PathResolver pathResolver;
-
-    @Autowired
     private BidService bidService;
 
     @Autowired
@@ -71,11 +68,6 @@ public class ItemServiceTest {
         Member member1 = memberService.join("test_member_1", "");
         memberService.join("test_member_2", "");
         initItemData(member1);
-    }
-
-    @AfterEach
-    void afterEach() {
-        deleteTestImage();
     }
 
     @Test
@@ -353,27 +345,17 @@ public class ItemServiceTest {
 
     /**
      * @description 테스트 아이템 생성 함수
-     * item 이미지 파일 저장 경로: '/resources/images/test'
+     * 기존 테스트 로직을 유지하되 s3버킷에 저장하고 삭제하는 로직만 제외합니다.
      */
     private Item createTestItem(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
-        List<String> fileNames = imageUtils.uploadMulti(request.getImages(), "test");
+
+        List<String> fileNames = request.getImages().stream()
+                .map(image -> imageUtils.createFileName(image.getOriginalFilename(), "test"))
+                .collect(Collectors.toList());
+
         imageService.create(item, fileNames);
         itemRedisService.createWithExpire(item, 3);
         return item;
-    }
-
-    /**
-     * @description '/resources/images/test' 경로에 있는 파일을 자동으로 삭제해줌
-     */
-    private void deleteTestImage() {
-        String path = pathResolver.resolve("images", "test").toUri().getPath();
-        File folder = new File(path);
-        File[] files = folder.listFiles();
-        assert files != null;
-        for (File file : files) {
-            if (file.getName().contains("abc.txt")) continue;
-            file.delete();
-        }
     }
 }

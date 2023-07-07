@@ -159,7 +159,7 @@
                         this.sellerName = response.data.bidDetails.sellerName;
                         this.expireAt = response.data.bidDetails.expireAt;
                         this.itemStatus = response.data.bidDetails.itemStatus;
-                        this.imageUrl = 'http://localhost:8080/api/v1/image/item/' + response.data.bidDetails.imgName;
+                        this.imageUrl = 'https://kr.object.ncloudstorage.com/s3bucket/' + response.data.bidDetails.imgName;
                     }).catch();
             },
             submitPrice() {
