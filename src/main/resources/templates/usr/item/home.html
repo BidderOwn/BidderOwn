@@ -132,7 +132,7 @@
                 this.addData();
             },
             clickItem(itemId) {
-                window.location.href = 'http://localhost:8080/item/' + itemId;
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item/" + itemId;
             },
             getTimeAgo(date) {
                 const currentDate = new Date();
@@ -156,7 +156,7 @@
                 return price !== null;
             },
             addItem() {
-                window.location.href = 'http://localhost:8080/item';
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item";
             },
             getQuery() {
                 let query = '';
