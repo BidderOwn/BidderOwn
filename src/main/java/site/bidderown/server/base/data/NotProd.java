@@ -20,7 +20,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
 
-@Profile({"dev", "test"})
+@Profile({"prod", "dev", "test"})
 @Configuration
 public class NotProd {
     private boolean initDataDone = false;
