@@ -3,26 +3,26 @@
     <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
         <div class="flex w-[1100px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
             <a href="/home">
-                <img src="/image/bidder_own_logo.png" width="50" height="50">
+                <img src="https://kr.object.ncloudstorage.com/s3bucket/bidder_own_logo.png" width="50" height="50">
             </a>
 
             <div class="flex ml-[80px] min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
                 <div class="pl-3 pr-5 text-indigo-500">검색</div>
                 <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
                 <button id="search-button" onclick="search()">
-                    <img src="/image/submit.png" class="w-[25px] h-[25px]">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png" class="w-[25px] h-[25px]">
                 </button>
             </div>
 
             <div class="flex">
                 <a href="/chat/list" onclick="readChat()" class="mr-2">
-                    <img id="chat-icon" src="/image/chat.png" class="w-[38px] h-[38px]"/>
+                    <img id="chat-icon" src="https://kr.object.ncloudstorage.com/s3bucket/chat.png" class="w-[38px] h-[38px]"/>
                 </a>
                 <a href="/notifications" onclick="readNotification()" class="mr-2">
-                    <img id="notification-icon" src="/image/notification.png" class="w-[38px] h-[38px]"/>
+                    <img id="notification-icon" src="https://kr.object.ncloudstorage.com/s3bucket/notification.png" class="w-[38px] h-[38px]"/>
                 </a>
                 <a href="/my-page">
-                    <img src="/image/person2.png" class="w-[38px] h-[38px]"/>
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/person2.png" class="w-[38px] h-[38px]"/>
                 </a>
             </div>
         </div>
@@ -38,11 +38,11 @@
         });
 
         if (localStorage.getItem('chatStatus') === '1') {
-            $('#chat-icon').attr('src', '/image/chat_noti.png');
+            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
         }
 
         if (localStorage.getItem('notificationStatus') === '1') {
-            $('#notification-icon').attr('src', '/image/notification_noti.png');
+            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
         }
 
         search = () => {
@@ -53,12 +53,12 @@
 
         readNotification = () => {
             localStorage.setItem('notificationStatus', "0");
-            $('#notification-icon').attr('src', '/image/notification.png');
+            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification.png');
         }
 
         readChat = () => {
             localStorage.setItem('chatStatus', "0");
-            $('#chat-icon').attr('src', '/image/chat.png');
+            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat.png');
         }
 
         socketConnect = () => {
@@ -78,11 +78,11 @@
                                 console.log(message.body);
                                 if (message.body === 'NOTIFICATION') {
                                     localStorage.setItem('notificationStatus', '1');
-                                    $('#notification-icon').attr('src', '/image/notification_noti.png');
+                                    $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
                                 } else {
                                     if (window.location.href.includes("/chat/list")) return;
                                     localStorage.setItem('chatStatus', '1');
-                                    $('#chat-icon').attr('src', '/image/chat_noti.png');
+                                    $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
                                 }
                             }
                         );

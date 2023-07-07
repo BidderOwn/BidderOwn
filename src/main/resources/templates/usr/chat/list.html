@@ -18,7 +18,7 @@
                         v-for="chatRoom in chatRooms" :key="chatRoom.chatRoomId"
                         @click="connectChatRoom(chatRoom.chatRoomId)">
                     <!--      아바타      -->
-                    <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
                     <!--      사용자 이름, 시간, 마지막 채팅      -->
                     <div class="flex flex-col items-start justify-start ml-2 truncate">
                         <!--       사용자 이름, 시간       -->
@@ -69,7 +69,7 @@
                                    @keyup.enter="sendMessage"/>
                         </label>
                         <button class="min-w-[8%]" @click="sendMessage">
-                            <img src="/image/submit.png" class="w-[25px] h-[25px]">
+                            <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png" class="w-[25px] h-[25px]">
                         </button>
                     </div>
                 </div>

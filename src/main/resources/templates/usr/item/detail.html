@@ -16,24 +16,24 @@
             <div class="flex items-center w-[550px] justify-between">
                 <!--   사용자 프로필   -->
                 <div class="flex items-center">
-                    <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
                     <div class="">{{ item.memberName }}</div>
                 </div>
                 <!--    비더, 댓글    -->
                 <div class="flex">
                     <span class="flex mr-2">
                         <button id="likeItem" @click="likeItem()">
-                            <img v-if="!likeStatus" src="/image/empty_heart.png" class="w-[20px] h-[20px]">
-                            <img v-else src="/image/full_heart.png" class="w-[20px] h-[20px]">
+                            <img v-if="!likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/empty_heart.png" class="w-[20px] h-[20px]">
+                            <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png" class="w-[20px] h-[20px]">
                         </button>
                         <span class="text-sm text-gray-600">{{ item.heartCount }}</span>
                     </span>
                         <span class="flex mr-2">
-                            <img src="/image/person.png" class="w-[20px] h-[20px]">
+                            <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
                             <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                         </span>
                     <span class="flex items-center">
-                            <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
+                            <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
                             <span class="text-sm text-gray-600">{{ comments.length }}</span>
                         </span>
                 </div>
@@ -95,11 +95,11 @@
             <div>
                 <div class="flex justify-between">
                     <div class="flex">
-                        <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
                         <input class="w-[460px] ml-1" type="text" placeholder="댓글을 입력해주세요" v-model="commentMessage">
                     </div>
                     <button v-on:click="addComment">
-                        <img src="/image/submit.png" class="w-[30px] h-[30px] mr-1">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png" class="w-[30px] h-[30px] mr-1">
                     </button>
                 </div>
                 <div class="border-t-[1px] border-inherit mt-1"></div>
@@ -108,7 +108,7 @@
             <!--  댓글 리스트  -->
             <div class="mt-5" v-for="comment in comments" v-bind:key="comment.commentId">
                 <div class="flex items-center">
-                    <img src="/image/profile.png" class="w-[40px] h-[40px] mr-1">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
                     <div class="flex flex-col">
                         <div class="text-base font-medium"> {{ comment.memberName }}</div>
                         <div class="text-sm text-gray-600"> {{ comment.content }}</div>
