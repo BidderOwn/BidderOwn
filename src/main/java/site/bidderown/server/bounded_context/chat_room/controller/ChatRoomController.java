@@ -33,6 +33,6 @@ public class ChatRoomController {
         if (chatRoomId != null)
             model.addAttribute("chatRoomId", chatRoomId);
 
-        return "/usr/chat/list";
+        return "usr/chat/list";
     }
 }

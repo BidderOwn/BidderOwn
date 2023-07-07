@@ -12,8 +12,8 @@ spring:
         format_sql: true
         show_sql: true
   redis:
-    host: 127.0.0.1
-    port: 6379
+    host: localhost
+    port: 6378
 custom:
   redis:
     item_queue: 'ITEM_TEST_QUEUE:'

@@ -19,7 +19,7 @@ public class HomeController {
 
     @GetMapping("/login")
     public String testLogin() {
-        return "/usr/login";
+        return "usr/login";
     }
 
     @GetMapping("/")
@@ -37,6 +37,6 @@ public class HomeController {
                 model.addAttribute("username", user.getUsername());
             }
         model.addAttribute("searchText", searchText);
-        return "/usr/item/home";
+        return "usr/item/home";
     }
 }

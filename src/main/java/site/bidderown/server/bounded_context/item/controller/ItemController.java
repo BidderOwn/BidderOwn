@@ -23,12 +23,12 @@ public class ItemController {
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public String showCreateItem() {
-        return "/usr/item/create";
+        return "usr/item/create";
     }
 
     @GetMapping("/{id}")
     public String showItemDetail(Model model,  @PathVariable Long id) {
         model.addAttribute("itemId", id);
-        return "/usr/item/detail";
+        return "usr/item/detail";
     }
 }
