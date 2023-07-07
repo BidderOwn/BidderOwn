@@ -19,6 +19,7 @@ public class ItemDetailResponse {
     private Integer minPrice;
     private String thumbnailImageName;
     private Integer bidCount;
+    private Integer commentCount;
     private Integer heartCount;
     private ItemStatus itemStatus;
     private LocalDateTime expireAt;

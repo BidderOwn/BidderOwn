@@ -7,6 +7,7 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -43,11 +44,11 @@ public class ItemRedisService {
         itemIds.forEach(itemId -> itemRedisRepository.increaseValue(itemId, heartCountKey));
     }
 
-    public int getCommentCount(Long itemId) {
+    public Optional<Integer> getCommentCount(Long itemId) {
         return itemRedisRepository.getCommentCount(itemId);
     }
 
-    public int getBidCount(Long itemId) {
+    public Optional<Integer> getBidCount(Long itemId) {
         return itemRedisRepository.getBidCount(itemId);
     }
 

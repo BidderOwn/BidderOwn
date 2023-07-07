@@ -28,10 +28,11 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final ItemRedisService itemRedisService;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
+    private final ItemCountFacade itemCountFacade;
     private final HeartRepository heartRepository;
 
     @Transactional
@@ -54,7 +55,8 @@ public class ItemService {
     public ItemDetailResponse getItemDetail(Long id) {
         ItemDetailResponse item = itemCustomRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-        item.setBidCount(itemRedisService.getBidCount(item.getId()));
+        item.setBidCount(itemCountFacade.getBidCount(item.getId()));
+        item.setCommentCount(itemCountFacade.getCommentCount(item.getId()));
         item.setHeartCount(itemRedisService.getHeartCount(item.getId()));
         return item;
     }
@@ -78,9 +80,9 @@ public class ItemService {
 
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        items.forEach(itemsResponse -> {
-            itemsResponse.setBidCount(itemRedisService.getBidCount(itemsResponse.getId()));
-            itemsResponse.setCommentsCount(itemRedisService.getCommentCount(itemsResponse.getId()));
+        items.forEach(item -> {
+            item.setBidCount(itemCountFacade.getBidCount(item.getId()));
+            item.setCommentsCount(itemCountFacade.getCommentCount(item.getId()));
             itemsResponse.setHeartsCount(itemRedisService.getHeartCount(itemsResponse.getId()));
         });
         return items;

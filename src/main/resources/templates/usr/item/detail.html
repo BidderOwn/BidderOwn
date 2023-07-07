@@ -34,7 +34,7 @@
                         </span>
                     <span class="flex items-center">
                             <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
-                            <span class="text-sm text-gray-600">{{ comments.length }}</span>
+                            <span class="text-sm text-gray-600">{{ commentCount }}</span>
                         </span>
                 </div>
             </div>
@@ -88,7 +88,7 @@
             <div class="border-t-[1px] border-inherit my-5"></div>
             <div class="flex items-center mb-5">
                 <div class="text-lg font-medium justify-start mr-1">댓글</div>
-                <div class="text-lg font-medium text-indigo-400"> {{ comments.length }}</div>
+                <div class="text-lg font-medium text-indigo-400"> {{ commentCount }}</div>
             </div>
 
             <!--   댓글 입력   -->
@@ -127,6 +127,7 @@
             username: '',
             itemId: 0,
             comments: [],
+            commentCount: 0,
             commentMessage: '',
             item: '',
             maxPrice: 0,
@@ -142,12 +143,6 @@
             initData() {
                 this.getItemDetail();
                 this.getComments();
-                axios.get('/api/v1/item/' + this.itemId + '/comments')
-                    .then(response => {
-                        this.comments = response.data.reverse();
-                    }).catch(error => {
-                    console.log(error);
-                })
             },
             addComment() {
                 if (this.commentMessage === '') {
@@ -202,6 +197,7 @@
                     .then(response => {
                         this.item = response.data;
                         this.sellerId = response.data.sellerId;
+                        this.commentCount = response.data.commentCount;
                     }).catch(error => {
                     console.log(error);
                 });

@@ -62,12 +62,12 @@ public class ItemRedisRepository {
         hashCountOperations.increment(biddingItemInfoKey + itemId, key, 1);
     }
 
-    public int getCommentCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, commentCountKey);
+    public Optional<Integer> getCommentCount(Long itemId) {
+        return Optional.ofNullable(hashCountOperations.get(biddingItemInfoKey + itemId, commentCountKey));
     }
 
-    public int getBidCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, bidCountKey);
+    public Optional<Integer> getBidCount(Long itemId) {
+        return Optional.ofNullable(hashCountOperations.get(biddingItemInfoKey + itemId, bidCountKey));
     }
 
     public int getHeartCount(Long itemId) {

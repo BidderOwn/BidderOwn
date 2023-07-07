@@ -29,4 +29,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     Integer findAvgPrice(@Param("item") Item item);
 
     List<Bid> findBidsByCreatedAtAfter(LocalDateTime createdAt);
+
+    Integer countByItemId(Long itemId);
 }
