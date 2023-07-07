@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import site.bidderown.server.base.scheduler.Scheduler;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
+import site.bidderown.server.bounded_context.heart.service.HeartService;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 
@@ -20,12 +21,14 @@ public class ItemCounterScheduler implements Scheduler {
     private final ItemRedisService itemRedisService;
     private final CommentService commentService;
     private final BidService bidService;
+    private final HeartService heartService;
 
     @Override
     public void run() {
         LocalDateTime updatedAt = itemRedisRepository.getBiddingItemUpdatedAt();
         countBid(updatedAt);
         countComment(updatedAt);
+        countHeart(updatedAt);
         itemRedisRepository.updateBiddingItemUpdatedAt();
     }
 
@@ -43,5 +46,13 @@ public class ItemCounterScheduler implements Scheduler {
                 .map(comment -> comment.getItem().getId())
                 .toList();
         itemRedisService.increaseCommentCount(itemIds);
+    }
+
+    public void countHeart(LocalDateTime updatedAt) {
+        List<Long> itemIds = heartService.getHeartsAfter(updatedAt)
+                .stream()
+                .map(heart -> heart.getItem().getId())
+                .toList();
+        itemRedisService.increaseHeartCount(itemIds);
     }
 }

@@ -18,6 +18,9 @@ public class ItemRedisService {
     @Value("${custom.redis.item.bidding.bid-count-key}")
     private String bidCountKey;
 
+    @Value("${custom.redis.item.bidding.heart-count-key}")
+    private String heartCountKey;
+
     private final ItemRedisRepository itemRedisRepository;
 
     public boolean containsKey(Item item) {
@@ -36,6 +39,10 @@ public class ItemRedisService {
         itemIds.forEach(itemId -> itemRedisRepository.increaseValue(itemId, bidCountKey));
     }
 
+    public void increaseHeartCount(List<Long> itemIds) {
+        itemIds.forEach(itemId -> itemRedisRepository.increaseValue(itemId, heartCountKey));
+    }
+
     public int getCommentCount(Long itemId) {
         return itemRedisRepository.getCommentCount(itemId);
     }
@@ -43,4 +50,6 @@ public class ItemRedisService {
     public int getBidCount(Long itemId) {
         return itemRedisRepository.getBidCount(itemId);
     }
+
+    public int getHeartCount(Long itemId) { return itemRedisRepository.getHeartCount(itemId); }
 }

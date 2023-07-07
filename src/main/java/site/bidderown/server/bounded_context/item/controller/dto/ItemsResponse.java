@@ -15,6 +15,7 @@ public class ItemsResponse {
     private Integer minPrice;
     private Integer commentsCount;
     private Integer bidCount;
+    private Integer heartsCount;
     private String thumbnailImageName;
     private ItemStatus itemStatus;
     private LocalDateTime expireAt;

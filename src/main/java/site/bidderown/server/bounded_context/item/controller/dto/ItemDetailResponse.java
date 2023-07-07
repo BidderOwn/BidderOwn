@@ -19,6 +19,7 @@ public class ItemDetailResponse {
     private Integer minPrice;
     private String thumbnailImageName;
     private Integer bidCount;
+    private Integer heartCount;
     private ItemStatus itemStatus;
     private LocalDateTime expireAt;
 
@@ -35,6 +36,7 @@ public class ItemDetailResponse {
             Integer minPrice,
             String thumbnailImageName,
             Integer bidCount,
+            Integer heartCount,
             ItemStatus itemStatus,
             LocalDateTime expireAt
     ) {
@@ -48,6 +50,7 @@ public class ItemDetailResponse {
         this.minPrice = minPrice;
         this.thumbnailImageName = thumbnailImageName;
         this.bidCount = bidCount;
+        this.heartCount = heartCount;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
     }

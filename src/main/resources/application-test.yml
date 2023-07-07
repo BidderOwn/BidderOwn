@@ -22,3 +22,4 @@ custom:
         updated-at-key: 'bidding-item:updated-at'
         comment-count-key: 'comment-count'
         bid-count-key: 'bid-count'
+        heart-count-key: 'heart-count'

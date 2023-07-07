@@ -7,6 +7,7 @@ import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
+import site.bidderown.server.bounded_context.heart.entity.Heart;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
@@ -57,6 +58,9 @@ public class Item extends BaseEntity {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Notification> notifications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<Heart> hearts = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;

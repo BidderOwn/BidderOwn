@@ -30,6 +30,9 @@ public class ItemRedisRepository {
     @Value("${custom.redis.item.bidding.bid-count-key}")
     private String bidCountKey;
 
+    @Value("heart-count")
+    private String heartCountKey;
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     private HashOperations<String, String, Integer> hashCountOperations;
@@ -47,6 +50,7 @@ public class ItemRedisRepository {
     public void save(Long itemId, int day) {
         hashCountOperations.put(biddingItemInfoKey + itemId, commentCountKey, 0);
         hashCountOperations.put(biddingItemInfoKey + itemId, bidCountKey, 0);
+        hashCountOperations.put(biddingItemInfoKey + itemId, heartCountKey, 0);
         redisTemplate.expire(biddingItemInfoKey + itemId, day, TimeUnit.DAYS);
     }
 
@@ -64,6 +68,10 @@ public class ItemRedisRepository {
 
     public int getBidCount(Long itemId) {
         return hashCountOperations.get(biddingItemInfoKey + itemId, bidCountKey);
+    }
+
+    public int getHeartCount(Long itemId) {
+        return hashCountOperations.get(biddingItemInfoKey + itemId, heartCountKey);
     }
 
     public LocalDateTime getBiddingItemUpdatedAt() {
