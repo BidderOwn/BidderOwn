@@ -52,5 +52,7 @@ public class ItemRedisService {
         return itemRedisRepository.getBidCount(itemId);
     }
 
-    public int getHeartCount(Long itemId) { return itemRedisRepository.getHeartCount(itemId); }
+    public Optional<Integer> getHeartCount(Long itemId) {
+        return itemRedisRepository.getHeartCount(itemId);
+    }
 }

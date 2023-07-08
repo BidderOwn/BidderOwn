@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -70,8 +71,8 @@ public class ItemRedisRepository {
         return Optional.ofNullable(hashCountOperations.get(biddingItemInfoKey + itemId, bidCountKey));
     }
 
-    public int getHeartCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, heartCountKey);
+    public Optional<Integer> getHeartCount(Long itemId) {
+        return Optional.ofNullable(hashCountOperations.get(biddingItemInfoKey + itemId, heartCountKey));
     }
 
     public LocalDateTime getBiddingItemUpdatedAt() {

@@ -57,7 +57,7 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
         item.setBidCount(itemCountFacade.getBidCount(item.getId()));
         item.setCommentCount(itemCountFacade.getCommentCount(item.getId()));
-        item.setHeartCount(itemRedisService.getHeartCount(item.getId()));
+        item.setHeartCount(itemCountFacade.getHeartCount(item.getId()));
         return item;
     }
 
@@ -83,7 +83,7 @@ public class ItemService {
         items.forEach(item -> {
             item.setBidCount(itemCountFacade.getBidCount(item.getId()));
             item.setCommentsCount(itemCountFacade.getCommentCount(item.getId()));
-            itemsResponse.setHeartsCount(itemRedisService.getHeartCount(itemsResponse.getId()));
+            item.setHeartsCount(itemCountFacade.getHeartCount(item.getId()));
         });
         return items;
     }

@@ -18,12 +18,11 @@ public class ItemDetailResponse {
     private Integer maxPrice;
     private Integer minPrice;
     private String thumbnailImageName;
-    private Integer bidCount;
-    private Integer commentCount;
-    private Integer heartCount;
+    private int bidCount;
+    private int commentCount;
+    private int heartCount;
     private ItemStatus itemStatus;
     private LocalDateTime expireAt;
-
 
     @Builder
     public ItemDetailResponse(
