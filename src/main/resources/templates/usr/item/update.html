@@ -55,7 +55,7 @@
         <div class="text-3xl my-2 font-semibold">상품 수정</div>
         <!--  제목 입력  -->
         <div class="flex mt-10 p-1 border-b border-indigo-200">
-            <input type="text" :value="updateTitle" name="updateTitle" class="form-control"
+            <input type="text" :value="item.title" name="updateTitle" class="form-control"
                    style="width: 700px; height: 35px"
                    v-model="updateTitle" maxlength=30/>
         </div>
@@ -65,33 +65,46 @@
                    style="width: 700px; height: 35px" readonly>
         </div>
         <!--  경매 기간 보여주기  -->
-        <div class="flex flex-col mb-10 p-1 border-b border-indigo-200">
-            <p class="text-gray-400">경매 기간을 선택해 주세요</p>
-            <div class="flex justify-start gap-4 m-2">
-                <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" value="3" class="radio peer" v-if="item.expireAt == 3" checked readonly>
-                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
-                                <i class="fa-solid fa-person-rays"></i>
-                                3일
-                            </span>
-                </label>
+<!--        <div class="flex flex-col mb-10 p-1 border-b border-indigo-200">-->
+<!--            <p class="text-gray-400">경매 기간을 선택해 주세요</p>-->
+<!--            <div class="flex justify-start gap-4 m-2">-->
+<!--                <label class="flex gap-2 items-center cursor-pointer">-->
+<!--                    <input type="radio" name="period" value="3" class="radio peer" v-if="item.expireAt == 3" checked readonly>-->
+<!--                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">-->
+<!--                                <i class="fa-solid fa-person-rays"></i>-->
+<!--                                3일-->
+<!--                            </span>-->
+<!--                </label>-->
 
-                <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" value="5" class="radio peer" v-if="item.expireAt == 5" checked readonly>
-                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
-                                <i class="fa-regular fa-face-smile"></i>
-                                5일
-                            </span>
-                </label>
+<!--                <label class="flex gap-2 items-center cursor-pointer">-->
+<!--                    <input type="radio" name="period" value="5" class="radio peer" v-if="item.expireAt == 5" checked readonly>-->
+<!--                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">-->
+<!--                                <i class="fa-regular fa-face-smile"></i>-->
+<!--                                5일-->
+<!--                            </span>-->
+<!--                </label>-->
 
-                <label class="flex gap-2 items-center cursor-pointer">
-                    <input type="radio" name="period" value="7" class="radio peer"  v-if="item.expireAt == 7" checked readonly>
-                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">
-                                <i class="fa-solid fa-people-roof"></i>
-                                7일
-                            </span>
-                </label>
-            </div>
+<!--                <label class="flex gap-2 items-center cursor-pointer">-->
+<!--                    <input type="radio" name="period" value="7" class="radio peer"  v-if="createAt" checked readonly>-->
+<!--                    <span class="text-gray-400 peer-checked:text-gray-900 peer-checked:font-bold peer-focus:text-gray-700">-->
+<!--                                <i class="fa-solid fa-people-roof"></i>-->
+<!--                                7일-->
+<!--                            </span>-->
+<!--                </label>-->
+<!--            </div>-->
+        <div>만료시간: {{item.expireAt}}</div>
+        <div>만든시간: {{item.createdAt}}</div>
+        <div>변수출력: {{gap}}</div>
+        <div class="flex mb-5 p-2 border-b border-indigo-200">
+            <textarea class="p-3" :value="item.description" name="updateDescription" rows="10" cols="100" placeholder="상품을 자세히 설명해주세요"
+                      v-model="updateDescription"></textarea>
+        </div>
+<!--          수정 버튼-->
+        <div class="justify-end flex mb-10 ">
+            <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300 text-white"
+                     @click="updateProduct">수정하기
+            </button>
+        </div>
         </div>
 
 
@@ -104,30 +117,75 @@
                 updateTitle: '',
                 updateDescription: '',
                 item: '',
-                itemId: 0
+                itemId: 0,
+                updateItem: '',
+                gap: 0
+
 
             },
             created() { // 최초에 이 페이지가 열릴 때, 실행
                 this.itemId = parseInt(document.getElementById('itemId').value);
+                this.username = localStorage.getItem('username');
+                // const product = JSON.parse(localStorage.getItem('product'));
+                // if (product) {
+                //     this.selectedOption = product.option;
                 this.initData();
+                // }
             },
             methods: { // java => method
                 initData() {
-                    this.getItem();
+                    this.getDetailItem();
                 },
-                getItem() {
-                    axios.get('/api/v1/item/' + this.itemId)
+                getDetailItem() {
+                    axios.get('/api/v1/item/update/get/' + this.itemId)
                         .then(response => {
                             this.item = response.data;
                             this.updateTitle = response.data.title;
+                            this.updateDescription = response.data.description;
                         }).catch(error => {
                         console.log(error + "오류");
                     });
                 },
-                radioChange(event) {
-                    var selected = event.target.value;
-                    console.log("selected: ",selected);
+                // getItem() {
+                //     axios.put('/api/v1/item/update/' + this.itemId)
+                //         .then(response => {
+                //             this.updateItem = response.data;
+                //         })
+                //         .catch(error => {
+                //             console.error(error);
+                //         });
+                // },
+                // updateProduct() {
+                //     axios.put("/api/v1/item/update/"+ this.itemId, {
+                //         title: this.updateTitle,
+                //         description: this.updateDescription
+                //     })
+                //     .then(response => {
+                //         window.location.href = response.data;
+                //     }).catch(error => console.log(error));
+                // }
+
+                updateProduct() {
+                    const requestData = {
+                        title: this.updateTitle,
+                        description: this.updateDescription
+                    };
+
+                    axios.put("/api/v1/item/update/" + this.itemId, requestData)
+                        .then(response => {
+                            console.log('Item updated successfully:', response.data);
+                            window.location.href = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error updating item:', error);
+                        });
                 }
+
+                // radioChange(event) {
+                //     var selected = event.target.value;
+                //     console.log("selected: ",selected);
+                // }
+
             }
         });
 

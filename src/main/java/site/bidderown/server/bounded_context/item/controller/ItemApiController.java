@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
+import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -48,15 +49,20 @@ public class ItemApiController {
     }
 
     @GetMapping("/{id}")
-    public ItemDetailResponse getItem(@PathVariable Long id) {
+    public ItemDetailResponse getDetailItem(@PathVariable Long id) {
         return itemService.getItemDetail(id);
     }
 
+    @GetMapping("/update/get/{id}")
+    public ItemUpdateRequest getItemUpdateRequest(@PathVariable Long id) {
+        return itemService.createUpdateRequest(id);
+    }
+
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}")
-    public ItemUpdate updateItem(
+    @PutMapping("/update/{id}")
+    public String ItemUpdateResponse(
             @PathVariable Long id,
-            @RequestBody @Valid ItemUpdate itemUpdate,
+            @Valid @RequestBody ItemUpdateResponse itemUpdateResponse,
             @AuthenticationPrincipal User user
     ){
         MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
@@ -64,9 +70,17 @@ public class ItemApiController {
         if (!memberDetail.getName().equals(user.getUsername())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
+        itemService.updateById(itemUpdateResponse, id);
 
-        return itemService.updateById(id, itemUpdate);
+
+        return "/item/" + id;
     }
+
+//    @PostMapping("/updateItem")
+//    @PreAuthorize("isAuthenticated()")
+//    public ItemUpdate updateItem() {
+//
+//    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")

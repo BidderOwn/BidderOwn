@@ -59,10 +59,17 @@ public class ItemService {
         return item;
     }
 
-    public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
+    public Item updateById(ItemUpdateResponse request, Long itemId) {
+         ItemUpdateResponse itemUpdateResponse = new ItemUpdateResponse(request.getTitle(), request.getDescription());
+         Item findItem = getItem(itemId);
+         findItem.update(itemUpdateResponse);
+         return findItem;
+    }
+
+    public ItemUpdateRequest createUpdateRequest(Long itemId) {
         Item findItem = getItem(itemId);
-        findItem.update(itemUpdate);
-        return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
+        ItemUpdateRequest itemUpdateRequest = new ItemUpdateRequest(findItem.getTitle(), findItem.getDescription(), findItem.getMinimumPrice());
+        return itemUpdateRequest;
     }
 
     @Transactional

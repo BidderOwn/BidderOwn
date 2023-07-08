@@ -131,9 +131,10 @@
                 images: [],
                 description: '',
                 filenames: ''
+
             },
             created() { // 최초에 이 페이지가 열릴 때, 실행
-                localStorage.setItem("username", this.username);
+
             },
             methods: { // java => method
                 onFileChange() {
@@ -194,7 +195,14 @@
                         setTimeout(() => {window.location.href = response.data;}, 1500);
                     }).catch(error => console.log(error));
 
+                },
+                createProduct() {
+                    const product= {
+                        option: this.period
+                    };
+                    localStorage.setItem(itemId, JSON.stringify(product));
                 }
+
             }
         });
 

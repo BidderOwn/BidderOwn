@@ -1,8 +1,8 @@
 package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.ColumnDefault;
-import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
@@ -10,7 +10,7 @@ import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.heart.entity.Heart;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateResponse;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 
@@ -94,10 +94,11 @@ public class Item extends BaseEntity {
                 .build();
     }
 
-    public void update(ItemUpdate itemUpdate) {
+    @JsonIgnore
+    public void update(ItemUpdateResponse itemUpdateResponse) {
 
-        this.title = itemUpdate.getTitle();
-        this.description = itemUpdate.getDescription();
+        this.title = itemUpdateResponse.getTitle();
+        this.description = itemUpdateResponse.getDescription();
         this.setUpdatedAt(LocalDateTime.now());
     }
 
