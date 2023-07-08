@@ -37,11 +37,11 @@
                         </div>
                         <div class="flex ml-auto">
                             <span class="flex mr-2">
-                                <img src="/image/person.png" class="w-[20px] h-[20px]">
+                                <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
                                 <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                             </span>
                                 <span class="flex items-center">
-                                <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
+                                <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
                                 <span class="text-sm text-gray-600">{{ item.commentsCount }}</span>
                             </span>
                         </div>
@@ -67,7 +67,7 @@
         <input type="hidden" id="username" th:value="${username}">
         <input type="hidden" id="searchText" th:value="${searchText}">
         <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[35px] mr-[50px] fixed bottom-0 right-0">
-            <img src="/image/add_item.png">
+            <img src="https://kr.object.ncloudstorage.com/s3bucket/add_item.png">
         </button>
         <button class="mb-10" v-on:click="addData">
             더 불러오기
@@ -116,7 +116,7 @@
                                 expireAt: this.getTimeAgo(item.expireAt),
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
-                                thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName,
+                                thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
                             },
                         )
                     })

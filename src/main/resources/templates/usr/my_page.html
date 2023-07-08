@@ -9,7 +9,7 @@
   <!--     사용자      -->
   <div class="flex mb-4">
     <div class="w-[50px] h-[50px] truncate rounded-lg ">
-      <img src="/image/profile.png">
+      <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png">
     </div>
     <div class="flex flex-col justify-center ml-2">
       <div class="text-xl font-bold">{{username}}</div>
@@ -32,7 +32,7 @@
              v-for="(item, i) in items">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
                  alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
@@ -84,7 +84,7 @@
              v-for="item in bidItems">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
                  alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
@@ -133,7 +133,7 @@
              v-for="item in likeItems">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img :src="'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName"
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
                  alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
