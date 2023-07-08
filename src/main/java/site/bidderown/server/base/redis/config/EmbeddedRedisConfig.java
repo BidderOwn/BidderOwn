@@ -1,4 +1,4 @@
-package site.bidderown.server.base.redis;
+package site.bidderown.server.base.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +8,7 @@ import redis.embedded.RedisServer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-@Profile({"dev", "test"})
+@Profile({"test"})
 @Configuration
 public class EmbeddedRedisConfig {
     @Value("${spring.redis.port}")

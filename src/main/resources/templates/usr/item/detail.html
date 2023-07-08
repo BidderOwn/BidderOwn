@@ -151,9 +151,11 @@
                 axios.post('/api/v1/item/' + this.itemId + '/comment', {
                     content: this.commentMessage
                 }).then(response => {
-                    this.comments.unshift(response.data);
+                    this.comments.push(response.data);
                     this.commentMessage = ''
                 })
+
+                this.commentCount++;
 
                 const socket = new SockJS("/ws-stomp");
                 const ws = Stomp.over(socket);

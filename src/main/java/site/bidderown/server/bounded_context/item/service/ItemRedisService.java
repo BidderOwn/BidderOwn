@@ -55,4 +55,8 @@ public class ItemRedisService {
     public Optional<Integer> getHeartCount(Long itemId) {
         return itemRedisRepository.getHeartCount(itemId);
     }
+
+    public void increaseCount(Long itemId, String type) {
+        itemRedisRepository.increaseValue(itemId, type + "-count");
+    }
 }

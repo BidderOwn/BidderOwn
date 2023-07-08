@@ -6,12 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -19,8 +16,9 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class ItemRedisRepository {
 
-    @Value("${custom.redis.item.bidding.updated-at-key}")
-    private String biddingItemUpdatedAtKey;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private HashOperations<String, String, Integer> hashCountOperations;
 
     @Value("${custom.redis.item.bidding.info-key}")
     private String biddingItemInfoKey;
@@ -31,21 +29,14 @@ public class ItemRedisRepository {
     @Value("${custom.redis.item.bidding.bid-count-key}")
     private String bidCountKey;
 
-    @Value("heart-count")
+    @Value("${custom.redis.item.bidding.heart-count-key}")
     private String heartCountKey;
-
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    private HashOperations<String, String, Integer> hashCountOperations;
-    private ValueOperations<String, Object> valueOperations;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
 
     @PostConstruct
     private void init() {
         hashCountOperations = redisTemplate.opsForHash();
-        valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(biddingItemUpdatedAtKey, LocalDateTime.now().toString());
     }
 
     public void save(Long itemId, int day) {
@@ -73,16 +64,6 @@ public class ItemRedisRepository {
 
     public Optional<Integer> getHeartCount(Long itemId) {
         return Optional.ofNullable(hashCountOperations.get(biddingItemInfoKey + itemId, heartCountKey));
-    }
-
-    public LocalDateTime getBiddingItemUpdatedAt() {
-        return LocalDateTime.parse(
-                (String) Objects.requireNonNull(valueOperations.get(biddingItemUpdatedAtKey))
-        );
-    }
-
-    public void updateBiddingItemUpdatedAt() {
-        valueOperations.set(biddingItemUpdatedAtKey, LocalDateTime.now().toString());
     }
 }
 
