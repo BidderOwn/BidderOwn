@@ -1,6 +1,6 @@
 spring:
   datasource:
-		driver-class-name: org.mariadb.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://mariadb-1-service:3306/bidder_own?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul
   jpa:
     hibernate:
