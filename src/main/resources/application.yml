@@ -34,7 +34,13 @@ custom:
     item:
       bidding:
         info-key: 'bidding-item:'
-        updated-at-key: 'bidding-item:updated-at'
         comment-count-key: 'comment-count'
         bid-count-key: 'bid-count'
         heart-count-key: 'heart-count'
+        item-count-buffer: 'item-count-buffer'
+  buffer-task:
+    type:
+      bid: 'bid'
+      comment: 'comment'
+      heart: 'heart'
+
