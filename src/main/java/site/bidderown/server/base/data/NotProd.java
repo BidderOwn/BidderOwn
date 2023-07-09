@@ -5,24 +5,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import site.bidderown.server.bounded_context.socket_connection.controller.dto.SocketConnectionRequest;
-import site.bidderown.server.bounded_context.socket_connection.entity.ConnectionType;
-import site.bidderown.server.bounded_context.socket_connection.service.SocketConnectionService;
 
 import java.util.List;
 
-@Profile({"dev"})
+@Profile({"dev", "test"})
 @Configuration
 public class NotProd {
     private boolean initDataDone = false;
@@ -33,10 +29,8 @@ public class NotProd {
             ItemRepository itemRepository,
             CommentService commentService,
             ImageService imageService,
-            SocketConnectionService socketConnectionService,
             BidService bidService,
-            ItemJdbcRepository itemJdbcRepository,
-            BidJdbcRepository bidJdbcRepository
+            ItemRedisRepository itemRedisRepository
     ) {
         return args -> {
 
@@ -196,7 +190,15 @@ public class NotProd {
 
             itemRepository.saveAll(items);
 
-            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(0).getName());
+            for (int i = 0; i < 11; i++) {
+                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+                itemRepository.save(items.get(i));
+                itemRedisRepository.save(items.get(i).getId(), 3);
+            }
+
+
+            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
             bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
 
             bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
@@ -233,16 +235,7 @@ public class NotProd {
             bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
             bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
 
-            bidService.create(BidRequest.of(items.get(10).getId(), 31_000), members.get(5).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 28_000), members.get(0).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 29_000), members.get(1).getName());
-            bidService.create(BidRequest.of(items.get(10).getId(), 22_000), members.get(2).getName());
-
             for (int i = 0; i < 11; i++) {
-                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-                socketConnectionService.create(members.get(i).getName(), SocketConnectionRequest.of(members.get(i).getId(), ConnectionType.CHAT));
-                socketConnectionService.create(members.get(i).getName(), SocketConnectionRequest.of(items.get(i).getId(), ConnectionType.ITEM_SELLER));
-
                 if (i == 10) {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
                 } else {

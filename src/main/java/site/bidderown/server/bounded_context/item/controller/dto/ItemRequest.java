@@ -39,4 +39,15 @@ public class ItemRequest {
         this.period = period;
         this.description = description;
     }
+
+    /**
+     * @description 테스트용 생성자입니다.
+     */
+    public ItemRequest(String title, Integer minimumPrice, Integer period, String description, List<MultipartFile> images) {
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.period = period;
+        this.description = description;
+        this.images = images;
+    }
 }

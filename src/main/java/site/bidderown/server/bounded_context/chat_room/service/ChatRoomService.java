@@ -3,7 +3,9 @@ package site.bidderown.server.bounded_context.chat_room.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
+import site.bidderown.server.base.exception.custom_exception.SoldOutItemException;
 import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDetail;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
@@ -13,6 +15,7 @@ import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomCustom
 import site.bidderown.server.bounded_context.chat_room.repository.ChatRoomRepository;
 import site.bidderown.server.bounded_context.chat_room.repository.dto.ChatRoomInfo;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
@@ -32,34 +35,35 @@ public class ChatRoomService {
 
     public ChatRoom getChatRoom(Long chatRoomId) {
         return chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new NotFoundException(chatRoomId));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채팅방입니다.", chatRoomId + ""));
     }
 
-    @Transactional
-    public ChatRoom create(ChatRoomRequest chatRoomRequest) {
-        Member buyer = memberService.getMember(chatRoomRequest.getBuyerName());
-        Item item = itemService.getItem(chatRoomRequest.getItemId());
 
-        return chatRoomRepository.save(ChatRoom.of(item.getMember(), buyer, item));
+    public ChatRoom create(Member seller, Member buyer, Item item) {
+        return chatRoomRepository.save(ChatRoom.of(seller, buyer, item));
     }
 
     @Transactional
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
-        Member buyer = memberService.getMember(chatRoomRequest.getBuyerName());
         Item item = itemService.getItem(chatRoomRequest.getItemId());
+        Member buyer = memberService.getMember(chatRoomRequest.getBuyerName());
+        Member seller = item.getMember();
+
+        if (item.getItemStatus() == ItemStatus.SOLDOUT)
+            throw new SoldOutItemException("판매가 종료된 아이템입니다.", item.getId() + "");
 
         Optional<ChatRoom> opChatRoom = chatRoomRepository
-                .findChatRoomByBuyerAndItem(buyer, item);
+                .findChatRoomByBuyerAndItem(buyer, item);;
 
         return opChatRoom.orElseGet(() ->
-                chatRoomRepository.save(ChatRoom.of(item.getMember(), buyer, item))).getId();
+                create(seller, buyer, item)).getId();
     }
 
-    public ChatRoomDetail getChatRoomDetail(Long id, String username) {
-        ChatRoom chatRoom = chatRoomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(id));
+    public ChatRoomDetail getChatRoomDetail(Long chatRoomId, String username) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 채팅방입니다.", chatRoomId + ""));
 
-        ChatRoomInfo chatRoomInfo = chatRoomCustomRepository.findById(id);
+        ChatRoomInfo chatRoomInfo = chatRoomCustomRepository.findById(chatRoomId);
 
         return ChatRoomDetail.of(chatRoomInfo, username);
     }
@@ -74,20 +78,6 @@ public class ChatRoomService {
                         memberName,
                         chatRoom.getItem().getTitle())
                 )
-                .collect(Collectors.toList());
-    }
-
-    private List<ChatResponse> getChatList(Long chatRoomId) {
-        /**
-         * 채팅방의 모든 채팅 기록 가져오기
-         * @param chatRoomId: 방 ID
-         * @return List<ChatResponse>: 채팅 목록
-         * TODO Paging 처리, QueryDsl 적용 여부
-         */
-        return getChatRoom(chatRoomId)
-                .getChatList()
-                .stream()
-                .map(ChatResponse::of)
                 .collect(Collectors.toList());
     }
 

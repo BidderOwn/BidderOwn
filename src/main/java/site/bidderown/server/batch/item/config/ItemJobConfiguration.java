@@ -22,6 +22,7 @@ import org.springframework.core.task.TaskExecutor;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.batch.item.listener.BidEndJobListener;
 import site.bidderown.server.batch.item.listener.BidEndNotificationWriterListener;
+import site.bidderown.server.batch.item.listener.BidEndWriterListener;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
@@ -34,9 +35,9 @@ import site.bidderown.server.bounded_context.notification.repository.dto.JdbcNot
 import site.bidderown.server.bounded_context.notification.service.NotificationService;
 
 import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,8 +54,7 @@ public class ItemJobConfiguration {
     private final int CHUNK_SIZE = 5000;
 
     @Bean
-    public Job bidEndJob(CommandLineRunner initData) throws Exception{
-        initData.run();
+    public Job bidEndJob() throws Exception {
         return jobBuilderFactory.get("bidEndJob")
                 .incrementer(new RunIdIncrementer())
                 .start(bidEndStep())
@@ -69,6 +69,7 @@ public class ItemJobConfiguration {
                 .<Item, Item>chunk(CHUNK_SIZE)
                 .reader(bidEndStepItemReader())
                 .writer(jPQLItemWriter())
+                .listener(new BidEndWriterListener(publisher))
                 .taskExecutor(taskExecutor)
                 .throttleLimit(8)
                 .build();
@@ -89,8 +90,9 @@ public class ItemJobConfiguration {
     @JobScope
     public Step bidEndNotificationStep() throws Exception {
         return stepBuilderFactory.get("bidEndNotificationStep")
-                .<Bid, Bid>chunk(CHUNK_SIZE)
+                .<Bid, Notification>chunk(CHUNK_SIZE)
                 .reader(bidEndNotificationStepItemReader())
+                .processor(bidEndNotificationStepItemProcessor())
                 .writer(bidEndNotificationStepItemWriter())
                 .listener(new BidEndNotificationWriterListener(publisher))
                 .taskExecutor(taskExecutor)
@@ -104,8 +106,9 @@ public class ItemJobConfiguration {
         LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("startDateTime", startDateTime);
-        parameters.put("endDateTime", endDateTime);
+        parameters.put("start", startDateTime);
+        parameters.put("end", endDateTime);
+        parameters.put("itemStatus", ItemStatus.BIDDING);
 
         JpaPagingItemReader<Item> itemReader = new JpaPagingItemReaderBuilder<Item>()
                 .name("bidEndStepItemReader")
@@ -113,7 +116,8 @@ public class ItemJobConfiguration {
                 .queryString( // TODO expireAt으로 변경
                         "SELECT i " +
                         "FROM Item i " +
-                        "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "WHERE i.createdAt >= :start AND i.createdAt < :end " +
+                        "AND  i.itemStatus = :itemStatus")
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .saveState(false)
@@ -130,8 +134,9 @@ public class ItemJobConfiguration {
         LocalDateTime endDateTime = TimeUtils.getCurrentOClockPlus(1);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("startDateTime", startDateTime);
-        parameters.put("endDateTime", endDateTime);
+        parameters.put("start", startDateTime);
+        parameters.put("end", endDateTime);
+        parameters.put("itemStatus", ItemStatus.BID_END);
 
         JpaPagingItemReader<Bid> itemReader = new JpaPagingItemReaderBuilder<Bid>()
                 .name("bidEndStepItemReader")
@@ -140,7 +145,9 @@ public class ItemJobConfiguration {
                         "SELECT b " +
                         "FROM Bid b " +
                         "JOIN  b.item i " +
-                        "WHERE i.createdAt >= :startDateTime AND i.createdAt < :endDateTime")
+                        "WHERE i.createdAt >= :start AND i.createdAt < :end " +
+                        "AND  i.itemStatus = :itemStatus"
+                )
                 .parameterValues(parameters)
                 .pageSize(CHUNK_SIZE)
                 .saveState(false)
@@ -152,7 +159,7 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemProcessor<Bid, JdbcNotification> bidEndNotificationJdbcStepItemProcessor(){
+    public ItemProcessor<Bid, JdbcNotification> bidEndNotificationJdbcStepItemProcessor() {
         return bid -> JdbcNotification.of(
                 bid.getItem().getId(),
                 bid.getBidder().getId(),
@@ -175,16 +182,23 @@ public class ItemJobConfiguration {
     }
 
     @StepScope
-    public ItemWriter<? super Bid> bidEndNotificationStepItemWriter() {
-        return bids -> {
-            List<Notification> notificationList = bids
-                    .stream()
-                    .map(bid -> Notification.of(
-                            bid.getItem(),
-                            bid.getBidder(),
-                            NotificationType.BID_END
-                    )).toList();
-            notificationService.create(notificationList);
+    public ItemProcessor<Bid, Notification> bidEndNotificationStepItemProcessor() {
+        return bid -> Notification.of(
+                bid.getItem(),
+                bid.getBidder(),
+                NotificationType.BID_END
+        );
+    }
+
+    @StepScope
+    public ItemWriter<? super Notification> bidEndNotificationStepItemWriter() {
+        return notifications -> {
+            notificationService.create(notifications.stream()
+                    .map(notification -> Notification.of(
+                            notification.getItem(),
+                            notification.getReceiver(),
+                            NotificationType.BID_END))
+                    .collect(Collectors.toList()));
         };
     }
 

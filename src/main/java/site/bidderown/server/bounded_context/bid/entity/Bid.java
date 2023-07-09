@@ -33,6 +33,7 @@ public class Bid extends BaseEntity {
         this.bidResult = bidResult;
         this.bidder = bidder;
         this.item = item;
+        item.getBids().add(this);
     }
 
     public static Bid of(BidRequest bidRequest, Member bidder, Item item){
@@ -58,5 +59,9 @@ public class Bid extends BaseEntity {
     }
     public void updateBidResult(BidResult bidResult) {
         this.bidResult = bidResult;
+    }
+
+    public void updateBidResultFail() {
+        this.bidResult = BidResult.FAIL;
     }
 }

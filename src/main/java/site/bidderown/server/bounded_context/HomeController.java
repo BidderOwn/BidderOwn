@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import site.bidderown.server.base.event.EventSocketConnection;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class HomeController {
 
     @GetMapping("/login")
     public String testLogin() {
-        return "/usr/login";
+        return "usr/login";
     }
 
     @GetMapping("/")
@@ -39,6 +37,6 @@ public class HomeController {
                 model.addAttribute("username", user.getUsername());
             }
         model.addAttribute("searchText", searchText);
-        return "/usr/item/home";
+        return "usr/item/home";
     }
 }

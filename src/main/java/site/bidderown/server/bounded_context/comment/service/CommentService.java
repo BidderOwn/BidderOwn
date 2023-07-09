@@ -1,21 +1,21 @@
 package site.bidderown.server.bounded_context.comment.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import site.bidderown.server.base.event.EventItemSellerNotification;
-import site.bidderown.server.base.exception.NotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
-import site.bidderown.server.bounded_context.comment.repository.CommentCustomRepository;
 import site.bidderown.server.bounded_context.comment.repository.CommentRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,59 +23,67 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final CommentCustomRepository commentCustomRepository;
     private final ItemService itemService;
     private final MemberService memberService;
-    private final ApplicationEventPublisher publisher;
 
+    @Transactional
     public Comment create(CommentRequest request, Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
         Member writer = memberService.getMember(writerName);
         Comment comment = Comment.of(request, item, writer);
 
-        publisher.publishEvent(
-                EventItemSellerNotification.of(item));
-
         return commentRepository.save(comment);
     }
 
+    @Transactional
     public Comment create(CommentRequest request, Long itemId, Member writer) {
         Item item = itemService.getItem(itemId);
         Comment comment = Comment.of(request, item, writer);
-        publisher.publishEvent(
-                EventItemSellerNotification.of(item));
+
         return commentRepository.save(comment);
     }
 
     public Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+                .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않습니다.", commentId + ""));
     }
-    public List<CommentDetailResponse> getAll(Long itemId) {
+
+    public List<CommentDetailResponse> getComments(Long itemId) {
         return commentRepository
-                .findAllByItemId(itemId)
+                .findCommentsByItemIdOrderByIdDesc(itemId)
                 .stream()
                 .map(CommentDetailResponse::of)
                 .collect(Collectors.toList());
     }
 
-    public void delete(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+    @Transactional
+    public Long delete(Long commentId, String memberName) {
+        Comment comment = getComment(commentId);
+
+        if (!hasAuthorization(comment, memberName)) {
+            throw new ForbiddenException("댓글 삭제 권한이 없습니다.");
+        }
+
         commentRepository.delete(comment);
+        return commentId;
     }
 
+    public CommentResponse update(Long commentId, CommentRequest commentRequest, String memberName) {
+        Comment comment = getComment(commentId);
 
-    public CommentResponse updateById(Long commentId, CommentRequest commentRequest, String name) {
-        Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(commentId));
+        if (!hasAuthorization(comment, memberName)) {
+            throw new ForbiddenException("댓글 수정 권한이 없습니다.");
+        }
 
-        findComment.update(commentRequest);
-
-        return CommentResponse.of(findComment);
+        comment.updateContent(commentRequest.getContent());
+        return CommentResponse.of(comment);
     }
 
-    public List<Long> getCommentItemIds(String username) {
-        return commentCustomRepository.findCommentItemIds(username);
+    public List<Comment> getCommentsAfter(LocalDateTime createdAt) {
+        return commentRepository.findCommentsByCreatedAtAfter(createdAt);
+    }
+
+    private boolean hasAuthorization(Comment comment, String memberName) {
+        return comment.getWriter().getName().equals(memberName);
     }
 }

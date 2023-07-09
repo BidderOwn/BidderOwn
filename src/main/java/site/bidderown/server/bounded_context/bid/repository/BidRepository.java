@@ -7,6 +7,7 @@ import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,5 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     @Query("SELECT AVG (b.price) FROM Bid b where b.item = :item")
     Integer findAvgPrice(@Param("item") Item item);
 
+    List<Bid> findBidsByCreatedAtAfter(LocalDateTime createdAt);
 }

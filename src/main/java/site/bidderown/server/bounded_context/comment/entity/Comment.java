@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
@@ -37,8 +35,9 @@ public class Comment extends BaseEntity {
             Member writer
     ) {
         this.content = content;
-        this.item = item;
         this.writer = writer;
+        this.item = item;
+        this.item.getComments().add(this);
     }
 
     public static Comment of (
@@ -53,9 +52,8 @@ public class Comment extends BaseEntity {
                 .build();
     }
 
-    public void update(CommentRequest commentRequest){
-        this.content = commentRequest.getContent();
-        this.setUpdatedAt(LocalDateTime.now());
+    public void updateContent(String content){
+        this.content = content;
     }
 
 }

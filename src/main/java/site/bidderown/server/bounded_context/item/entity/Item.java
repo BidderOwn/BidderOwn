@@ -1,14 +1,16 @@
 package site.bidderown.server.bounded_context.item.entity;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
+import site.bidderown.server.bounded_context.heart.entity.Heart;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdateDto;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 
@@ -37,6 +39,9 @@ public class Item extends BaseEntity {
 
     private LocalDateTime expireAt;
 
+    @ColumnDefault("false")
+    private boolean deleted;
+
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Image> images = new ArrayList<>();
 
@@ -54,8 +59,13 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
     private List<Notification> notifications = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE)
+    private List<Heart> hearts = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     private ItemStatus itemStatus;
+
+    private String thumbnailImageFileName;
 
     @Builder
     private Item(
@@ -75,7 +85,6 @@ public class Item extends BaseEntity {
 
     public static Item of(ItemRequest request, Member member) {
         LocalDateTime expireAt = TimeUtils.setExpireAt(request.getPeriod());
-
         return Item.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -85,15 +94,23 @@ public class Item extends BaseEntity {
                 .build();
     }
 
-    public void update(ItemUpdateDto itemUpdateDto) {
+    public void update(ItemUpdate itemUpdate) {
 
-        this.title = itemUpdateDto.getTitle();
-        this.description = itemUpdateDto.getDescription();
+        this.title = itemUpdate.getTitle();
+        this.description = itemUpdate.getDescription();
         this.setUpdatedAt(LocalDateTime.now());
     }
 
     public void updateStatus(ItemStatus status) {
         this.itemStatus = status;
+    }
+
+    public void soldOutItem() {
+        this.itemStatus = ItemStatus.SOLDOUT;
+    }
+
+    public void closeBid() {
+        this.itemStatus = ItemStatus.BID_END;
     }
 
     // 낙찰 받은 사람
@@ -109,6 +126,13 @@ public class Item extends BaseEntity {
         return images.get(0).getFileName();
     }
 
+    public void updateDeleted() {
+        this.deleted = true;
+    }
+
+    public void setThumbnailImageFileName(String thumbnailImageFileName) {
+        this.thumbnailImageFileName = thumbnailImageFileName;
+    }
 }
 
 

@@ -33,9 +33,13 @@ public class QItem extends EntityPathBase<Item> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdAt = _super.createdAt;
 
+    public final BooleanPath deleted = createBoolean("deleted");
+
     public final StringPath description = createString("description");
 
     public final DateTimePath<java.time.LocalDateTime> expireAt = createDateTime("expireAt", java.time.LocalDateTime.class);
+
+    public final ListPath<site.bidderown.server.bounded_context.heart.entity.Heart, site.bidderown.server.bounded_context.heart.entity.QHeart> hearts = this.<site.bidderown.server.bounded_context.heart.entity.Heart, site.bidderown.server.bounded_context.heart.entity.QHeart>createList("hearts", site.bidderown.server.bounded_context.heart.entity.Heart.class, site.bidderown.server.bounded_context.heart.entity.QHeart.class, PathInits.DIRECT2);
 
     //inherited
     public final NumberPath<Long> id = _super.id;
@@ -49,6 +53,8 @@ public class QItem extends EntityPathBase<Item> {
     public final NumberPath<Integer> minimumPrice = createNumber("minimumPrice", Integer.class);
 
     public final ListPath<site.bidderown.server.bounded_context.notification.entity.Notification, site.bidderown.server.bounded_context.notification.entity.QNotification> notifications = this.<site.bidderown.server.bounded_context.notification.entity.Notification, site.bidderown.server.bounded_context.notification.entity.QNotification>createList("notifications", site.bidderown.server.bounded_context.notification.entity.Notification.class, site.bidderown.server.bounded_context.notification.entity.QNotification.class, PathInits.DIRECT2);
+
+    public final StringPath thumbnailImageFileName = createString("thumbnailImageFileName");
 
     public final StringPath title = createString("title");
 

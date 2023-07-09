@@ -1,23 +1,14 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.bounded_context.item.controller.dto.BulkInsertItem;
-import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -29,7 +20,7 @@ public class ItemJdbcRepository {
 
 
     public void insertItemList(List<BulkInsertItem> itemList){
-        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id) values (?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id, bid_count, comment_count) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -41,6 +32,8 @@ public class ItemJdbcRepository {
                         ps.setString(6, itemList.get(i).getDescription());
                         ps.setLong(7, itemList.get(i).getMinimumPrice());
                         ps.setLong(8, itemList.get(i).getMemberId());
+                        ps.setLong(9, 0L);
+                        ps.setLong(10, 0L);
                     }
 
                     @Override

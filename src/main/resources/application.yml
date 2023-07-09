@@ -1,17 +1,7 @@
 spring:
   profiles:
     active: dev
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-  jpa:
-    hibernate:
-      ddl-auto: create
+    include: secret
   security:
     oauth2:
       client:
@@ -22,15 +12,29 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
             client-authentication-method: POST
-            clientId: '0604c0cada4293ab7d8f98999c83c35e'
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+  redis:
+    host: localhost
+    port: 6379
   batch:
     job:
       names: ${job.name:NONE}
-#    jdbc:
-#      initialize-schema: ALWAYS
+
+custom:
+  socket:
+    path: '/sub/alarm/'
+    alarm_type_notification: 'NOTIFICATION'
+    alarm_type_chat: 'CHAT'
+  redis:
+    item:
+      bidding:
+        info-key: 'bidding-item:'
+        updated-at-key: 'bidding-item:updated-at'
+        comment-count-key: 'comment-count'
+        bid-count-key: 'bid-count'
+        heart-count-key: 'heart-count'

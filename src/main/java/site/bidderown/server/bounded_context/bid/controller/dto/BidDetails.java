@@ -3,6 +3,7 @@ package site.bidderown.server.bounded_context.bid.controller.dto;
 import lombok.*;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -19,10 +20,10 @@ public class BidDetails {
     private String sellerName;
     private String imgName;
     private String expireAt;
-    private String itemStatus;
+    private ItemStatus itemStatus;
 
     @Builder
-    public BidDetails(String imgName, String sellerName, int desiredPrice, Integer maxPrice, Integer minPrice, Integer avgPrice, String itemTitle, String expireAt, String itemStatus) {
+    public BidDetails(String imgName, String sellerName, int desiredPrice, Integer maxPrice, Integer minPrice, Integer avgPrice, String itemTitle, String expireAt, ItemStatus itemStatus) {
         this.desiredPrice = desiredPrice;
         this.maxPrice = maxPrice;
         this.minPrice = minPrice;
@@ -51,7 +52,7 @@ public class BidDetails {
                 .itemTitle(item.getTitle())
                 .imgName(image)
                 .expireAt(expireAt)
-                .itemStatus(item.getItemStatus().getStatus())
+                .itemStatus(item.getItemStatus())
                 .build();
     }
 

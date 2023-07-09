@@ -1,31 +1,34 @@
-//package site.bidderown.server.bounded_context.item.Controller;
-//
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.annotation.Rollback;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.transaction.annotation.Transactional;
-//import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-//import site.bidderown.server.bounded_context.image.entity.Image;
-//import site.bidderown.server.bounded_context.item.entity.Item;
-//import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-//import site.bidderown.server.bounded_context.item.service.ItemService;
-//import site.bidderown.server.bounded_context.member.entity.Member;
-//
-//import java.time.LocalDateTime;
-//import java.util.List;
-//
-//import static net.bytebuddy.agent.builder.AgentBuilder.Default.of;
-//import static org.assertj.core.api.Assertions.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//class ItemControllerTest {
+package site.bidderown.server.bounded_context.item.Controller;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
+import site.bidderown.server.bounded_context.image.entity.Image;
+import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.service.ItemService;
+import site.bidderown.server.bounded_context.member.entity.Member;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static net.bytebuddy.agent.builder.AgentBuilder.Default.of;
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+class ItemControllerTest {
 //    @Autowired
 //    private MockMvc mvc;
 //
@@ -110,8 +113,4 @@
 //
 //        assertEquals("title2", itemRepository.findById(2L).get().getTitle());
 //    }
-//
-//
-//
-//
-//}
+}

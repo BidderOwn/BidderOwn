@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  redis:
+    host: localhost
+    port: 6378
+custom:
+  redis:
+    item:
+      bidding:
+        info-key: 'bidding-test-item:'
+        updated-at-key: 'bidding-item:updated-at'
+        comment-count-key: 'comment-count'
+        bid-count-key: 'bid-count'
+        heart-count-key: 'heart-count'

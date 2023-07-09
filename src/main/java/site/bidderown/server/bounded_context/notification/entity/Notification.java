@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
@@ -25,7 +24,6 @@ public class Notification extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member receiver;
-
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;

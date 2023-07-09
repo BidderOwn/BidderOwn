@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns="http://www.w3.org/1999/html">
 <div th:replace="import::head"></div>
 <body class="flex flex-col items-center justify-start h-screen overflow-y-auto">
 <!--  채팅 박스  -->
 <div th:replace="header::div"></div>
-<div class="flex flex-col h-[800px] w-[550px] mt-4 " id="app">
+<div class="flex flex-col h-[800px] w-[550px] mt-4 " id="mypage">
 
   <!--     사용자      -->
   <div class="flex mb-4">
     <div class="w-[50px] h-[50px] truncate rounded-lg ">
-      <img src="/image/profile.png">
+      <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png">
     </div>
     <div class="flex flex-col justify-center ml-2">
-      <div class="text-xl font-bold" th:text="${nickname}"></div>
+      <div class="text-xl font-bold">{{username}}</div>
     </div>
 
   </div>
@@ -29,29 +29,34 @@
       <div class="flex flex-col">
         <!--     채팅방 아이템     -->
         <div class="flex p-2 items-center justify-between"
-             th:each ="item: ${#numbers.sequence(items.size()-1, 0, -1)}">
+             v-for="(item, i) in items">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img th:src="'http://localhost:8080/api/v1/image/item/' + ${items[item].getThumbnailImageName()}" alt="Item Image" class="object-cover h-full w-full" >
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
+                 alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
           <div class="flex flex-col items-start ml-2">
             <!--       상품명       -->
             <div class="flex items-baseline">
-              <div class="text-lg font-semibold" th:text="${items[item].title}"></div>
-              <div th:if="${items[item].getItemStatus()} == '경매종료' or ${items[item].getItemStatus()} == '판매완료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+              <div class="text-lg font-semibold">{{item.title}}</div>
+              <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
+                   class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료
+              </div>
             </div>
             <!--       가격       -->
-            <div class="text-sm text-indigo-400" th:text ="${items[item].getMinimumPrice()} + '원'"></div>
+            <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
             <!--       남은 시간       -->
-            <div class="truncate text-sm text-zinc-700" th:if="${items[item].itemStatus == '경매중'}" th:text = "${items[item].getExpireAt()}"></div>
+            <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
+              {{item.expireAt}}
+            </div>
           </div>
 
           <div class="flex  text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end">
-            <a class="flex px-1 py-2 hover:bg-zinc-200 w-[70px] items-center justify-end"
-               th:href="@{/item/{itemId}(itemId=${items[item].getItemId()})}">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 w-[70px] font-bold items-center justify-end"
+                    v-on:click="moveToItemDetail(item.itemId)">
               상품 상세
-            </a>
+            </button>
           </div>
 
         </div>
@@ -76,29 +81,83 @@
       <div class="flex flex-col">
         <!--     채팅방 아이템     -->
         <div class="flex p-2 items-center justify-between"
-             th:each ="item: ${#numbers.sequence(bidItems.size()-1, 0, -1)}">
+             v-for="item in bidItems">
           <!--      사진      -->
           <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
-            <img th:src="'http://localhost:8080/api/v1/image/item/' + ${bidItems[item].thumbnailImageName}" alt="Item Image" class="object-cover h-full w-full" >
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
+                 alt="Item Image" class="object-cover h-full w-full">
           </div>
           <!--      상품명, 가격, 남은시간     -->
           <div class="flex flex-col items-start ml-2">
             <!--       상품명       -->
             <div class="flex items-baseline">
-              <div class="text-lg font-semibold" th:text="${bidItems[item].title}"></div>
-              <div th:if="${bidItems[item].getItemStatus()} == '경매종료' or ${bidItems[item].getItemStatus()} == '판매완료'" class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료</div>
+              <div class="text-lg font-semibold">{{item.title}}</div>
+              <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
+                   class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료
+              </div>
             </div>
             <!--       가격       -->
-            <div class="text-sm text-indigo-400" th:text = "${bidItems[item].getMinimumPrice()} + '원'"></div>
+            <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
             <!--       남은 시간       -->
-            <div class="truncate text-sm text-zinc-700" th:if="${bidItems[item].itemStatus == '경매중'}" th:text = "${bidItems[item].getExpireAt()}">2분전 </div>
+            <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
+              {{item.expireAt}}
+            </div>
           </div>
 
-          <div class="flex text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end">
-            <a class="flex px-1 py-2 hover:bg-zinc-200 items-center justify-end"
-               th:href="@{'/bid/list?itemId=' + ${bidItems[item].itemId}}">
-              입찰 내역
-            </a>
+          <button class="hover:bg-zinc-200 flex text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end"
+                  v-on:click="moveToBidList(item.itemId)">
+            입찰내역
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!--   세로선 채팅창 오른쪽     -->
+    <div class="border border-inherit"></div>
+  </div>
+  <div class="border border-inherit"></div>
+
+  <div class="text-lg mt-4  font-semibold text-gray-500">찜한 상품</div>
+
+  <!--   가로선   -->
+  <div class="border border-inherit mt-1"></div>
+  <div class="flex justify-start h-2/6 w-full">
+    <!--   세로선 시작선    -->
+    <div class="border border-inherit h-full"></div>
+    <!--   채팅방     -->
+    <div class="flex flex-col justify-between w-[550px] overflow-y-auto">
+      <div class="flex flex-col">
+        <!--     채팅방 아이템     -->
+        <div class="flex p-2 items-center justify-between"
+             v-for="item in likeItems">
+          <!--      사진      -->
+          <div class="inline-block w-[100px] h-[70px] rounded-lg bg-zinc-300 truncate items-center justify-center">
+            <img :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName"
+                 alt="Item Image" class="object-cover h-full w-full">
+          </div>
+          <!--      상품명, 가격, 남은시간     -->
+          <div class="flex flex-col items-start ml-2">
+            <!--       상품명       -->
+            <div class="flex items-baseline">
+              <div class="text-lg font-semibold">{{item.title}}</div>
+              <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
+                   class="text-l border-[1px] rounded-md bg-gray-300  mx-2 px-1 py-1">경매종료
+              </div>
+            </div>
+            <!--       가격       -->
+            <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
+            <!--       남은 시간       -->
+            <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
+              {{item.expireAt}}
+            </div>
+          </div>
+
+          <div class="flex  text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end">
+            <button class="flex px-1 py-2 hover:bg-zinc-200 w-[70px] font-bold items-center justify-end"
+                    v-on:click="moveToItemDetail(item.itemId)">
+              상품 상세
+            </button>
           </div>
 
         </div>
@@ -116,5 +175,52 @@
   </div>
   <div class="mt-10"></div>
 </div>
+<script>
+  new Vue({
+    el: '#mypage',
+    data: {
+      username: '',
+      items: [],
+      bidItems: [],
+      likeItems: [],
+    },
+    created() {
+      this.username = localStorage.getItem('username');
+      this.initData();
+    },
+    methods: {
+      initData() {
+        this.getItems();
+        this.getBidItems();
+        this.getLikeItems();
+      },
+      getItems() {
+        axios.get('/api/v1/item/me')
+                .then(response => {
+                  console.log(response.data)
+                  this.items = response.data;
+                })
+      },
+      getBidItems() {
+        axios.get('/api/v1/item/bid/me')
+                .then(response => {
+                  this.bidItems = response.data;
+                })
+      },
+      getLikeItems() {
+        axios.get('/api/v1/item/like/me')
+                .then(response => {
+                  this.likeItems = response.data;
+                })
+      },
+      moveToItemDetail(itemId) {
+        window.location.href = "/item/" + itemId
+      },
+      moveToBidList(itemId) {
+        window.location.href = "/bid/list?itemId=" + itemId
+      }
+    }
+  })
+</script>
 </body>
 </html>

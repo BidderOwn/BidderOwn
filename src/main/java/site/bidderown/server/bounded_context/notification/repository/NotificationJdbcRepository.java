@@ -6,8 +6,6 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.bounded_context.bid.controller.dto.BulkInsertBid;
-import site.bidderown.server.bounded_context.item.controller.dto.BulkInsertItem;
 import site.bidderown.server.bounded_context.notification.controller.dto.BulkInsertNotification;
 
 import java.sql.PreparedStatement;

@@ -4,15 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import site.bidderown.server.base.exception.NotFoundException;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDetail;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
 import site.bidderown.server.bounded_context.chat_room.service.ChatRoomService;
-import site.bidderown.server.bounded_context.member.entity.Member;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
 
@@ -22,7 +18,6 @@ import java.util.List;
 public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
-    private final MemberService memberService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/chat-room/list")
@@ -31,7 +26,6 @@ public class ChatRoomApiController {
     }
 
     @GetMapping("/chat-detail/{chatRoomId}")
-    @ResponseBody
     public ChatRoomDetail joinChat(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
         return chatRoomService.getChatRoomDetail(chatRoomId, user.getUsername());
     }

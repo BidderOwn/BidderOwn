@@ -37,11 +37,11 @@
                         </div>
                         <div class="flex ml-auto">
                             <span class="flex mr-2">
-                                <img src="/image/person.png" class="w-[20px] h-[20px]">
+                                <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
                                 <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                             </span>
                                 <span class="flex items-center">
-                                <img src="/image/comment.png" class="w-[18px] h-[18px] mr-1">
+                                <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
                                 <span class="text-sm text-gray-600">{{ item.commentsCount }}</span>
                             </span>
                         </div>
@@ -59,7 +59,7 @@
                         </span>
                         <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최고가&nbsp₩&nbsp</span>
                     </div>
-                    <div class="text-sm text-gray-600" v-if="item.itemStatus === '경매중'">{{ item.expireAt }}</div>
+                    <div class="text-sm text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
                     <div v-else>&nbsp</div>
                 </div>
             </div>
@@ -67,7 +67,7 @@
         <input type="hidden" id="username" th:value="${username}">
         <input type="hidden" id="searchText" th:value="${searchText}">
         <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[35px] mr-[50px] fixed bottom-0 right-0">
-            <img src="/image/add_item.png">
+            <img src="https://kr.object.ncloudstorage.com/s3bucket/add_item.png">
         </button>
         <button class="mb-10" v-on:click="addData">
             더 불러오기
@@ -102,12 +102,7 @@
         },
         methods: {
             addData() {
-                axios.get(this.prefix + this.getQuery(), {
-                    params: {
-                        page: this.page,
-                        size: this.size
-                    }
-                }).then(response => {
+                axios.get(this.prefix + this.getQuery() + this.getLastItemId()).then(response => {
                     response.data.forEach(item => {
                         this.items.push(
                             {
@@ -118,11 +113,10 @@
                                 minimumPrice: item.minimumPrice,
                                 minPrice: item.minPrice,
                                 maxPrice: item.maxPrice,
-                                expireAt: this.getTimeAgo(new Date(item.expireAt)),
-                                memberName: item.memberName,
+                                expireAt: this.getTimeAgo(item.expireAt),
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
-                                thumbnailImageUrl: 'http://localhost:8080/api/v1/image/item/' + item.thumbnailImageName,
+                                thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
                             },
                         )
                     })
@@ -138,11 +132,11 @@
                 this.addData();
             },
             clickItem(itemId) {
-                window.location.href = 'http://localhost:8080/item/' + itemId;
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item/" + itemId;
             },
             getTimeAgo(date) {
                 const currentDate = new Date();
-                const timeDiff =  date - currentDate;
+                const timeDiff =  new Date(date) - currentDate;
 
                 const minuteDiff = Math.floor(timeDiff / 1000 / 60);
                 const hourDiff = Math.floor(timeDiff / 1000 / 60 / 60);
@@ -162,7 +156,7 @@
                 return price !== null;
             },
             addItem() {
-                window.location.href = 'http://localhost:8080/item';
+                window.location.href = window.location.protocol + "//" + window.location.host + "/item";
             },
             getQuery() {
                 let query = '';
@@ -179,6 +173,16 @@
                     }
                     query += 'q=' + this.searchText;
                 }
+                return query;
+            },
+            getLastItemId() {
+                let query = '';
+                if (this.items.length > 0 && this.selected === '1') {
+                    query += "&id=" + this.items[this.items.length - 1].id;
+                } else if (this.selected !== '1') {
+                    query += "&page=" + this.page
+                }
+                query += "&size=" + this.size;
                 return query;
             }
         }
