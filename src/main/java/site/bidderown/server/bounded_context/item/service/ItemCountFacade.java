@@ -29,4 +29,17 @@ public class ItemCountFacade {
         return itemRedisService.getHeartCount(itemId)
                 .orElseGet(() -> heartRepository.countByItemId(itemId));
     }
+
+    public int getBidCount_no_cqrs(Long itemId) {
+        return bidRepository.countByItemId(itemId);
+    }
+
+    public int getCommentCount_no_cqrs(Long itemId) {
+        return commentRepository.countByItemId(itemId);
+    }
+
+    public int getHeartCount_no_cqrs(Long itemId) {
+        return heartRepository.countByItemId(itemId);
+    }
+
 }

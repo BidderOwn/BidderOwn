@@ -1,9 +1,9 @@
 package site.bidderown.server.bounded_context.comment.entitylistener;
 
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import site.bidderown.server.base.util.BeanUtils;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.item.buffer.ItemCountBuffer;
 
@@ -14,18 +14,15 @@ import javax.persistence.PostPersist;
  */
 
 @Slf4j
-@RequiredArgsConstructor
-@Component
+@NoArgsConstructor
 public class CommentEntityListener {
-
-    private final ItemCountBuffer itemCountBuffer;
 
     @Value("${custom.buffer-task.type.comment}")
     private String type;
 
     @PostPersist
     public void postPersist(Comment comment) {
-        log.info("comment post persist {}", comment.getId());
+        ItemCountBuffer itemCountBuffer = BeanUtils.getBean(ItemCountBuffer.class);
         itemCountBuffer.push(CommentCountTask.of(type, comment.getItem().getId()));
     }
 }

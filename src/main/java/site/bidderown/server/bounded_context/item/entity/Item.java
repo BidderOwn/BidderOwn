@@ -1,6 +1,9 @@
 package site.bidderown.server.bounded_context.item.entity;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
@@ -11,6 +14,7 @@ import site.bidderown.server.bounded_context.heart.entity.Heart;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemUpdate;
+import site.bidderown.server.bounded_context.item.entitylistener.ItemEntityListener;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.notification.entity.Notification;
 
@@ -21,8 +25,9 @@ import java.util.List;
 
 
 @Getter
-@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@EntityListeners(value = ItemEntityListener.class)
 public class Item extends BaseEntity {
 
     @Column(length = 30)

@@ -80,10 +80,22 @@ public class ItemService {
 
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+
         items.forEach(item -> {
-            item.setBidCount(itemCountFacade.getBidCount(item.getId()));
-            item.setCommentsCount(itemCountFacade.getCommentCount(item.getId()));
-            item.setHeartsCount(itemCountFacade.getHeartCount(item.getId()));
+            ItemCountResponse itemCountResponse = itemRedisService.getItemCounts(item.getId());
+            item.setBidCount(itemCountResponse.getBidCount());
+            item.setCommentsCount(itemCountResponse.getCommentCount());
+            item.setHeartsCount(itemCountResponse.getHeartCount());
+        });
+        return items;
+    }
+
+    public List<ItemsResponse> getItems_no_cqrs(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        items.forEach(item -> {
+            item.setBidCount(itemCountFacade.getBidCount_no_cqrs(item.getId()));
+            item.setCommentsCount(itemCountFacade.getCommentCount_no_cqrs(item.getId()));
+            item.setHeartsCount(itemCountFacade.getHeartCount_no_cqrs(item.getId()));
         });
         return items;
     }
@@ -157,7 +169,7 @@ public class ItemService {
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
 
-        itemRedisService.createWithExpire(item, request.getPeriod());
+//        itemRedisService.createWithExpire(item, request.getPeriod());
 
         return item;
     }

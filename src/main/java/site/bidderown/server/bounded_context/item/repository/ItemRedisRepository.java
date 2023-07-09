@@ -1,14 +1,14 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import site.bidderown.server.bounded_context.item.service.ItemCountResponse;
 
 import javax.annotation.PostConstruct;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -32,17 +32,21 @@ public class ItemRedisRepository {
     @Value("${custom.redis.item.bidding.heart-count-key}")
     private String heartCountKey;
 
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-
     @PostConstruct
     private void init() {
         hashCountOperations = redisTemplate.opsForHash();
     }
 
     public void save(Long itemId, int day) {
-        hashCountOperations.put(biddingItemInfoKey + itemId, commentCountKey, 0);
-        hashCountOperations.put(biddingItemInfoKey + itemId, bidCountKey, 0);
-        hashCountOperations.put(biddingItemInfoKey + itemId, heartCountKey, 0);
+        // TODO object to map
+        hashCountOperations.putAll(
+                biddingItemInfoKey + itemId,
+                Map.of(
+                        commentCountKey, 0,
+                        bidCountKey, 0,
+                        heartCountKey, 0
+                )
+        );
         redisTemplate.expire(biddingItemInfoKey + itemId, day, TimeUnit.DAYS);
     }
 
@@ -52,6 +56,15 @@ public class ItemRedisRepository {
 
     public void increaseValue(Long itemId, String key) {
         hashCountOperations.increment(biddingItemInfoKey + itemId, key, 1);
+    }
+
+    public ItemCountResponse getItemCounts(Long itemId) {
+        Map<String, Integer> entries = hashCountOperations.entries(biddingItemInfoKey + itemId);
+        return ItemCountResponse.builder()
+                .bidCount(entries.get(bidCountKey))
+                .commentCount(entries.get(commentCountKey))
+                .heartCount(entries.get(heartCountKey))
+                .build();
     }
 
     public Optional<Integer> getCommentCount(Long itemId) {
