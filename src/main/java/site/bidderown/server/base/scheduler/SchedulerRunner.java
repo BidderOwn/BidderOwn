@@ -19,7 +19,7 @@ public class SchedulerRunner {
     private final ItemCountScheduler itemCountScheduler;
 
     /**
-     * 10초마다 아이템 댓글, 입찰 개수 업데이트
+     * 5초마다 아이템 댓글, 입찰 개수 업데이트
      */
     @Scheduled(cron = "0/5 * * * * *")
     public void itemCounterRun() {
