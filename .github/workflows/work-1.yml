@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: application-secret.yml 생성
         env:
-          ACTIONS_STEP_DEBUG:trueAPPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
+          ACTIONS_STEP_DEBUG: true
+          APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET_YML }}
         run: echo "$APPLICATION_SECRET" > src/main/resources/application-secret.yml
       - name: jdk 17 설치
         uses: actions/setup-java@v3
