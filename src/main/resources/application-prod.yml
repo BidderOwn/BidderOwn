@@ -1,12 +1,9 @@
 spring:
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://172.17.0.1:3306/bidder_own?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul
-    username: lldj
-    password: lldj123414
+		driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://mariadb-1-service:3306/bidder_own?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul
   jpa:
     hibernate:
       ddl-auto: create
   redis:
-    host: 172.17.0.1
-    port: 6379
+    host: redis-1-service
