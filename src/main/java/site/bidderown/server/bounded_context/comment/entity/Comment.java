@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
+import site.bidderown.server.bounded_context.comment.entitylistener.CommentEntityListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
@@ -13,8 +14,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@EntityListeners(value = CommentEntityListener.class)
 public class Comment extends BaseEntity {
 
     @Column(length = 500)

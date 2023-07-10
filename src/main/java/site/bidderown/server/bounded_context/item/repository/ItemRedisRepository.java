@@ -1,56 +1,44 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+/**
+ * 아이템 count 정보가 들어있는 redis repository
+ * 경매 종료시간에 맞춰 expire time 을 설정해 두었습니다.
+ */
 
 @RequiredArgsConstructor
 @Repository
 public class ItemRedisRepository {
 
-    @Value("${custom.redis.item.bidding.updated-at-key}")
-    private String biddingItemUpdatedAtKey;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final ObjectMapper objectMapper;
+
+    private HashOperations<String, String, Integer> hashCountOperations;
 
     @Value("${custom.redis.item.bidding.info-key}")
     private String biddingItemInfoKey;
 
-    @Value("${custom.redis.item.bidding.comment-count-key}")
-    private String commentCountKey;
-
-    @Value("${custom.redis.item.bidding.bid-count-key}")
-    private String bidCountKey;
-
-    @Value("heart-count")
-    private String heartCountKey;
-
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    private HashOperations<String, String, Integer> hashCountOperations;
-    private ValueOperations<String, Object> valueOperations;
-
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-
     @PostConstruct
     private void init() {
         hashCountOperations = redisTemplate.opsForHash();
-        valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(biddingItemUpdatedAtKey, LocalDateTime.now().toString());
     }
 
     public void save(Long itemId, int day) {
-        hashCountOperations.put(biddingItemInfoKey + itemId, commentCountKey, 0);
-        hashCountOperations.put(biddingItemInfoKey + itemId, bidCountKey, 0);
-        hashCountOperations.put(biddingItemInfoKey + itemId, heartCountKey, 0);
+        Map<String, Integer> itemCountResponseMap = objectMapper.convertValue(ItemCounts.newInstance(), Map.class);
+        hashCountOperations.putAll(biddingItemInfoKey + itemId, itemCountResponseMap);
         redisTemplate.expire(biddingItemInfoKey + itemId, day, TimeUnit.DAYS);
     }
 
@@ -62,26 +50,13 @@ public class ItemRedisRepository {
         hashCountOperations.increment(biddingItemInfoKey + itemId, key, 1);
     }
 
-    public int getCommentCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, commentCountKey);
-    }
+    public Optional<ItemCounts> getItemCounts(Long itemId) {
+        Map<String, Integer> entries = hashCountOperations.entries(biddingItemInfoKey + itemId);
 
-    public int getBidCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, bidCountKey);
-    }
+        if (entries.keySet().size() == 0) return Optional.empty();
 
-    public int getHeartCount(Long itemId) {
-        return hashCountOperations.get(biddingItemInfoKey + itemId, heartCountKey);
-    }
-
-    public LocalDateTime getBiddingItemUpdatedAt() {
-        return LocalDateTime.parse(
-                (String) Objects.requireNonNull(valueOperations.get(biddingItemUpdatedAtKey))
-        );
-    }
-
-    public void updateBiddingItemUpdatedAt() {
-        valueOperations.set(biddingItemUpdatedAtKey, LocalDateTime.now().toString());
+        ItemCounts itemCounts =  objectMapper.convertValue(entries, ItemCounts.class);
+        return Optional.ofNullable(itemCounts);
     }
 }
 

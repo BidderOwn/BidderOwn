@@ -4,22 +4,31 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
+import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.bounded_context.bid.entity.Bid;
+import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
+import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
+import site.bidderown.server.bounded_context.comment.entity.Comment;
+import site.bidderown.server.bounded_context.comment.repository.CommentRepository;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemJdbcRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"dev", "test"})
 @Configuration
+@Transactional
 public class NotProd {
     private boolean initDataDone = false;
 
@@ -30,7 +39,12 @@ public class NotProd {
             CommentService commentService,
             ImageService imageService,
             BidService bidService,
-            ItemRedisRepository itemRedisRepository
+            BidRepository bidRepository,
+            CommentRepository commentRepository,
+            ItemRedisRepository itemRedisRepository,
+            ItemJdbcRepository itemJdbcRepository,
+            BidJdbcRepository bidJdbcRepository,
+            ItemRedisService itemRedisService
     ) {
         return args -> {
 
@@ -88,14 +102,14 @@ public class NotProd {
                     Item.of(ItemRequest.builder().
                             title("폴로 반팔 니트 - 스몰사이즈")
                             .description("""
-                            어깨:49 가슴:59 소매:66 총장:72
-                                                        
-                            신형 폴로 워셔블 니트 입니다
-                                                        
-                            국내 남성 105 사이즈 입니다
-                                                        
-                            네고 및 교환 문의는 정중히 사양 하겠습니다
-                            """)
+                                    어깨:49 가슴:59 소매:66 총장:72
+                                                                
+                                    신형 폴로 워셔블 니트 입니다
+                                                                
+                                    국내 남성 105 사이즈 입니다
+                                                                
+                                    네고 및 교환 문의는 정중히 사양 하겠습니다
+                                    """)
                             .period(4)
                             .minimumPrice(68_000)
                             .build(), member3),
@@ -168,14 +182,14 @@ public class NotProd {
                     Item.of(ItemRequest.builder().
                             title("applewatch 애플워치")
                             .description("""
-                            applewatch 애플워치 스트랩 44mm 가죽밴드
-                            판매합니다.
-                                                        
-                            진짜가죽은 아니고 합성피혁같긴해요.
-                                                        
-                            거래관련사항) 무례하지 않으신 분,
-                            중고물품의 특성을 잘 아시는분과 거래원합니다.
-                            """)
+                                    applewatch 애플워치 스트랩 44mm 가죽밴드
+                                    판매합니다.
+                                                                
+                                    진짜가죽은 아니고 합성피혁같긴해요.
+                                                                
+                                    거래관련사항) 무례하지 않으신 분,
+                                    중고물품의 특성을 잘 아시는분과 거래원합니다.
+                                    """)
                             .period(3)
                             .minimumPrice(140_000)
                             .build(), member10),
@@ -188,60 +202,91 @@ public class NotProd {
 
             );
 
-            itemRepository.saveAll(items);
+//            itemRepository.saveAll(items);
 
-            for (int i = 0; i < 11; i++) {
-                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
-                itemRepository.save(items.get(i));
-                itemRedisRepository.save(items.get(i).getId(), 3);
-            }
+            // 아이템 등록
+            ArrayList<Item> itemList = new ArrayList<>();
+            ArrayList<Bid> bidList = new ArrayList<>();
+            ArrayList<Comment> commentList = new ArrayList<>();
 
+            Item item;
+            Member testMember;
 
-            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
-            bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
-
-            bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
-            bidService.create(BidRequest.of(items.get(1).getId(), 75_000), members.get(2).getName());
-            bidService.create(BidRequest.of(items.get(1).getId(), 80_000), members.get(3).getName());
-
-            bidService.create(BidRequest.of(items.get(2).getId(), 70_000), members.get(3).getName());
-            bidService.create(BidRequest.of(items.get(2).getId(), 65_000), members.get(4).getName());
-
-            bidService.create(BidRequest.of(items.get(3).getId(), 76_000), members.get(2).getName());
-            bidService.create(BidRequest.of(items.get(3).getId(), 70_000), members.get(1).getName());
-
-            bidService.create(BidRequest.of(items.get(4).getId(), 460_000), members.get(9).getName());
-            bidService.create(BidRequest.of(items.get(4).getId(), 430_000), members.get(8).getName());
-
-            bidService.create(BidRequest.of(items.get(5).getId(), 30_000), members.get(1).getName());
-            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(2).getName());
-            bidService.create(BidRequest.of(items.get(5).getId(), 28_000), members.get(3).getName());
-            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(0).getName());
-
-            bidService.create(BidRequest.of(items.get(6).getId(), 1450000), members.get(3).getName());
-            bidService.create(BidRequest.of(items.get(6).getId(), 1430000), members.get(4).getName());
-
-            bidService.create(BidRequest.of(items.get(7).getId(), 505_000), members.get(6).getName());
-            bidService.create(BidRequest.of(items.get(7).getId(), 480_000), members.get(8).getName());
-
-            bidService.create(BidRequest.of(items.get(8).getId(), 280_000), members.get(1).getName());
-            bidService.create(BidRequest.of(items.get(8).getId(), 270_000), members.get(2).getName());
-            bidService.create(BidRequest.of(items.get(8).getId(), 290_000), members.get(3).getName());
-
-            bidService.create(BidRequest.of(items.get(9).getId(), 143_000), members.get(4).getName());
-            bidService.create(BidRequest.of(items.get(9).getId(), 147_000), members.get(5).getName());
-            bidService.create(BidRequest.of(items.get(9).getId(), 142_000), members.get(3).getName());
-            bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
-            bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
-
-            for (int i = 0; i < 11; i++) {
-                if (i == 10) {
-                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
+            for (int i = 0; i < 1000; i++) {
+                if (i % 2 == 0) {
+                    testMember = member1;
                 } else {
-                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
+                    testMember = member2;
+                }
+
+                item = Item.of(ItemRequest.builder().
+                        title("삼성 제습기")
+                        .description("15리터 실사용 10회정도 작동 잘 돼요\n 소리도 적어요 계산동 직거래 오후6시 이후")
+                        .period(3)
+                        .minimumPrice(130_000)
+                        .build(), testMember);
+                itemList.add(item);
+                for (int j = 0; j < 50; j++) {
+                    bidList.add(Bid.of(10000, testMember, item));
+                    commentList.add(Comment.of(CommentRequest.of("not-prod-test"), item, testMember));
                 }
             }
+            itemRepository.saveAll(itemList);
+            bidRepository.saveAll(bidList);
+            commentRepository.saveAll(commentList);
+
+
+//            for (int i = 0; i < 11; i++) {
+//                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+//                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+//                itemRepository.save(items.get(i));
+//                itemRedisRepository.save(items.get(i).getId(), 3);
+//            }
+//
+//            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
+//            bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
+//
+//            bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
+//            bidService.create(BidRequest.of(items.get(1).getId(), 75_000), members.get(2).getName());
+//            bidService.create(BidRequest.of(items.get(1).getId(), 80_000), members.get(3).getName());
+//
+//            bidService.create(BidRequest.of(items.get(2).getId(), 70_000), members.get(3).getName());
+//            bidService.create(BidRequest.of(items.get(2).getId(), 65_000), members.get(4).getName());
+//
+//            bidService.create(BidRequest.of(items.get(3).getId(), 76_000), members.get(2).getName());
+//            bidService.create(BidRequest.of(items.get(3).getId(), 70_000), members.get(1).getName());
+//
+//            bidService.create(BidRequest.of(items.get(4).getId(), 460_000), members.get(9).getName());
+//            bidService.create(BidRequest.of(items.get(4).getId(), 430_000), members.get(8).getName());
+//
+//            bidService.create(BidRequest.of(items.get(5).getId(), 30_000), members.get(1).getName());
+//            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(2).getName());
+//            bidService.create(BidRequest.of(items.get(5).getId(), 28_000), members.get(3).getName());
+//            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(0).getName());
+//
+//            bidService.create(BidRequest.of(items.get(6).getId(), 1450000), members.get(3).getName());
+//            bidService.create(BidRequest.of(items.get(6).getId(), 1430000), members.get(4).getName());
+//
+//            bidService.create(BidRequest.of(items.get(7).getId(), 505_000), members.get(6).getName());
+//            bidService.create(BidRequest.of(items.get(7).getId(), 480_000), members.get(8).getName());
+//
+//            bidService.create(BidRequest.of(items.get(8).getId(), 280_000), members.get(1).getName());
+//            bidService.create(BidRequest.of(items.get(8).getId(), 270_000), members.get(2).getName());
+//            bidService.create(BidRequest.of(items.get(8).getId(), 290_000), members.get(3).getName());
+//
+//            bidService.create(BidRequest.of(items.get(9).getId(), 143_000), members.get(4).getName());
+//            bidService.create(BidRequest.of(items.get(9).getId(), 147_000), members.get(5).getName());
+//            bidService.create(BidRequest.of(items.get(9).getId(), 142_000), members.get(3).getName());
+//            bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
+//            bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
+//
+//            for (int i = 0; i < 11; i++) {
+//                if (i == 10) {
+//                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
+//                } else {
+//                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
+//                }
+//            }
         };
     }
 }

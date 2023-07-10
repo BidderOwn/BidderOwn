@@ -10,4 +10,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findCommentsByItemIdOrderByIdDesc(Long itemId);
 
     List<Comment> findCommentsByCreatedAtAfter(LocalDateTime createdAt);
+
+    Integer countByItemId(Long itemId);
 }

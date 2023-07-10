@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.controller.dto;
 
 import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.time.LocalDateTime;
 
@@ -39,5 +40,11 @@ public class ItemsResponse {
         this.thumbnailImageName = thumbnailImageName;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
+    }
+
+    public void setCounts(ItemCounts itemCounts) {
+        this.bidCount = itemCounts.getBidCount();
+        this.commentsCount = itemCounts.getCommentCount();
+        this.heartsCount = itemCounts.getHeartCount();
     }
 }

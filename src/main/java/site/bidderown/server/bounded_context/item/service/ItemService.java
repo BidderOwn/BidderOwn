@@ -15,6 +15,7 @@ import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -28,10 +29,11 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final ItemRedisService itemRedisService;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
+    private final ItemCountFacade itemCountFacade;
     private final HeartRepository heartRepository;
 
     @Transactional
@@ -54,8 +56,13 @@ public class ItemService {
     public ItemDetailResponse getItemDetail(Long id) {
         ItemDetailResponse item = itemCustomRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-        item.setBidCount(itemRedisService.getBidCount(item.getId()));
-        item.setHeartCount(itemRedisService.getHeartCount(item.getId()));
+        ItemCounts itemCounts = itemRedisService.getItemCounts(item.getId())
+                .orElseGet(() -> ItemCounts.of(
+                        itemCountFacade.getBidCount(item.getId()),
+                        itemCountFacade.getCommentCount(item.getId()),
+                        itemCountFacade.getHeartCount(item.getId())
+                ));
+        item.setCounts(itemCounts);
         return item;
     }
 
@@ -85,13 +92,33 @@ public class ItemService {
         item.updateDeleted();
     }
 
+    /**
+     * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
+     */
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        items.forEach(itemsResponse -> {
-            itemsResponse.setBidCount(itemRedisService.getBidCount(itemsResponse.getId()));
-            itemsResponse.setCommentsCount(itemRedisService.getCommentCount(itemsResponse.getId()));
-            itemsResponse.setHeartsCount(itemRedisService.getHeartCount(itemsResponse.getId()));
+        items.forEach(item -> {
+            ItemCounts itemCounts = itemRedisService.getItemCounts(item.getId())
+                    .orElseGet(() -> ItemCounts.of(
+                            itemCountFacade.getBidCount(item.getId()),
+                            itemCountFacade.getCommentCount(item.getId()),
+                            itemCountFacade.getHeartCount(item.getId())
+                    ));
+            item.setCounts(itemCounts);
         });
+        return items;
+    }
+
+    /**
+     * Redis item count 성능 비교를 위한 메서드 입니다.
+     */
+    public List<ItemsResponse> getItems_no_cqrs(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        items.forEach(item -> item.setCounts(ItemCounts.of(
+                itemCountFacade.getBidCount(item.getId()),
+                itemCountFacade.getCommentCount(item.getId()),
+                itemCountFacade.getHeartCount(item.getId())
+        )));
         return items;
     }
 
@@ -163,8 +190,6 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
-
-        itemRedisService.createWithExpire(item, request.getPeriod());
 
         return item;
     }

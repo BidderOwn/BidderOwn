@@ -35,6 +35,16 @@ public class ItemApiController {
         return itemService.getItems(lastItemId, sortCode, searchText, pageable);
     }
 
+    @GetMapping("/list-no-cqrs")
+    public List<ItemsResponse> getItems_no_cqrs(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            @RequestParam(name = "id", required = false) Long lastItemId,
+            Pageable pageable
+    ) {
+        return itemService.getItems_no_cqrs(lastItemId, sortCode, searchText, pageable);
+    }
+
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("isAuthenticated()")
     public String createItem(

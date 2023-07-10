@@ -20,7 +20,8 @@ public class ChatController {
     @Value("${custom.socket.path}")
     private String socketPath;
 
-    private String ALARM_TYPE = "CHAT";
+    @Value("${custom.socket.alarm_type_chat}")
+    private String ALARM_TYPE;
 
     @MessageMapping("/chat/message")
     public void sendMessage(ChatMessageRequest chatMessageRequest) {

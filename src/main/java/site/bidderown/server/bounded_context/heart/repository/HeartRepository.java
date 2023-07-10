@@ -14,4 +14,6 @@ public interface HeartRepository extends JpaRepository<Heart, Long> {
     Optional<Heart> findByItemIdAndMemberId(Long itemId, Long memberId);
 
     List<Heart> findHeartsByCreatedAtAfter(LocalDateTime createdAt);
+
+    Integer countByItemId(Long itemId);
 }

@@ -1,4 +1,4 @@
-package site.bidderown.server.base.redis;
+package site.bidderown.server.base.redis.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
