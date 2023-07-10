@@ -85,7 +85,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push:truetags: |
+          push: true
+          tags: |
             ghcr.io/${{ env.OWNER_LC }}/bidderown-1:${{ needs.tag.outputs.tag_name }},
             ghcr.io/${{ env.OWNER_LC }}/bidderown-1:latest
           cache-from: type=gha
