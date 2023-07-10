@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import site.bidderown.server.base.redis.buffer.BufferTask;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +34,9 @@ public class ItemRedisRepository {
     @Value("${custom.redis.item.bidding.info-key}")
     private String biddingItemInfoKey;
 
+    @Value("${custom.redis.item.bidding.count-suffix}")
+    private String countSuffix;
+
     @PostConstruct
     private void init() {
         hashCountOperations = redisTemplate.opsForHash();
@@ -46,10 +52,6 @@ public class ItemRedisRepository {
         return redisTemplate.hasKey(biddingItemInfoKey + itemId) != null;
     }
 
-    public void increaseValue(Long itemId, String key) {
-        hashCountOperations.increment(biddingItemInfoKey + itemId, key, 1);
-    }
-
     public Optional<ItemCounts> getItemCounts(Long itemId) {
         Map<String, Integer> entries = hashCountOperations.entries(biddingItemInfoKey + itemId);
 
@@ -57,6 +59,19 @@ public class ItemRedisRepository {
 
         ItemCounts itemCounts =  objectMapper.convertValue(entries, ItemCounts.class);
         return Optional.ofNullable(itemCounts);
+    }
+
+    public void increaseItemCountsWithPipelined(List<BufferTask> tasks) {
+        redisTemplate.executePipelined((RedisCallback<?>) connection -> {
+            for (BufferTask task : tasks) {
+                connection.hIncrBy(
+                        (biddingItemInfoKey + task.getId()).getBytes(),
+                        (task.getType() + countSuffix).getBytes(),
+                        1
+                );
+            }
+            return null;
+        });
     }
 }
 

@@ -3,9 +3,12 @@ package site.bidderown.server.bounded_context.item.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import site.bidderown.server.base.redis.buffer.BufferTask;
 import site.bidderown.server.base.scheduler.Scheduler;
 import site.bidderown.server.bounded_context.item.buffer.ItemCountBuffer;
 import site.bidderown.server.bounded_context.item.service.ItemRedisService;
+
+import java.util.List;
 
 /**
  *  Item 의 Bid, Comment, Heart 의 개수를 주기적으로 집계하기 위한 클래스
@@ -25,7 +28,7 @@ public class ItemCountScheduler implements Scheduler {
      */
     @Override
     public void run() {
-        itemCountBuffer.popAll()
-                .forEach(task -> itemRedisService.increaseCount(task.getId(), task.getType().toString()));
+        List<BufferTask> tasks = itemCountBuffer.popAll();
+        itemRedisService.increaseItemCounts(tasks);
     }
 }
