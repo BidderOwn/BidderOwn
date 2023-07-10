@@ -3,13 +3,11 @@ package site.bidderown.server.bounded_context.item.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
@@ -58,24 +56,24 @@ public class ItemApiController {
     }
 
     @GetMapping("/{id}")
-    public ItemDetailResponse getItem(@PathVariable Long id) {
+    public ItemDetailResponse getDetailItem(@PathVariable Long id) {
         return itemService.getItemDetail(id);
     }
 
+    @GetMapping("/update/{itemId}")
+    public ItemUpdateResponse getItemUpdateRequest(@PathVariable Long itemId) {
+        return itemService.getUpdateItem(itemId);
+    }
+
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}")
-    public ItemUpdate updateItem(
-            @PathVariable Long id,
-            @RequestBody @Valid ItemUpdate itemUpdate,
+    @PutMapping("/{itemId}")
+    public String updateItem(
+            @PathVariable Long itemId,
+            @Valid @RequestBody ItemUpdateRequest itemUpdateRequest,
             @AuthenticationPrincipal User user
     ){
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(id));
-
-        if (!memberDetail.getName().equals(user.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        return itemService.updateById(id, itemUpdate);
+        itemService.updateById(itemUpdateRequest, itemId, user.getUsername());
+        return "/item/" + itemId;
     }
 
     @DeleteMapping("/{id}")

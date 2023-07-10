@@ -116,7 +116,7 @@
         <!--  등록 버튼  -->
         <div class="justify-end flex mb-10 ">
             <button class="py-2 px-8 rounded-lg bg-[#7991FF] border border-slate-300 hover:border-indigo-300 text-white"
-                    type="submit" v-on:click="submit">작성완료
+                    type="submit" v-on:click="submit" @click="createProduct">작성완료
             </button>
         </div>
 
@@ -131,6 +131,7 @@
                 images: [],
                 description: '',
                 filenames: ''
+
             },
             created() { // 최초에 이 페이지가 열릴 때, 실행
 
@@ -194,7 +195,14 @@
                         setTimeout(() => {window.location.href = response.data;}, 1500);
                     }).catch(error => console.log(error));
 
+                },
+                createProduct() {
+                    const product= {
+                        option: this.period
+                    };
+                    localStorage.setItem(itemId, JSON.stringify(product));
                 }
+
             }
         });
 

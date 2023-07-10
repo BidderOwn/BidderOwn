@@ -46,6 +46,12 @@
             </div>
             <!--       가격       -->
             <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
+            <!--    상품 수정      -->
+            <div class="text-sm text-indigo-400">
+              <button v-on:click="updateItem(item.itemId)">
+                상품 수정
+              </button>
+            </div>
             <!--       남은 시간       -->
             <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
               {{item.expireAt}}
@@ -55,7 +61,7 @@
           <div class="flex  text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end">
             <button class="flex px-1 py-2 hover:bg-zinc-200 w-[70px] font-bold items-center justify-end"
                     v-on:click="moveToItemDetail(item.itemId)">
-              상품 상세
+              상품상세
             </button>
           </div>
 
@@ -98,12 +104,12 @@
             </div>
             <!--       가격       -->
             <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
+
             <!--       남은 시간       -->
             <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
               {{item.expireAt}}
             </div>
           </div>
-
           <button class="hover:bg-zinc-200 flex text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end"
                   v-on:click="moveToBidList(item.itemId)">
             입찰내역
@@ -206,6 +212,9 @@
                 .then(response => {
                   this.bidItems = response.data;
                 })
+      },
+      updateItem(itemId) {
+        window.location.href = "/item/update/" + itemId
       },
       getLikeItems() {
         axios.get('/api/v1/item/like/me')
