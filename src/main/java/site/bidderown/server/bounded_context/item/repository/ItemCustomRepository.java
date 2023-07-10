@@ -14,10 +14,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
+import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
 import static site.bidderown.server.bounded_context.image.entity.QImage.image;
@@ -27,6 +29,23 @@ import static site.bidderown.server.bounded_context.item.entity.QItem.item;
 @Repository
 public class ItemCustomRepository {
     private final JPAQueryFactory queryFactory;
+
+    public List<ItemsResponse> findItems__v1(int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = queryFactory.selectFrom(item)
+                .where(eqToSearchText(searchText))
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return items.stream()
+                .map(item -> ItemsResponse.of__v1(
+                        item,
+                        minItemPrice__v1(item.getId()),
+                        maxItemPrice__v1(item.getId()))
+                )
+                .collect(Collectors.toList());
+    }
 
     /**
      * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
@@ -148,5 +167,19 @@ public class ItemCustomRepository {
 
     private BooleanExpression eqToSeller(StringExpression searchText) {
         return item.member.name.like(searchText);
+    }
+
+    public Integer minItemPrice__v1(Long itemId) {
+        return queryFactory.select(bid.price.min())
+                .where(item.id.eq(itemId))
+                .from(bid)
+                .fetchOne();
+    }
+
+    public Integer maxItemPrice__v1(Long itemId) {
+        return queryFactory.select(bid.price.max())
+                .where(item.id.eq(itemId))
+                .from(bid)
+                .fetchOne();
     }
 }

@@ -93,6 +93,14 @@ public class ItemService {
     }
 
     /**
+     * 단순 JPA를 사용하여서
+     * @description 테스트를 위한 메서드입니다.
+     */
+    public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
+        return itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
+    }
+
+    /**
      * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
      */
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {

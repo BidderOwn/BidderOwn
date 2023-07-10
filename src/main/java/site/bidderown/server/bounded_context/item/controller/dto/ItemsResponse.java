@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
 import lombok.*;
+import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
@@ -28,6 +29,47 @@ public class ItemsResponse {
             int minimumPrice,
             Integer maxPrice,
             Integer minPrice,
+            Integer commentsCount,
+            Integer bidCount,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        // v1
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.maxPrice = maxPrice;
+        this.minPrice = minPrice;
+        this.commentsCount = commentsCount;
+        this.bidCount = bidCount;
+        this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
+    public static ItemsResponse of__v1(Item item, Integer minPrice, Integer maxPrice) {
+        return ItemsResponse.builder()
+                .id(item.getId())
+                .title(item.getTitle())
+                .minimumPrice(item.getMinimumPrice())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .commentsCount(item.getComments().size())
+                .bidCount(item.getBids().size())
+                .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus())
+                .expireAt(item.getExpireAt())
+                .build();
+    }
+
+    @Builder
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            Integer maxPrice,
+            Integer minPrice,
             String thumbnailImageName,
             ItemStatus itemStatus,
             LocalDateTime expireAt
@@ -47,4 +89,5 @@ public class ItemsResponse {
         this.commentsCount = itemCounts.getCommentCount();
         this.heartsCount = itemCounts.getHeartCount();
     }
+
 }

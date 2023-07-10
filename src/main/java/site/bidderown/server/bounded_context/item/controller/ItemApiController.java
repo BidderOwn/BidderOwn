@@ -25,6 +25,15 @@ public class ItemApiController {
     private final ItemService itemService;
     private final MemberService memberService;
 
+    @GetMapping("/list-v1")
+    public List<ItemsResponse> getItems__v1(
+            @RequestParam(name="s", defaultValue = "1") int sortCode,
+            @RequestParam(name = "q", defaultValue = "") String searchText,
+            Pageable pageable
+    ) {
+        return itemService.getItems__v1(sortCode, searchText, pageable);
+    }
+
     @GetMapping("/list")
     public List<ItemsResponse> getItems(
             @RequestParam(name="s", defaultValue = "1") int sortCode,
