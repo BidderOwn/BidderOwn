@@ -104,19 +104,12 @@
             </div>
             <!--       가격       -->
             <div class="text-sm text-indigo-400">{{item.minimumPrice}} 원</div>
-            <!--    상품 수정      -->
-            <div class="text-sm text-indigo-400">
-              <button v-on:click="updateItem(item.itemId)">
-                상품 수정
-              </button>
-            </div>
 
             <!--       남은 시간       -->
             <div class="truncate text-sm text-zinc-700" v-if="item.itemStatus === 'BIDDING'">
               {{item.expireAt}}
             </div>
           </div>
-
           <button class="hover:bg-zinc-200 flex text-indigo-400 font-bold ml-auto mr-4 truncate items-center justify-end"
                   v-on:click="moveToBidList(item.itemId)">
             입찰내역
