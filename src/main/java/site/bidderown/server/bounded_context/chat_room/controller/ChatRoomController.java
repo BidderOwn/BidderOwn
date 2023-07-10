@@ -20,19 +20,20 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
-    @GetMapping("/chat/list")
+    @GetMapping("/chat-room/list")
     @PreAuthorize("isAuthenticated()")
     public String showChatRoomList (
             Model model,
-            @RequestParam(value = "id", required = false) Long chatRoomId
+            @RequestParam(value = "itemId", required = false) Long itemId,
+            @RequestParam(value = "buyerName", required = false) String buyerName
     ) {
         /**
          *  채팅방 리스트 페이지로 이동
          *  model에 담겨있는 채팅방에 자동
          */
-        if (chatRoomId != null)
-            model.addAttribute("chatRoomId", chatRoomId);
+        model.addAttribute("itemId", itemId);
+        model.addAttribute("buyerName", buyerName);
 
-        return "usr/chat/list";
+        return "usr/chatroom/list";
     }
 }

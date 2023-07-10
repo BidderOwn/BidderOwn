@@ -14,25 +14,25 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/chat-room")
 public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/chat-room/list")
+    @GetMapping("/list")
     public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
         return chatRoomService.getChatRooms(user.getUsername());
     }
 
-    @GetMapping("/chat-detail/{chatRoomId}")
-    public ChatRoomDetail joinChat(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
+    @GetMapping("/detail/{chatRoomId}")
+    public ChatRoomDetail getChatRoomDetail(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
         return chatRoomService.getChatRoomDetail(chatRoomId, user.getUsername());
     }
 
-    @PostMapping("/chat-room")
+    @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        return "/chat/list?id=" + chatRoomService.handleChatRoom(chatRoomRequest);
+    public Long handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        return chatRoomService.handleChatRoom(chatRoomRequest);
     }
 }
