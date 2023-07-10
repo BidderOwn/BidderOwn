@@ -1,12 +1,13 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import site.bidderown.server.base.redis.buffer.BufferTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -14,9 +15,6 @@ import java.util.Optional;
 public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
-
-    @Value("${custom.redis.item.bidding.count-suffix}")
-    private String countSuffix;
 
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
@@ -33,7 +31,11 @@ public class ItemRedisService {
         return itemRedisRepository.getItemCounts(itemId);
     }
 
-    public void increaseCount(Long itemId, String type) {
-        itemRedisRepository.increaseValue(itemId, type + countSuffix);
+    /**
+     * Redis 의 pipelining 을 사용하여서 효율적으로 증가
+     * @param tasks
+     */
+    public void increaseItemCounts(List<BufferTask> tasks) {
+        itemRedisRepository.increaseItemCountsWithPipelined(tasks);
     }
 }
