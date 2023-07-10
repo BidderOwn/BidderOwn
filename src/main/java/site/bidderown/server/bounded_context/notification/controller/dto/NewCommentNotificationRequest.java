@@ -9,4 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NewCommentNotificationRequest {
     private Long itemId;
+    private String writerName;
 }

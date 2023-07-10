@@ -29,7 +29,7 @@ public class NotificationController {
 
     @MessageMapping("/notification/new-comment")
     public void noticeNewComment(NewCommentNotificationRequest newCommentNotificationRequest) {
-        notificationService.createNewCommentNotification(newCommentNotificationRequest.getItemId());
+        notificationService.createNewCommentNotification(newCommentNotificationRequest.getItemId(), newCommentNotificationRequest.getWriterName());
     }
 
     @MessageMapping("/notification/sold-out")

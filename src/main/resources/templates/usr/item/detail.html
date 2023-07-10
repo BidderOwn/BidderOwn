@@ -161,7 +161,8 @@
                 ws.connect({}, (frame) => {
                     ws.send("/pub/notification/new-comment", {},
                         JSON.stringify({
-                            itemId: this.itemId
+                            itemId: this.itemId,
+                            writerName: this.username
                         }));
                 })
 
