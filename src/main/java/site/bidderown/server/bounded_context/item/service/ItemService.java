@@ -56,9 +56,13 @@ public class ItemService {
     public ItemDetailResponse getItemDetail(Long id) {
         ItemDetailResponse item = itemCustomRepository.findItemById(id)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-        item.setBidCount(itemCountFacade.getBidCount(item.getId()));
-        item.setCommentCount(itemCountFacade.getCommentCount(item.getId()));
-        item.setHeartCount(itemCountFacade.getHeartCount(item.getId()));
+        ItemCounts itemCounts = itemRedisService.getItemCounts(item.getId())
+                .orElseGet(() -> ItemCounts.of(
+                        itemCountFacade.getBidCount(item.getId()),
+                        itemCountFacade.getCommentCount(item.getId()),
+                        itemCountFacade.getHeartCount(item.getId())
+                ));
+        item.setCounts(itemCounts);
         return item;
     }
 

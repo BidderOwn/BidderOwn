@@ -3,6 +3,7 @@ package site.bidderown.server.bounded_context.item.controller.dto;
 import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.time.LocalDateTime;
 
@@ -97,5 +98,11 @@ public class ItemDetailResponse {
                 .bidCount(item.getBids().size())
                 .itemStatus(item.getItemStatus())
                 .build();
+    }
+
+    public void setCounts(ItemCounts itemCounts) {
+        this.bidCount = itemCounts.getBidCount();
+        this.commentCount = itemCounts.getCommentCount();
+        this.heartCount = itemCounts.getHeartCount();
     }
 }
