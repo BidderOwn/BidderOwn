@@ -64,8 +64,7 @@
                     <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
                        :href="'/bid/list?itemId=' + itemId">
                         <span v-if="isMe()">입찰내역</span>
-                        <span v-else-if="item.itemStatus === 'BIDDING'">입찰하기</span>
-                        <span v-else-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'">입찰목록</span>
+                        <span v-else >입찰목록</span>
                     </a>
                 </div>
             </div>
@@ -153,7 +152,7 @@
                 }).then(response => {
                     this.comments.push(response.data);
                     this.commentMessage = ''
-                })
+                }).catch(error => window.location.href = window.location.protocol + "//" + window.location.host + "/login");
 
                 this.commentCount++;
 
