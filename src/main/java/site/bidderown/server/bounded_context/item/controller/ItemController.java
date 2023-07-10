@@ -31,4 +31,11 @@ public class ItemController {
         model.addAttribute("itemId", id);
         return "usr/item/detail";
     }
+
+    @GetMapping("/update/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String showUpdateItem(Model model, @PathVariable Long id) {
+        model.addAttribute("itemId", id);
+        return "/usr/item/update";
+    }
 }

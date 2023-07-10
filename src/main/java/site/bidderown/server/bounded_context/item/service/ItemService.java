@@ -59,10 +59,19 @@ public class ItemService {
         return item;
     }
 
-    public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
-        Item findItem = getItem(itemId);
-        findItem.update(itemUpdate);
-        return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
+    public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
+        Item item = getItem(itemId);
+
+        if (!item.getMember().getName().equals(memberName)) {
+            throw new ForbiddenException("수정권한이 없습니다.");
+        }
+
+         item.update(request);
+         return item;
+    }
+
+    public ItemUpdateResponse getUpdateItem(Long itemId) {
+        return ItemUpdateResponse.of(getItem(itemId));
     }
 
     @Transactional
