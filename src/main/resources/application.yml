@@ -34,10 +34,8 @@ custom:
     item:
       bidding:
         info-key: 'bidding-item:'
-        comment-count-key: 'comment-count'
-        bid-count-key: 'bid-count'
-        heart-count-key: 'heart-count'
         item-count-buffer: 'item-count-buffer'
+        count-suffix: 'Count'
   buffer-task:
     type:
       bid: 'bid'

@@ -5,18 +5,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.redis.buffer.BufferTask;
+import site.bidderown.server.base.redis.buffer.BufferTaskType;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CommentCountTask implements BufferTask {
-    private String type;
+    private BufferTaskType type;
     private Long id;
 
-    public static CommentCountTask of(String type, Long itemId) {
+    public static CommentCountTask of(Long itemId) {
         return CommentCountTask.builder()
-                .type(type)
+                .type(BufferTaskType.comment)
                 .id(itemId)
                 .build();
     }

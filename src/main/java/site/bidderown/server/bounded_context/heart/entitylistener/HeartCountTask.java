@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.redis.buffer.BufferTask;
+import site.bidderown.server.base.redis.buffer.BufferTaskType;
 
 
 @Getter
@@ -12,12 +13,12 @@ import site.bidderown.server.base.redis.buffer.BufferTask;
 @AllArgsConstructor
 @Builder
 public class HeartCountTask implements BufferTask {
-    private String type;
+    private BufferTaskType type;
     private Long id;
 
-    public static HeartCountTask of(String type, Long itemId) {
+    public static HeartCountTask of(Long itemId) {
         return HeartCountTask.builder()
-                .type(type)
+                .type(BufferTaskType.heart)
                 .id(itemId)
                 .build();
     }

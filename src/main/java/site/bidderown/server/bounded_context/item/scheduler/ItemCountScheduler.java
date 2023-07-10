@@ -20,9 +20,12 @@ public class ItemCountScheduler implements Scheduler {
     private final ItemCountBuffer itemCountBuffer;
     private final ItemRedisService itemRedisService;
 
+    /**
+     * 현재 itemCountBuffer 에 있는 작업을 가져와서 한번에 처리합니다.
+     */
     @Override
     public void run() {
         itemCountBuffer.popAll()
-                .forEach(task -> itemRedisService.increaseCount(task.getId(), task.getType()));
+                .forEach(task -> itemRedisService.increaseCount(task.getId(), task.getType().toString()));
     }
 }
