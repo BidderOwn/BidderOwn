@@ -100,4 +100,4 @@ jobs:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
       - run: |
-          kubectl set image deployment.apps/bidderown-1 bidderown-1=ghcr.io/gkfktkrh153/bidderown-1:${{ needs.tag.outputs.tag_name }}
+          kubectl set image deployment.apps/bidderown-1 bidderown-1=ghcr.io/bidderown/bidderown-1:${{ needs.tag.outputs.tag_name }}
