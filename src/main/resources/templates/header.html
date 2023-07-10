@@ -1,4 +1,4 @@
-<div>
+<div xmlns:sec="http://www.w3.org/1999/xhtml">
     <div th:replace="import::head"></div>
     <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
         <div class="flex w-[1100px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
@@ -15,14 +15,17 @@
             </div>
 
             <div class="flex">
-                <a href="/chat-room/list" onclick="readChat()" class="mr-2">
+                <a sec:authorize="isAuthenticated()" href="/chat-room/list" onclick="readChat()" class="mr-2">
                     <img id="chat-icon" src="https://kr.object.ncloudstorage.com/s3bucket/chat.png" class="w-[38px] h-[38px]"/>
                 </a>
-                <a href="/notifications" onclick="readNotification()" class="mr-2">
+                <a sec:authorize="isAuthenticated()" href="/notifications" onclick="readNotification()" class="mr-2">
                     <img id="notification-icon" src="https://kr.object.ncloudstorage.com/s3bucket/notification.png" class="w-[38px] h-[38px]"/>
                 </a>
-                <a href="/my-page">
+                <a sec:authorize="isAuthenticated()" href="/my-page">
                     <img src="https://kr.object.ncloudstorage.com/s3bucket/person2.png" class="w-[38px] h-[38px]"/>
+                </a>
+                <a sec:authorize="!isAuthenticated()" href="/login">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/login.png" class="w-[38px] h-[38px]"/>
                 </a>
             </div>
         </div>
