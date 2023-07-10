@@ -22,7 +22,6 @@ public class BidController {
     private final BidService bidService;
 
     @GetMapping("/bid/list")
-    @PreAuthorize("isAuthenticated()")
     public String bidList(@RequestParam Long itemId, Model model, @AuthenticationPrincipal User user){
         model.addAttribute("itemId", itemId);
         return "usr/bid/list";

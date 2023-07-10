@@ -6,7 +6,7 @@ import site.bidderown.server.base.exception.CustomException;
 import site.bidderown.server.base.exception.ErrorCode;
 
 public class ForbiddenException extends CustomException {
-    private static final ErrorCode errorCode = ErrorCode.NOT_FOUND;
+    private static final ErrorCode errorCode = ErrorCode.FORBIDDEN;
 
     public ForbiddenException(String message) {
         super(errorCode, message);

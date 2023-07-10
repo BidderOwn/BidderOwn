@@ -29,6 +29,8 @@ public class BidApiController {
 
     @PostMapping("/api/v1/bid")
     public Long registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
+        if(user == null)
+            throw new ForbiddenException("로그인 후 접근이 가능합니다.");
         return bidService.handleBid(bidRequest, user.getUsername());
     }
 

@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
@@ -20,12 +21,13 @@ public class CommentApiController {
     private final CommentService commentService;
 
     @PostMapping("/{itemId}/comment")
-    @PreAuthorize("isAuthenticated()")
     public CommentResponse createComment(
             @RequestBody CommentRequest request,
             @PathVariable Long itemId,
             @AuthenticationPrincipal User user
     ) {
+        if(user == null)
+            throw new ForbiddenException("로그인 후 접근이 가능합니다.");
         return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
 
