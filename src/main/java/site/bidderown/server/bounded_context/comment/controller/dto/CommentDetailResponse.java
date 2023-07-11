@@ -18,7 +18,7 @@ public class CommentDetailResponse {
     private LocalDateTime updatedAt;
 
     @Builder
-    private CommentDetailResponse (
+    public CommentDetailResponse (
             Long commentId,
             Long memberId,
             String memberName,

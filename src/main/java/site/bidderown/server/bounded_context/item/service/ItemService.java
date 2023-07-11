@@ -66,6 +66,23 @@ public class ItemService {
     }
 
     /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public ItemDetailResponse getItemDetail__v1(Long id) {
+        Item item = itemCustomRepository.findItemById(id);
+        return ItemDetailResponse.of__v1(
+                item,
+                // 상품 입찰 최고가
+                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
+                // 상품 입찰 최저가
+                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
+                item.getBids().size(),
+                item.getComments().size(),
+                item.getHearts().size()
+        );
+    }
+
+    /**
      * @description 테스트를 위한 메서드입니다.
      */
     public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {

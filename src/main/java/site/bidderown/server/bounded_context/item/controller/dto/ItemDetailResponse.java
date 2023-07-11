@@ -82,4 +82,31 @@ public class ItemDetailResponse {
                 .itemStatus(item.getItemStatus())
                 .build();
     }
+
+    public static ItemDetailResponse of__v1(
+            Item item,
+            Integer maxPrice,
+            Integer minPrice,
+            int bidCount,
+            int commentCount,
+            int heartCount
+    ) {
+        return ItemDetailResponse.builder()
+                .id(item.getId())
+                .sellerId(item.getMember().getId())
+                .title(item.getTitle())
+                .description(item.getDescription())
+                .memberName(item.getMember().getName())
+                .minimumPrice(item.getMinimumPrice())
+                .expireAt(item.getExpireAt())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .bidCount(bidCount)
+                .commentCount(commentCount)
+                .heartCount(heartCount)
+                .thumbnailImageName(item.getThumbnailImageFileName())
+                .bidCount(item.getBids().size())
+                .itemStatus(item.getItemStatus())
+                .build();
+    }
 }

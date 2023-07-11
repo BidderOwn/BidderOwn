@@ -64,6 +64,11 @@ public class ItemApiController {
         return "/home";
     }
 
+    @GetMapping("/{id}/v1")
+    public ItemDetailResponse getDetailItem__v1(@PathVariable Long id) {
+        return itemService.getItemDetail__v1(id);
+    }
+
     @GetMapping("/{id}")
     public ItemDetailResponse getDetailItem(@PathVariable Long id) {
         return itemService.getItemDetail(id);
