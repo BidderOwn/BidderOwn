@@ -7,11 +7,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
+import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponseV2;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 
 import javax.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,9 +33,14 @@ public class CommentApiController {
         return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
 
+/*    @GetMapping("/{id}/comments")
+    public List<CommentDetailResponse> getCommentList(@PathVariable Long id, Pageable pageable) {
+        return commentService.getComments(id, pageable);
+    }*/
+
     @GetMapping("/{id}/comments")
-    public List<CommentDetailResponse> getCommentList(@PathVariable Long id) {
-        return commentService.getComments(id);
+    public List<CommentDetailResponseV2> getCommentList(@PathVariable Long id, Pageable pageable) {
+        return commentService.getComments(id, pageable);
     }
 
     @DeleteMapping("/{id}/comment")
