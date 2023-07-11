@@ -1,8 +1,10 @@
 package site.bidderown.server.bounded_context.item.service;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +23,10 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -205,7 +207,8 @@ public class ItemServiceTest {
     @DisplayName("단일 상품 조회")
     void test009() {
         List<Item> item = itemRepository.findByTitle("test_title_0");
-        ItemDetailResponse itemDetailResponse = ItemDetailResponse.of(item.get(0), 1000, 10000);
+        ItemDetailResponse itemDetailResponse = ItemDetailResponse
+                .of(item.get(0), 1000, 10000, ItemCounts.of(0, 0, 0));
 
         ItemDetailResponse itemDetail = itemService.getItemDetail(itemDetailResponse.getId());
 
@@ -355,7 +358,6 @@ public class ItemServiceTest {
                 .collect(Collectors.toList());
 
         imageService.create(item, fileNames);
-        itemRedisService.createWithExpire(item, 3);
         return item;
     }
 }
