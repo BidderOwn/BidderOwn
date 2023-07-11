@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.bid.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
@@ -7,14 +8,20 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.time.LocalDateTime;
 
+@Schema(description = "입찰 응답")
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BidResponse {
+    @Schema(description = "입찰자 이름")
     private String bidderName;
-    private int bidPrice; // 입찰 금액
+    @Schema(description = "입찰금액")
+    private int bidPrice;
+    @Schema(description = "생성일자")
     private String createdDate;
+    @Schema(description = "썸네일사진 이름")
     private String thumbnailImageName;
+    @Schema(description = "입찰ID")
     private Long bidId;
     // img도 들어가야할 것 같습니다.
 

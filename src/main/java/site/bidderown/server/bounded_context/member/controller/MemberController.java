@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,11 +48,14 @@ public class MemberController {
         return "usr/my_page";
     }
 
+    @ResponseBody
     @GetMapping("/form-login")
     public String loginPage(Model model) {
         return "usr/form_login";
     }
 
+
+    @Operation(summary = "소켓 정보 조회", description = "자신의 소켓 정보를 조회합니다.")
     @GetMapping("/api/v1/socket-id")
     @ResponseBody
     public String getSocketId(@AuthenticationPrincipal User user) {
