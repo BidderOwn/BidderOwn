@@ -36,11 +36,19 @@
                             <div v-if="item.itemStatus === '경매종료' || item.itemStatus === '판매완료'" class="text-sm text-gray-600 ml-1 pt-[2px]">경매종료</div>
                         </div>
                         <div class="flex ml-auto">
+                            <!--  좋아요 카운트  -->
+                            <span class="flex mr-2">
+                                <img v-if="!item.likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/empty_heart.png" class="w-[20px] h-[20px]">
+                                <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png" class="w-[20px] h-[20px]">
+                                <span class="text-sm text-gray-600">{{ item.heartsCount }}</span>
+                            </span>
+                            <!--  비드 카운트  -->
                             <span class="flex mr-2">
                                 <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
                                 <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
                             </span>
-                                <span class="flex items-center">
+                            <!--  댓글 카운트  -->
+                            <span class="flex items-center">
                                 <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
                                 <span class="text-sm text-gray-600">{{ item.commentsCount }}</span>
                             </span>
@@ -110,6 +118,7 @@
                                 title: item.title,
                                 bidCount: item.bidCount,
                                 commentsCount: item.commentsCount,
+                                heartsCount: item.heartsCount,
                                 minimumPrice: item.minimumPrice,
                                 minPrice: item.minPrice,
                                 maxPrice: item.maxPrice,
@@ -117,6 +126,7 @@
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
                                 thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
+                                likeStatus: this.getLikeStatus(item.id),
                             },
                         )
                     })
@@ -184,6 +194,14 @@
                 }
                 query += "&size=" + this.size;
                 return query;
+            },
+            getLikeStatus(itemId) {
+                axios.get('/api/v1/item/' + itemId + '/likeStatus')
+                    .then(response => {
+                        return response.data.likeStatus;
+                    }).catch(error => {
+                    console.log(error);
+                })
             }
         }
     })
