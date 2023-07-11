@@ -4,21 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.base.redis.buffer.BufferTask;
-import site.bidderown.server.base.redis.buffer.BufferTaskType;
+import site.bidderown.server.base.redis.buffer.CountTask;
+import site.bidderown.server.base.redis.buffer.CounterTaskType;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BidCountTask implements BufferTask {
-    private BufferTaskType type;
+public class BidCountTask implements CountTask {
+    private CounterTaskType type;
     private Long id;
+    private int delta;
 
-    public static BidCountTask of(Long itemId) {
+    public static BidCountTask of(Long itemId, int delta) {
         return BidCountTask.builder()
-                .type(BufferTaskType.bid)
+                .type(CounterTaskType.bid)
                 .id(itemId)
+                .delta(delta)
                 .build();
     }
 }

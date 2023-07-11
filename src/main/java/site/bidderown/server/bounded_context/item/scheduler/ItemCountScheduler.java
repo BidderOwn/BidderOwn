@@ -3,7 +3,7 @@ package site.bidderown.server.bounded_context.item.scheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import site.bidderown.server.base.redis.buffer.BufferTask;
+import site.bidderown.server.base.redis.buffer.CountTask;
 import site.bidderown.server.base.scheduler.Scheduler;
 import site.bidderown.server.bounded_context.item.buffer.ItemCountBuffer;
 import site.bidderown.server.bounded_context.item.service.ItemRedisService;
@@ -28,7 +28,7 @@ public class ItemCountScheduler implements Scheduler {
      */
     @Override
     public void run() {
-        List<BufferTask> tasks = itemCountBuffer.popAll();
-        itemRedisService.increaseItemCounts(tasks);
+        List<CountTask> tasks = itemCountBuffer.popAll();
+        itemRedisService.handleTasks(tasks);
     }
 }
