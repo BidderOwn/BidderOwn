@@ -8,16 +8,12 @@ import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
-
-    @Value("${custom.redis.item.bidding.count-suffix}")
-    private String countSuffix;
 
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
