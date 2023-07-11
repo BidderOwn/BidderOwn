@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.item.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -8,24 +9,31 @@ import javax.validation.constraints.NotBlank;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Schema(description = "상품수정 응답")
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ItemUpdateResponse {
 
+    @Schema(description = "제목", nullable = false, maxLength = 30)
     @NotBlank
     @Length(max = 30)
     private String title;
 
+    @Schema(description = "설명", nullable = false, maxLength = 500)
     @NotBlank
     @Length(max = 500)
     private String description;
 
+    @Schema(description = "최소희망가격")
     private int minimumPrice;
 
+    @Schema(description = "경매기간", allowableValues = {"3","5","7"})
     private int period;
 
+    @Schema(description = "생성일자")
     private LocalDateTime createdAt;
 
+    @Schema(description = "만료일자")
     private LocalDateTime expireAt;
 
 

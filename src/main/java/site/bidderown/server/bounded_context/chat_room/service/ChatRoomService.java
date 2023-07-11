@@ -45,7 +45,7 @@ public class ChatRoomService {
 
     @Transactional
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
-        if(chatRoomRequest.getBuyerName() == null && chatRoomRequest.getItemId() == null)
+        if(chatRoomRequest.getItemId() == null)
             return -1L;
 
         Item item = itemService.getItem(chatRoomRequest.getItemId());
