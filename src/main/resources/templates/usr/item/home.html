@@ -100,12 +100,14 @@
             size: 9,
             searchText: '',
             prefix: '/api/v1/item/list',
+            likes: [],
         },
         created() {
             this.username = document.getElementById('username').value;
             this.searchText = document.getElementById('searchText').value;
             localStorage.setItem("username", this.username);
             this.selected = this.selectList[0].value;
+            this.likes = this.getLikeIdList();
             this.addData();
         },
         methods: {
@@ -126,7 +128,7 @@
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
                                 thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
-                                likeStatus: this.getLikeStatus(item.id),
+                                likeStatus: this.checkLikeId(item.id),
                             },
                         )
                     })
@@ -195,13 +197,16 @@
                 query += "&size=" + this.size;
                 return query;
             },
-            getLikeStatus(itemId) {
-                axios.get('/api/v1/item/' + itemId + '/likeStatus')
+            getLikeIdList() {
+                axios.get('/api/v1/item/home/likes')
                     .then(response => {
-                        return response.data.likeStatus;
+                        this.likes = response.data;
                     }).catch(error => {
                     console.log(error);
                 })
+            },
+            checkLikeId(itemId) {
+                return this.likes.includes(itemId);
             }
         }
     })

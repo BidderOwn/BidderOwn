@@ -15,6 +15,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +25,7 @@ public class HeartService {
     private final ItemService itemService;
     private final MemberService memberService;
 
-    public List<Heart> findByMemberId(Long memberId) {
-        return heartRepository.findByMemberId(memberId);
-    }
-
-    public HeartResponse clickHeart(Long itemId, String username) {
+    public HeartResponse handleHeart(Long itemId, String username) {
         Item item = itemService.getItem(itemId);
         Member member = memberService.getMember(username);
         Optional<Heart> opHeart = heartRepository.findByItemIdAndMemberId(itemId, member.getId());
@@ -54,5 +51,11 @@ public class HeartService {
         Optional<Heart> heart = heartRepository.findByItemIdAndMemberId(itemId, member.getId());
         if(heart.isPresent()) return HeartStatus.of(true);
         else return HeartStatus.of(false);
+    }
+
+    public List<Long> getLikeIdList(String username) {
+        Member member = memberService.getMember(username);
+        List<Item> items = heartRepository.findByMemberId(member.getId()).stream().map(Heart::getItem).collect(Collectors.toList());
+        return items.stream().map(Item::getId).collect(Collectors.toList());
     }
 }
