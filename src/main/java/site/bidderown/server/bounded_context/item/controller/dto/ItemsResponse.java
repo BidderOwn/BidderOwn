@@ -49,7 +49,6 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
-    @Builder
     public ItemsResponse(
             Long id,
             String title,
@@ -68,6 +67,23 @@ public class ItemsResponse {
         this.commentsCount = commentsCount;
         this.bidCount = bidCount;
         this.heartsCount = heartsCount;
+        this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        // v3에서 사용됨
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
         this.thumbnailImageName = thumbnailImageName;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
@@ -112,5 +128,11 @@ public class ItemsResponse {
                 .itemStatus(item.getItemStatus())
                 .expireAt(item.getExpireAt())
                 .build();
+    }
+
+    public void setCounts(ItemCounts itemCounts) {
+        this.bidCount = itemCounts.getBidCount();
+        this.commentsCount = itemCounts.getCommentCount();
+        this.heartsCount = itemCounts.getHeartCount();
     }
 }

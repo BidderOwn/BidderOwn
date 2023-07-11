@@ -81,9 +81,20 @@ public class ItemCustomRepository {
      * @param pageable   페이징: 9
      * @return 홈화면에 보여질 아이템 리스트
      */
-    public List<Item> findItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         return queryFactory
-                .selectFrom(item)
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
                 .where(
                         eqNotDeleted(),
                         ltItemId(lastItemId),

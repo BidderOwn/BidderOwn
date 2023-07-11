@@ -98,17 +98,16 @@ public class ItemService {
      * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
      */
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        return items.stream()
-                .map(item -> ItemsResponse.of(
-                        item,
-                        // 상품 입찰 최고가
-                        itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
-                        // 상품 입찰 최저가
-                        itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
-                        // 상품 count 정보
-                        itemRedisService.getItemCounts(item)
-                )).toList();
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        for (ItemsResponse item : items) {
+            // 상품 입찰 최고가
+            item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
+            // 상품 입찰 최저가
+            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()));
+            // 상품 count 정보
+            item.setCounts(itemRedisService.getItemCounts(item.getId()));
+        }
+        return items;
     }
 
     public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {

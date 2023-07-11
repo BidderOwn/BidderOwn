@@ -2,6 +2,7 @@ package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.redis.buffer.BufferTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
@@ -33,6 +34,10 @@ public class ItemRedisService {
                         item.getComments().size(),
                         item.getHearts().size()
                 ));
+    }
+
+    public ItemCounts getItemCounts(Long itemId) {
+        return itemRedisRepository.getItemCounts(itemId).orElseThrow(() -> new NotFoundException("redis", ""));
     }
 
     /**
