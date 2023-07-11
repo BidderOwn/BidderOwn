@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.base.redis.buffer.BufferTask;
+import site.bidderown.server.base.redis.buffer.CountTask;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import javax.annotation.PostConstruct;
@@ -61,13 +61,13 @@ public class ItemRedisRepository {
         return Optional.ofNullable(itemCounts);
     }
 
-    public void increaseItemCountsWithPipelined(List<BufferTask> tasks) {
+    public void handleTasksWithPipelined(List<CountTask> tasks) {
         redisTemplate.executePipelined((RedisCallback<?>) connection -> {
-            for (BufferTask task : tasks) {
+            for (CountTask task : tasks) {
                 connection.hIncrBy(
                         (biddingItemInfoKey + task.getId()).getBytes(),
                         (task.getType() + countSuffix).getBytes(),
-                        1
+                        task.getDelta()
                 );
             }
             return null;

@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import site.bidderown.server.base.redis.buffer.Buffer;
-import site.bidderown.server.base.redis.buffer.BufferTask;
+import site.bidderown.server.base.redis.buffer.CountBuffer;
+import site.bidderown.server.base.redis.buffer.CountTask;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -21,10 +21,10 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
-public class ItemCountBuffer implements Buffer {
+public class ItemCountBuffer implements CountBuffer {
 
-    private final RedisTemplate<String, BufferTask> redisTemplate;
-    private ListOperations<String, BufferTask> opsList;
+    private final RedisTemplate<String, CountTask> redisTemplate;
+    private ListOperations<String, CountTask> opsList;
 
     @Value("${custom.redis.item.bidding.item-count-buffer}")
     private String key;
@@ -35,13 +35,8 @@ public class ItemCountBuffer implements Buffer {
     }
 
     @Override
-    public void push(BufferTask bufferTask) {
+    public void push(CountTask bufferTask) {
         opsList.rightPush(key, bufferTask);
-    }
-
-    @Override
-    public BufferTask pop() {
-        return opsList.leftPop(key);
     }
 
     @Override
@@ -50,8 +45,8 @@ public class ItemCountBuffer implements Buffer {
     }
 
     @Override
-    public List<BufferTask> popAll() {
-        List<BufferTask> tasks = opsList.range(key, 0, -1); // 0 ~ bufferSize
+    public List<CountTask> popAll() {
+        List<CountTask> tasks = opsList.range(key, 0, -1); // 0 ~ bufferSize
         redisTemplate.delete(key);
         return tasks;
     }
