@@ -103,7 +103,7 @@
                             <div v-if="username === sellerName && (itemStatus === 'BIDDING' || itemStatus === 'BID_END')"
                                  class="items-center  mr-2">
                                 <a class="border-solid border-[1px] px-2 py-1 border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
-                                   v-on:click="handleChat(bid.bidderName)">채팅하기
+                                   v-on:click="clickChatButton(bid.bidderName)">채팅하기
                                 </a>
                             </div>
                         </button>
@@ -202,13 +202,8 @@
                     this.updateData();
                 }).catch();
             },
-            handleChat(bidderName) {
-                axios.post('/api/v1/chat-room', {
-                    buyerName: bidderName,
-                    itemId: this.itemId
-                }).then(response => {
-                    window.location.href = window.location.protocol + "//" + window.location.host + response.data;
-                }).catch(error => console.log(error));
+            clickChatButton(bidderName) {
+                window.location.href  = window.location.protocol + "//" + window.location.host + "/chat-room/list?itemId=" + this.itemId + "&buyerName=" + bidderName;
             },
             soldOut() {
                 axios.put('/api/v1/item/sold-out', {
