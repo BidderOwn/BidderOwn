@@ -6,6 +6,7 @@ import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.redis.buffer.CountTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
+import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
+    private final ItemRepository itemRepository;
 
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
@@ -37,12 +39,20 @@ public class ItemRedisService {
     }
 
     public ItemCounts getItemCounts(Long itemId) {
-        return itemRedisRepository.getItemCounts(itemId).orElseThrow(() -> new NotFoundException("redis", ""));
+        return itemRedisRepository.getItemCounts(itemId)
+                .orElseGet(() -> {
+                    Item item = itemRepository.findById(itemId)
+                            .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", itemId + ""));
+                    return ItemCounts.of(
+                            item.getBids().size(),
+                            item.getComments().size(),
+                            item.getHearts().size()
+                    );
+                });
     }
 
     /**
      * Redis 의 pipelining 을 사용하여서 효율적으로 증가
-     * @param tasks
      */
     public void handleTasks(List<CountTask> tasks) {
         itemRedisRepository.handleTasksWithPipelined(tasks);

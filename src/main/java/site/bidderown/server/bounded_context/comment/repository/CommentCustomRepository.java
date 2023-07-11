@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
 
 import java.util.List;
@@ -21,8 +20,8 @@ public class CommentCustomRepository {
     public List<CommentDetailResponse> getComments(Long itemId, Pageable pageable) {
         return queryFactory.select(Projections.constructor(
                         CommentDetailResponse.class,
-                        comment.id.as("commentId"),
-                        member.id.as("memberId"),
+                        comment.id,
+                        member.id,
                         member.name,
                         comment.content,
                         comment.createdAt,
@@ -30,7 +29,7 @@ public class CommentCustomRepository {
                 ))
                 .from(comment)
                 .join(comment.writer, member)
-                .where(member.id.eq(itemId))
+                .where(comment.item.id.eq(itemId))
                 .orderBy(comment.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

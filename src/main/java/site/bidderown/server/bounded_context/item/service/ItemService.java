@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -85,48 +84,57 @@ public class ItemService {
     /**
      * @description 테스트를 위한 메서드입니다.
      */
+    @Transactional(readOnly = true)
     public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
         List<Item> items = itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
         return items.stream()
-                .map(item -> ItemsResponse.of__v1(
+                .map(item -> ItemsResponse.of__v12(
                         item,
                         // 상품 입찰 최저가
                         itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()),
                         // 상품 입찰 최고가
-                        itemCustomRepository.findItemBidMaxPriceByItemId__v1(item.getId()))
-                ).toList();
+                        itemCustomRepository.findItemBidMaxPriceByItemId__v1(item.getId())
+                )).toList();
     }
 
     /**
      * @description 테스트를 위한 메서드입니다.
      */
+    @Transactional(readOnly = true)
     public List<ItemsResponse> getItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
-        for (ItemsResponse item : items) {
-            // 상품 입찰 최저가
-            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
-            // 상품 입찰 최고가
-            item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
-        }
-        return items;
+        List<Item> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
+        return items.stream()
+                .map(item -> ItemsResponse.of__v12(
+                        item,
+                        // 상품 입찰 최저가
+                        itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
+                        // 상품 입찰 최고가
+                        itemCustomRepository.findItemBidMaxPriceByItemId(item.getId())
+                )).toList();
     }
 
     /**
      * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
      */
+    @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
         for (ItemsResponse item : items) {
             // 상품 입찰 최고가
             item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
             // 상품 입찰 최저가
-            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()));
+            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
             // 상품 count 정보
             item.setCounts(itemRedisService.getItemCounts(item.getId()));
         }
         return items;
     }
 
+    public ItemUpdateResponse getUpdateItem(Long itemId) {
+        return ItemUpdateResponse.of(getItem(itemId));
+    }
+
+    @Transactional
     public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -136,10 +144,6 @@ public class ItemService {
 
         item.update(request);
         return item;
-    }
-
-    public ItemUpdateResponse getUpdateItem(Long itemId) {
-        return ItemUpdateResponse.of(getItem(itemId));
     }
 
     @Transactional

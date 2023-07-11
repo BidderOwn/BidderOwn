@@ -1,12 +1,10 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -47,26 +45,12 @@ public class ItemCustomRepository {
     /**
      * 성능 테스트를 위한 메서드입니다.
      */
-    public List<ItemsResponse> findItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         return queryFactory
-                .select(
-                        Projections.constructor(
-                                ItemsResponse.class,
-                                item.id,
-                                item.title,
-                                item.minimumPrice,
-                                item.comments.size(),
-                                item.bids.size(),
-                                item.hearts.size(),
-                                item.thumbnailImageFileName,
-                                item.itemStatus,
-                                item.expireAt
-                        )
-                )
-                .from(item)
+                .selectFrom(item)
                 .where(
                         eqNotDeleted(),
-                        ltItemId(lastItemId),
+                        betweenItemId(lastItemId, pageable.getPageSize()),
                         eqToSearchText(searchText)
                 )
                 .orderBy(orderBySortCode(sortCode))
@@ -97,7 +81,7 @@ public class ItemCustomRepository {
                 .from(item)
                 .where(
                         eqNotDeleted(),
-                        ltItemId(lastItemId),
+                        betweenItemId(lastItemId, pageable.getPageSize()),
                         eqToSearchText(searchText)
                 )
                 .orderBy(orderBySortCode(sortCode))
@@ -149,27 +133,12 @@ public class ItemCustomRepository {
                 .fetchOne();
     }
 
-    private Expression<Integer> itemBidMaxPrice() {
-        return JPAExpressions.select(bid.price.max())
-                .from(bid)
-                .where(bid.item.eq(item));
-    }
-
-    private Expression<Integer> itemBidMinPrice() {
-        return JPAExpressions.select(bid.price.min())
-                .from(bid)
-                .where(bid.item.eq(item));
-    }
-
-    private BooleanExpression ltItemId(Long itemId) {
+    private BooleanExpression betweenItemId(Long itemId, int size) {
         if (itemId == null) {
             return null;
         }
-
-        return item.id.lt(itemId);
+        return item.id.lt(itemId).and(item.id.gt(itemId - size - 1));
     }
-
-
 
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();

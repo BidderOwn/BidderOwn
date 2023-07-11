@@ -89,7 +89,7 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
-    public static ItemsResponse of__v1(
+    public static ItemsResponse of__v12(
             Item item,
             Integer minPrice,
             Integer maxPrice

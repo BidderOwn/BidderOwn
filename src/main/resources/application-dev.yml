@@ -1,15 +1,19 @@
 spring:
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
+#    driver-class-name: org.h2.Driver
+#    url: jdbc:h2:file:~/bidderown_sample;MODE=MySQL
+#    username: sa
+#    password:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/bidder_own?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul
+    username: leui
+    password: 1234
+#  h2:
+#    console:
+#      enabled: true
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 #    properties:
 #      hibernate:
 #        format_sql: true
