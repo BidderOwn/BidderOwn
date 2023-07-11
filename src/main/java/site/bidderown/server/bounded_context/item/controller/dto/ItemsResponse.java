@@ -31,11 +31,11 @@ public class ItemsResponse {
             Integer minPrice,
             Integer commentsCount,
             Integer bidCount,
+            Integer heartsCount,
             String thumbnailImageName,
             ItemStatus itemStatus,
             LocalDateTime expireAt
     ) {
-        // v1
         this.id = id;
         this.title = title;
         this.minimumPrice = minimumPrice;
@@ -43,12 +43,41 @@ public class ItemsResponse {
         this.minPrice = minPrice;
         this.commentsCount = commentsCount;
         this.bidCount = bidCount;
+        this.heartsCount = heartsCount;
         this.thumbnailImageName = thumbnailImageName;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
     }
 
-    public static ItemsResponse of__v1(Item item, Integer minPrice, Integer maxPrice) {
+    @Builder
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            Integer commentsCount,
+            Integer bidCount,
+            Integer heartsCount,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt
+    ) {
+        // v2에서 사용됨
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.commentsCount = commentsCount;
+        this.bidCount = bidCount;
+        this.heartsCount = heartsCount;
+        this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+    }
+
+    public static ItemsResponse of__v1(
+            Item item,
+            Integer minPrice,
+            Integer maxPrice
+    ) {
         return ItemsResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
@@ -57,37 +86,31 @@ public class ItemsResponse {
                 .maxPrice(maxPrice)
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
+                .heartsCount(item.getHearts().size())
                 .thumbnailImageName(item.getThumbnailImage())
                 .itemStatus(item.getItemStatus())
                 .expireAt(item.getExpireAt())
                 .build();
     }
 
-    @Builder
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
+    public static ItemsResponse of(
+            Item item,
             Integer maxPrice,
             Integer minPrice,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
+            ItemCounts itemCounts
     ) {
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
+        return ItemsResponse.builder()
+                .id(item.getId())
+                .title(item.getTitle())
+                .minimumPrice(item.getMinimumPrice())
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .commentsCount(itemCounts.getCommentCount())
+                .bidCount(itemCounts.getBidCount())
+                .heartsCount(itemCounts.getHeartCount())
+                .thumbnailImageName(item.getThumbnailImage())
+                .itemStatus(item.getItemStatus())
+                .expireAt(item.getExpireAt())
+                .build();
     }
-
-    public void setCounts(ItemCounts itemCounts) {
-        this.bidCount = itemCounts.getBidCount();
-        this.commentsCount = itemCounts.getCommentCount();
-        this.heartsCount = itemCounts.getHeartCount();
-    }
-
 }

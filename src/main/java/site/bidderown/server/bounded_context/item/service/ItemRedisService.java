@@ -16,6 +16,9 @@ public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
 
+    @Value("${custom.redis.item.bidding.count-suffix}")
+    private String countSuffix;
+
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
     }
@@ -27,8 +30,13 @@ public class ItemRedisService {
     /**
      * item 의 count 정보를 한번에 가져오는 메서드
      */
-    public Optional<ItemCounts> getItemCounts(Long itemId) {
-        return itemRedisRepository.getItemCounts(itemId);
+    public ItemCounts getItemCounts(Item item) {
+        return itemRedisRepository.getItemCounts(item.getId())
+                .orElseGet(() -> ItemCounts.of(
+                        item.getBids().size(),
+                        item.getComments().size(),
+                        item.getHearts().size()
+                ));
     }
 
     /**
