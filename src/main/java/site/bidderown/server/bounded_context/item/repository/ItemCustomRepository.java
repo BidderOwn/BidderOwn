@@ -12,28 +12,74 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
+import site.bidderown.server.bounded_context.item.entity.Item;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static site.bidderown.server.bounded_context.bid.entity.QBid.bid;
-import static site.bidderown.server.bounded_context.image.entity.QImage.image;
 import static site.bidderown.server.bounded_context.item.entity.QItem.item;
 
 @RequiredArgsConstructor
 @Repository
 public class ItemCustomRepository {
+
     private final JPAQueryFactory queryFactory;
+
+    /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public List<Item> findItems__v1(int sortCode, String searchText, Pageable pageable) {
+        return queryFactory.selectFrom(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted()
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public List<ItemsResponse> findItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqNotDeleted(),
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
 
     /**
      * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
      * @param searchText 검색어(제목, 내용, 작성자)
      * @param pageable   페이징: 9
      * @return 홈화면에 보여질 아이템 리스트
-     * @description https://www.notion.so/eui9179/20230-06-20-90075e3fdf484754843adcae04134f76?pvs=4
      */
     public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         return queryFactory
@@ -43,8 +89,6 @@ public class ItemCustomRepository {
                                 item.id,
                                 item.title,
                                 item.minimumPrice,
-                                itemBidMaxPrice(),
-                                itemBidMinPrice(),
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
                                 item.expireAt
@@ -64,43 +108,45 @@ public class ItemCustomRepository {
 
     /**
      * @param id 상품 아이디
-     * @description 상품 ItemDetailResponse로 받음
      * @return Optional로 받아서 404 처리
+     * @description 상품 ItemDetailResponse로 받음
      */
-    public Optional<ItemDetailResponse> findItemById(Long id) {
-        return Optional.ofNullable(queryFactory.select(
-                        Projections.constructor(
-                                ItemDetailResponse.class,
-                                item.id,
-                                item.member.id,
-                                item.title,
-                                item.description,
-                                item.member.name,
-                                item.minimumPrice,
-                                itemBidMaxPrice(),
-                                itemBidMinPrice(),
-                                item.thumbnailImageFileName,
-                                item.itemStatus,
-                                item.expireAt
-                        ))
+    public Item findItemById(Long id) {
+        return Optional.ofNullable(queryFactory.select(item)
                 .from(item)
                 .where(item.id.eq(id), eqNotDeleted())
-                .fetchOne());
+                .fetchOne())
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다.", id + ""));
     }
 
-    private BooleanExpression ltItemId(Long itemId) {
-        if (itemId == null) {
-            return null;
-        }
-
-        return item.id.lt(itemId);
-
+    public Integer findItemBidMaxPriceByItemId(Long itemId) {
+        return queryFactory.select(bid.price)
+                .from(bid)
+                .where(bid.item.id.eq(itemId))
+                .orderBy(bid.price.desc())
+                .fetchFirst();
     }
 
-    private Expression<Long> itemThumbnailImageMaxId() {
-        return JPAExpressions.select(image.id.min())
-                .from(image)
-                .where(image.item.eq(item));
+    public Integer findItemBidMinPriceByItemId(Long itemId) {
+        return queryFactory.select(bid.price)
+                .from(bid)
+                .where(bid.item.id.eq(itemId))
+                .orderBy(bid.price.asc())
+                .fetchFirst();
+    }
+
+    public Integer findItemBidMaxPriceByItemId__v1(Long itemId) {
+        return queryFactory.select(bid.price.max())
+                .from(bid)
+                .where(bid.item.id.eq(itemId))
+                .fetchOne();
+    }
+
+    public Integer findItemBidMinPriceByItemId__v1(Long itemId) {
+        return queryFactory.select(bid.price.min())
+                .from(bid)
+                .where(bid.item.id.eq(itemId))
+                .fetchOne();
     }
 
     private Expression<Integer> itemBidMaxPrice() {
@@ -114,6 +160,16 @@ public class ItemCustomRepository {
                 .from(bid)
                 .where(bid.item.eq(item));
     }
+
+    private BooleanExpression ltItemId(Long itemId) {
+        if (itemId == null) {
+            return null;
+        }
+
+        return item.id.lt(itemId);
+    }
+
+
 
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
         List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();

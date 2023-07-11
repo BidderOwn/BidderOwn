@@ -2,13 +2,13 @@ package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.redis.buffer.BufferTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,8 +27,17 @@ public class ItemRedisService {
     /**
      * item 의 count 정보를 한번에 가져오는 메서드
      */
-    public Optional<ItemCounts> getItemCounts(Long itemId) {
-        return itemRedisRepository.getItemCounts(itemId);
+    public ItemCounts getItemCounts(Item item) {
+        return itemRedisRepository.getItemCounts(item.getId())
+                .orElseGet(() -> ItemCounts.of(
+                        item.getBids().size(),
+                        item.getComments().size(),
+                        item.getHearts().size()
+                ));
+    }
+
+    public ItemCounts getItemCounts(Long itemId) {
+        return itemRedisRepository.getItemCounts(itemId).orElseThrow(() -> new NotFoundException("redis", ""));
     }
 
     /**

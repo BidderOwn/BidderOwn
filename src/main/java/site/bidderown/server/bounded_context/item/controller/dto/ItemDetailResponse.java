@@ -36,8 +36,9 @@ public class ItemDetailResponse {
             Integer maxPrice,
             Integer minPrice,
             String thumbnailImageName,
-            Integer bidCount,
-            Integer heartCount,
+            int bidCount,
+            int commentCount,
+            int heartCount,
             ItemStatus itemStatus,
             LocalDateTime expireAt
     ) {
@@ -51,39 +52,18 @@ public class ItemDetailResponse {
         this.minPrice = minPrice;
         this.thumbnailImageName = thumbnailImageName;
         this.bidCount = bidCount;
+        this.commentCount = commentCount;
         this.heartCount = heartCount;
         this.itemStatus = itemStatus;
         this.expireAt = expireAt;
     }
 
-    @Builder
-    public ItemDetailResponse(
-            Long id,
-            Long sellerId,
-            String title,
-            String description,
-            String memberName,
-            int minimumPrice,
+    public static ItemDetailResponse of(
+            Item item,
             Integer maxPrice,
             Integer minPrice,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
+            ItemCounts itemCounts
     ) {
-        this.id = id;
-        this.sellerId = sellerId;
-        this.title = title;
-        this.description = description;
-        this.memberName = memberName;
-        this.minimumPrice = minimumPrice;
-        this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
-    public static ItemDetailResponse of(Item item, Integer minPrice, Integer maxPrice) {
         return ItemDetailResponse.builder()
                 .id(item.getId())
                 .sellerId(item.getMember().getId())
@@ -94,15 +74,12 @@ public class ItemDetailResponse {
                 .expireAt(item.getExpireAt())
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
+                .bidCount(itemCounts.getBidCount())
+                .commentCount(itemCounts.getCommentCount())
+                .heartCount(itemCounts.getHeartCount())
                 .thumbnailImageName(item.getThumbnailImageFileName())
                 .bidCount(item.getBids().size())
                 .itemStatus(item.getItemStatus())
                 .build();
-    }
-
-    public void setCounts(ItemCounts itemCounts) {
-        this.bidCount = itemCounts.getBidCount();
-        this.commentCount = itemCounts.getCommentCount();
-        this.heartCount = itemCounts.getHeartCount();
     }
 }

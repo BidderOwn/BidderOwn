@@ -15,7 +15,6 @@ import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -33,8 +32,8 @@ public class ItemService {
     private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
-    private final ItemCountFacade itemCountFacade;
     private final HeartRepository heartRepository;
+
 
     @Transactional
     public Item create(ItemRequest request, Long memberId) {
@@ -54,16 +53,61 @@ public class ItemService {
     }
 
     public ItemDetailResponse getItemDetail(Long id) {
-        ItemDetailResponse item = itemCustomRepository.findItemById(id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-        ItemCounts itemCounts = itemRedisService.getItemCounts(item.getId())
-                .orElseGet(() -> ItemCounts.of(
-                        itemCountFacade.getBidCount(item.getId()),
-                        itemCountFacade.getCommentCount(item.getId()),
-                        itemCountFacade.getHeartCount(item.getId())
-                ));
-        item.setCounts(itemCounts);
-        return item;
+        Item item = itemCustomRepository.findItemById(id);
+        return ItemDetailResponse.of(
+                item,
+                // 상품 입찰 최고가
+                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
+                // 상품 입찰 최저가
+                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
+                // 상품 count 정보
+                itemRedisService.getItemCounts(item)
+        );
+    }
+
+    /**
+     * @description 테스트를 위한 메서드입니다.
+     */
+    public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
+        return items.stream()
+                .map(item -> ItemsResponse.of__v1(
+                        item,
+                        // 상품 입찰 최저가
+                        itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()),
+                        // 상품 입찰 최고가
+                        itemCustomRepository.findItemBidMaxPriceByItemId__v1(item.getId()))
+                ).toList();
+    }
+
+    /**
+     * @description 테스트를 위한 메서드입니다.
+     */
+    public List<ItemsResponse> getItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
+        for (ItemsResponse item : items) {
+            // 상품 입찰 최저가
+            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
+            // 상품 입찰 최고가
+            item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
+        }
+        return items;
+    }
+
+    /**
+     * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
+     */
+    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        for (ItemsResponse item : items) {
+            // 상품 입찰 최고가
+            item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
+            // 상품 입찰 최저가
+            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()));
+            // 상품 count 정보
+            item.setCounts(itemRedisService.getItemCounts(item.getId()));
+        }
+        return items;
     }
 
     public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
@@ -73,8 +117,8 @@ public class ItemService {
             throw new ForbiddenException("수정권한이 없습니다.");
         }
 
-         item.update(request);
-         return item;
+        item.update(request);
+        return item;
     }
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
@@ -90,36 +134,6 @@ public class ItemService {
         }
 
         item.updateDeleted();
-    }
-
-    /**
-     * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
-     */
-    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        items.forEach(item -> {
-            ItemCounts itemCounts = itemRedisService.getItemCounts(item.getId())
-                    .orElseGet(() -> ItemCounts.of(
-                            itemCountFacade.getBidCount(item.getId()),
-                            itemCountFacade.getCommentCount(item.getId()),
-                            itemCountFacade.getHeartCount(item.getId())
-                    ));
-            item.setCounts(itemCounts);
-        });
-        return items;
-    }
-
-    /**
-     * Redis item count 성능 비교를 위한 메서드 입니다.
-     */
-    public List<ItemsResponse> getItems_no_cqrs(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        items.forEach(item -> item.setCounts(ItemCounts.of(
-                itemCountFacade.getBidCount(item.getId()),
-                itemCountFacade.getCommentCount(item.getId()),
-                itemCountFacade.getHeartCount(item.getId())
-        )));
-        return items;
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
