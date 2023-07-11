@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.bid.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import site.bidderown.server.base.util.TimeUtils;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -8,18 +9,28 @@ import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Schema(description = "입찰 상세")
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BidDetails {
+    @Schema(description = "희망 가격")
     private int desiredPrice;
+    @Schema(description = "입찰 최고가")
     private Integer maxPrice;
+    @Schema(description = "입찰 최저가")
     private Integer minPrice;
+    @Schema(description = "입찰 평균가")
     private Integer avgPrice;
+    @Schema(description = "상품 제목")
     private String itemTitle;
+    @Schema(description = "판매자 이름")
     private String sellerName;
+    @Schema(description = "썸네일 사진 이름")
     private String imgName;
+    @Schema(description = "경매 종료 일자")
     private String expireAt;
+    @Schema(description = "상품 상태", allowableValues = {"BIDDING", "SOLDOUT", "BID_END"})
     private ItemStatus itemStatus;
 
     @Builder

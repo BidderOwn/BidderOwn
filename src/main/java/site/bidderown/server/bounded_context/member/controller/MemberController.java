@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.member.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
 
+@Tag(name = "member", description = "회원 API")
 @Slf4j
 @Controller
 @RequiredArgsConstructor
