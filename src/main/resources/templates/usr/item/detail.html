@@ -12,14 +12,14 @@
         </div>
         <!--  설명  -->
         <div class="flex flex-col">
-            <!--  사용자 프로필, 비더, 댓글  -->
+            <!--  사용자 프로필, 좋아요, 비더, 댓글  -->
             <div class="flex items-center w-[550px] justify-between">
                 <!--   사용자 프로필   -->
                 <div class="flex items-center">
                     <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
                     <div class="">{{ item.memberName }}</div>
                 </div>
-                <!--    비더, 댓글    -->
+                <!--    좋아요, 비더, 댓글    -->
                 <div class="flex">
                     <span class="flex mr-2">
                         <button id="likeItem" @click="likeItem()">
@@ -131,7 +131,7 @@
             item: '',
             maxPrice: 0,
             sellerId: 0,
-            likeStatus: false,
+            likeStatus: '',
             page: 0,
             size: 5
         },
@@ -144,6 +144,7 @@
             initData() {
                 this.getItemDetail();
                 this.getComments();
+                this.getLikeStatus();
             },
             addComment() {
                 if (this.commentMessage === '') {
@@ -230,6 +231,14 @@
             },
             likeItem() {
                 axios.post('/api/v1/item/' + this.itemId + '/likes')
+                    .then(response => {
+                        this.likeStatus = response.data.likeStatus;
+                    }).catch(error => {
+                    console.log(error);
+                })
+            },
+            getLikeStatus() {
+                axios.get('/api/v1/item/' + this.itemId + '/likeStatus')
                     .then(response => {
                         this.likeStatus = response.data.likeStatus;
                     }).catch(error => {
