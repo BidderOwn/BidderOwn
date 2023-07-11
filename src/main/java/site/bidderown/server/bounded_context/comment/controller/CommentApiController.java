@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponseV2;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
@@ -39,7 +38,7 @@ public class CommentApiController {
     }*/
 
     @GetMapping("/{id}/comments")
-    public List<CommentDetailResponseV2> getCommentList(@PathVariable Long id, Pageable pageable) {
+    public List<CommentDetailResponse> getCommentList(@PathVariable Long id, Pageable pageable) {
         return commentService.getComments(id, pageable);
     }
 

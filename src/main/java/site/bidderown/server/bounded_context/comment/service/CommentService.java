@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponse;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentDetailResponseV2;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentResponse;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +57,7 @@ public class CommentService {
                 .map(CommentDetailResponse::of)
                 .collect(Collectors.toList());
     }*/
-    public List<CommentDetailResponseV2> getComments(Long itemId, Pageable pageable) {
+    public List<CommentDetailResponse> getComments(Long itemId, Pageable pageable) {
         return commentCustomRepository
                 .getComments(itemId, pageable);
     }
