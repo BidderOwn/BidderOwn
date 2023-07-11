@@ -132,6 +132,8 @@
             maxPrice: 0,
             sellerId: 0,
             likeStatus: false,
+            page: 0,
+            size: 5
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -182,7 +184,7 @@
                 }
             },
             getComments() {
-                axios.get('/api/v1/item/' + this.itemId + '/comments')
+                axios.get('/api/v1/item/' + this.itemId + '/comments?size=' + this.size + "&page=" + this.page)
                     .then(response => {
                         this.comments = response.data.reverse();
                     }).catch(error => {

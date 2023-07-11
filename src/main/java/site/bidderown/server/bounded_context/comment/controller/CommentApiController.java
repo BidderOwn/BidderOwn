@@ -12,6 +12,7 @@ import site.bidderown.server.bounded_context.comment.controller.dto.CommentRespo
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 
 import javax.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,9 +32,14 @@ public class CommentApiController {
         return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
 
+/*    @GetMapping("/{id}/comments")
+    public List<CommentDetailResponse> getCommentList(@PathVariable Long id, Pageable pageable) {
+        return commentService.getComments(id, pageable);
+    }*/
+
     @GetMapping("/{id}/comments")
-    public List<CommentDetailResponse> getCommentList(@PathVariable Long id) {
-        return commentService.getComments(id);
+    public List<CommentDetailResponse> getCommentList(@PathVariable Long id, Pageable pageable) {
+        return commentService.getComments(id, pageable);
     }
 
     @DeleteMapping("/{id}/comment")
