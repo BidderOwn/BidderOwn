@@ -109,25 +109,19 @@ public class ItemCustomRepository {
     }
 
     public Integer findItemBidMaxPriceByItemId(Long itemId) {
-        List<Integer> price = queryFactory.select(bid.price)
+        return queryFactory.select(bid.price)
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
                 .orderBy(bid.price.desc())
-                .limit(1)
-                .fetch();
-
-        return price.size() == 0 ? null : price.get(0);
+                .fetchFirst();
     }
 
     public Integer findItemBidMinPriceByItemId(Long itemId) {
-        List<Integer> price = queryFactory.select(bid.price)
+        return queryFactory.select(bid.price)
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
                 .orderBy(bid.price.asc())
-                .limit(1)
-                .fetch();
-
-        return price.size() == 0 ? null : price.get(0);
+                .fetchFirst();
     }
 
     public Integer findItemBidMaxPriceByItemId__v1(Long itemId) {
