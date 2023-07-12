@@ -31,7 +31,7 @@ import java.util.List;
 @Configuration
 @Transactional
 public class NotProd {
-    private boolean initDataDone = true;
+    private boolean initDataDone = false;
 
     @Bean
     CommandLineRunner initData(
@@ -203,8 +203,15 @@ public class NotProd {
 
             );
 
-//            itemRepository.saveAll(items);
+            itemRepository.saveAll(items);
+            for (int i = 0; i < 11; i++) {
+                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
+                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
+                itemRepository.save(items.get(i));
+                itemRedisRepository.save(items.get(i).getId(), 3);
+            }
 
+/*
             // 아이템 등록
             ArrayList<Item> itemList = new ArrayList<>();
             ArrayList<Bid> bidList = new ArrayList<>();
@@ -280,6 +287,8 @@ public class NotProd {
                     commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
                 }
             }
+
+ */
         };
     }
 }
