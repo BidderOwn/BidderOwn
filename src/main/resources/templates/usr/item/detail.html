@@ -3,122 +3,280 @@
 <div th:replace="import::head"></div>
 <body>
 <div id="detail">
-    <div th:replace="header::div"></div>
+    <!--  모달  -->
+    <div v-if="isModal" id="black-bg" class="flex items-center justify-center">
+        <div class="w-[476px] h-[456px] p-[35px] bg-white rounded-[8px] overflow-y-scroll" id="white-bg">
+            <div>
+                <!--       제목, 닫기 아이콘         -->
+                <div v-if="item.itemStatus==='BIDDING' && !isMe" class="flex justify-between mb-[16px]">
+                    <div class="flex items-baseline">
+                        <span class="text-[18px] font-semibold mr-[8px]">입찰하기</span>
+                        <span class="text-[12px] text-zinc-700 mr-[4px]">판매가</span>
+                        <span class="text-[12px] text-zinc-700">{{ item.minimumPrice }}원</span>
+                    </div>
+                    <button v-on:click="closeBidModal()" class="text-[12px] text-zinc-700">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                             class="w-[22px] h-[22px]">
+                    </button>
+                </div>
+
+                <!--        입찰가격 input        -->
+                <div v-if="item.itemStatus==='BIDDING' && !isMe">
+                    <div class="flex justify-between">
+                        <label>
+                            <input v-on:keyup.enter="submitPrice" class="w-[354px] text-[14px]" type="number"
+                                   step="100"
+                                   placeholder="입찰할 가격을 입력해주세요 (단위 100원)" v-model="bidPrice">
+                        </label>
+                        <input type="submit" v-on:click="submitPrice" id="submit"
+                               class="flex text-[#496AFF] text-[14px] cursor-pointer" value="입찰하기">
+                    </div>
+                    <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
+                </div>
+
+                <!--        입찰 경매 종료        -->
+                <div v-else-if="item.itemStatus==='BID_END' && item.itemStatus==='SOLDOUT' && !isMe">
+                    <div class="flex justify-between">
+                        <label>
+                            <input class="w-[354px] text-[14px]" type="text" placeholder="경매가 종료되었습니다.">
+                        </label>
+                    </div>
+                    <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
+                </div>
+
+                <div class="flex justify-between items-center mb-[17px]">
+                    <div class="flex items-baseline">
+                        <span class="text-[18px] font-semibold mr-[8px]">입찰내역</span>
+                        <span class="text-[12px] text-zinc-700 mr-[4px]">평균가</span>
+                        <span class="text-[12px] text-zinc-700">{{ avgPrice }}원</span>
+                    </div>
+                    <button v-if="isMe" v-on:click="closeBidModal()" class="text-[12px] text-zinc-700">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                             class="w-[22px] h-[22px]">
+                    </button>
+                </div>
+
+                <div class="mt-4" v-for="bid in bids" v-bind:key="bid.bidId">
+                    <div class="flex items-center">
+                        <div class="flex justify-between w-[406px]">
+                            <div class="flex">
+                                <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png"
+                                     class="w-[24px] h-[24px] mr-[8px]">
+                                <div class="font-medium text-[14px]"> {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을
+                                    제시하였습니다.
+                                </div>
+                            </div>
+                            <div class="items-center" v-if="bid.bidderName === username">
+                                <button v-on:click="deleteBid(bid.bidId)" class="text-[12px] text-zinc-700">
+                                    <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                                         class="w-[18px] h-[18px]">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="flex justify-center w-full h-[70px] bg-white" id="header_app">
+            <div class="flex w-[1100px] h-[70px] justify-between items-center pr-5 pl-5 bg-white">
+                <a href="/home">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/bidder_own_logo.png" width="50" height="50">
+                </a>
+
+                <div class="flex ml-[80px] min-w-[550px] max-w-[550px] border-solid border-[1px] border-zinc-300 py-2 rounded-lg">
+                    <div class="pl-3 pr-5 text-indigo-500">검색</div>
+                    <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[450px]" id="search-input"/>
+                    <button id="search-button" onClick="search()">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png"
+                             class="w-[25px] h-[25px]">
+                    </button>
+                </div>
+
+                <div class="flex">
+                    <a href="/chat-room/list" onClick="readChat()" class="mr-2">
+                        <img id="chat-icon" src="https://kr.object.ncloudstorage.com/s3bucket/chat.png"
+                             class="w-[38px] h-[38px]"/>
+                    </a>
+                    <a href="/notifications" onClick="readNotification()" class="mr-2">
+                        <img id="notification-icon" src="https://kr.object.ncloudstorage.com/s3bucket/notification.png"
+                             class="w-[38px] h-[38px]"/>
+                    </a>
+                    <a href="/my-page">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/person2.png"
+                             class="w-[38px] h-[38px]"/>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="flex flex-col items-center mt-5 overflow-y-scroll">
         <!--  이미지  -->
-        <div class="w-[550px] h-[305px] truncate rounded-lg mb-[8px]">
+        <div class="w-[600] h-[404] truncate rounded-lg mb-[5px]">
             <img class="object-cover h-full w-full"
                  :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName">
         </div>
         <!--  설명  -->
         <div class="flex flex-col">
-            <!--  사용자 프로필, 좋아요, 비더, 댓글  -->
-            <div class="flex items-center w-[550px] justify-between">
-                <!--   사용자 프로필   -->
-                <div class="flex items-center">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
-                    <div class="">{{ item.memberName }}</div>
-                </div>
+            <!--  제목  -->
+            <div class="flex items-center w-[588px] justify-between">
+                <div class="text-[22px] font-semibold">{{ item.title }}</div>
                 <!--    좋아요, 비더, 댓글    -->
                 <div class="flex">
-                    <span class="flex mr-2">
-                        <button id="likeItem" @click="likeItem()">
-                            <img v-if="!likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/empty_heart.png" class="w-[20px] h-[20px]">
-                            <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png" class="w-[20px] h-[20px]">
-                        </button>
-                        <span class="text-sm text-gray-600">{{ item.heartCount }}</span>
+                    <span class="flex mr-[7px] items-center">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/heart_black_blank.png"
+                             class="w-[16px] h-[16px] mr-[2px]">
+                        <span class="text-[14px]">{{ likeCount }}</span>
                     </span>
-                        <span class="flex mr-2">
-                            <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
-                            <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
-                        </span>
-                    <span class="flex items-center">
-                            <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
-                            <span class="text-sm text-gray-600">{{ commentCount }}</span>
-                        </span>
+                    <span class="flex">
+                        <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png"
+                             class="w-[20px] h-[20px]">
+                        <span class="text-[14px] text-gray-600">{{ item.bidCount }}</span>
+                    </span>
                 </div>
             </div>
-            <!--   제목, 버튼   -->
-            <div class="flex justify-between items-center mt-1">
-                <div class="flex items-start">
-                    <div class="text-xl font-semibold text-gray-600">{{ item.title }}</div>
-                    <div v-if="item.itemStatus === 'BID_END' || item.itemStatus === 'SOLDOUT'"
-                         class="text-sm text-gray-600 ml-1 pt-[2px]">BID_END
-                    </div>
-                </div>
-
-                <!--    버튼    -->
+            <!--   사용자 이름, 남은 시간, 수정, 삭제(판매자)  -->
+            <div class="flex justify-between items-center w-[588px]">
+                <!--   사용자 프로필   -->
                 <div class="flex items-center">
-                    <div v-if="isMe()" class="flex h-[35px]">
-                        <button class="border-solid border-[1px] h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100"
-                                v-on:click="deleteItem()">
-                            삭제하기
-                        </button>
+                    <div class="items-start text-[14px] mr-[4px]">{{ item.memberName }}</div>
+                    <div class="items-start text-[14px] mr-[4px]">&middot;</div>
+                    <div class="truncate text-[14px] text-zinc-700 font-medium">{{ getTimeAgo(item.expireAt) }}
                     </div>
-                    <div v-else class="flex h-[35px]">
-                        <button class="border-solid border-[1px]  h-[35px] border-gray-400 px-9 py-1 rounded-md mr-2 hover:bg-gray-100"
-                                v-on:click="clickChatButton()">
-                            채팅하기
-                        </button>
-                    </div>
-                    <a class="border-solid border-[1px] px-9 py-1 h-[35px] border-indigo-400 bg-indigo-400  hover:bg-indigo-600 rounded-md text-white"
-                       :href="'/bid/list?itemId=' + itemId">
-                        <span v-if="isMe()">입찰내역</span>
-                        <span v-else >입찰목록</span>
-                    </a>
+                </div>
+                <div v-if="isMe" class="flex items-start">
+                    <button class="text-[14px] mr-[10px] text-zinc-700" v-on:click="soldOut()">판매완료</button>
+                    <button class="text-[14px] mr-[10px] text-zinc-700" v-on:click="updateItem()">수정</button>
+                    <button class="text-[14px] text-zinc-700" v-on:click="deleteItem()">삭제</button>
                 </div>
             </div>
-            <div class="text-sm text-gray-600">
-                <div class="truncate text-sm text-zinc-700">{{ getTimeAgo(item.expireAt) }}</div>
+            <div class="flex w-[588px] items-baseline mt-[18px]">
+                <div class="text-[14px] text-zinc-700 mr-[10px]">판매가</div>
+                <div class="text-[20px] font-semibold">{{ item.minimumPrice }}원</div>
             </div>
-            <div class="text-lg text-indigo-400">{{item.minimumPrice}}</div>
-            <div class="flex">
-                <span class="text-sm text-gray-600" v-if="item.minPrice != null">최저가 ₩{{ item.minPrice }}&nbsp~</span>
-                <span class="text-sm text-gray-600" v-if="item.minPrice === null">최저가 ₩&nbsp~</span>
-                <span class="text-sm text-gray-600" v-if="item.maxPrice != null">최고가 ₩{{ item.maxPrice }}</span>
-                <span class="text-sm text-gray-600" v-if="item.maxPrice == null">최고가 ₩</span>
+            <div class="flex w-[588px] items-center mt-[-2px]">
+                <div class="text-[14px] text-zinc-700 mr-[10px]">입찰가</div>
+                <div>
+                    <!--                    <span class="text-[14px] text-[#496AFF]" v-if="item.minPrice != null">{{ item.minPrice }}원&nbsp~</span>-->
+                    <span class="text-[14px]" v-if="item.minPrice != null">{{ item.minPrice }}원&nbsp~</span>
+                    <span class="text-[14px]" v-if="item.minPrice === null">~</span>
+                    <span class="text-[14px]" v-if="item.maxPrice != null">&nbsp{{ item.maxPrice }}원</span>
+                </div>
             </div>
+            <!--     가로선       -->
+            <div class="border-t-[1px] border-[#F0F0F0] my-3"></div>
             <!--  본문  -->
-            <div class="mt-5 w-[550px]">{{ item.description }}</div>
+            <div class="w-[588px] text-[16px] font-medium">{{ item.description }}</div>
         </div>
 
         <!--  댓글  -->
-        <div class="w-[550px]">
-            <div class="border-t-[1px] border-inherit my-5"></div>
-            <div class="flex items-center mb-5">
-                <div class="text-lg font-medium justify-start mr-1">댓글</div>
-                <div class="text-lg font-medium text-indigo-400"> {{ commentCount }}</div>
+        <div class="w-[588px]">
+            <div class="flex items-center mt-[30px] mb-[20px]">
+                <div class="text-[14px] font-medium justify-start mr-[5px]">댓글</div>
+                <div class="text-[14px] font-medium text-[#496AFF]"> {{ commentCount }}</div>
             </div>
 
             <!--   댓글 입력   -->
             <div>
                 <div class="flex justify-between">
                     <div class="flex">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
-                        <input class="w-[460px] ml-1" type="text" placeholder="댓글을 입력해주세요" v-model="commentMessage">
+                        <label>
+                            <input v-on:keyup.enter="addComment" class="w-[588px] text-[14px]" type="text"
+                                   placeholder="댓글 달기..." v-model="commentMessage">
+                        </label>
                     </div>
-                    <button v-on:click="addComment">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png" class="w-[30px] h-[30px] mr-1">
-                    </button>
                 </div>
                 <div class="border-t-[1px] border-inherit mt-1"></div>
             </div>
 
             <!--  댓글 리스트  -->
-            <div class="mt-5" v-for="comment in comments" v-bind:key="comment.commentId">
+            <div class="mt-4" v-for="comment in comments" v-bind:key="comment.commentId">
                 <div class="flex items-center">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png" class="w-[40px] h-[40px] mr-1">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png"
+                         class="w-[32px] h-[32px] mr-[9px]">
                     <div class="flex flex-col">
-                        <div class="text-base font-medium"> {{ comment.memberName }}</div>
-                        <div class="text-sm text-gray-600"> {{ comment.content }}</div>
+                        <div class="text-base font-medium mr-[9px]"> {{ comment.memberName }}</div>
+                        <div class="text-sm text-gray-600 mt-[-5px]"> {{ comment.content }}</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mt-10"></div>
+        <div v-if="!isModal" class="flex items-center border-solid w-[588px] h-[70px] bg-white fixed bottom-0">
+            <div v-if="!isMe" class="flex justify-between w-[588px]">
+                <button id="likeItemButton" @click="likeItem()">
+                    <img v-if="!likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/heart_black_blank.png"
+                         class="w-[28px] h-[28px]">
+                    <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png"
+                         class="w-[28px] h-[28px]">
+                </button>
+                <button class="
+                    border-solid
+                    border-[1px]
+                    w-[264px]
+                    h-[45px]
+                    border-[#496AFF]
+                    rounded-[25px]
+                    text-[17px]
+                    font-medium hover:bg-gray-100"
+                        v-on:click="clickChatButton()">
+                    채팅하기
+                </button>
+
+                <button class="
+                    border-solid
+                    border-[0px]
+                    w-[264px]
+                    h-[45px]
+                    border-[#496AFF]
+                    bg-[#496AFF]
+                    rounded-[25px]
+                    text-[17px]
+                    font-medium
+                    hover:bg-[#425EDF]
+                    text-[#ffffff]"
+                        v-on:click="openBidModal">
+                    입찰하기
+                </button>
+            </div>
+
+            <button v-else class="
+                border-solid
+                border-[0px]
+                w-[588px]
+                h-[45px]
+                border-[#496AFF]
+                bg-[#496AFF]
+                rounded-[25px]
+                text-[17px]
+                font-medium
+                hover:bg-[#425EDF]
+                text-[#ffffff]"
+                    v-on:click="openBidModal()">
+                입찰내역
+            </button>
+        </div>
+        <div class="mb-[100px]"></div>
         <input type="hidden" id="itemId" th:name="itemId" th:value="${ itemId }">
     </div>
 </div>
+<style>
+    body {
+        margin: 0
+    }
+
+    div {
+        box-sizing: border-box;
+    }
+
+    #black-bg {
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        position: fixed;
+    }
+</style>
 <script>
     new Vue({
         el: '#detail',
@@ -133,7 +291,13 @@
             sellerId: 0,
             likeStatus: '',
             page: 0,
-            size: 10
+            size: 10,
+            likeCount: 0,
+            isModal: false,
+            bidPrice: '',
+            bids: [],
+            avgPrice: 0,
+            isMe: false,
         },
         created() {
             this.username = localStorage.getItem('username');
@@ -153,7 +317,7 @@
                 axios.post('/api/v1/item/' + this.itemId + '/comment', {
                     content: this.commentMessage
                 }).then(response => {
-                    this.comments.push(response.data);
+                    this.comments.unshift(response.data);
                     this.commentMessage = ''
                 }).catch(error => window.location.href = window.location.protocol + "//" + window.location.host + "/login");
 
@@ -173,9 +337,6 @@
             clickChatButton() {
                 window.location.href = window.location.protocol + "//" + window.location.host + "/chat-room/list?itemId=" + this.itemId + "&buyerName=" + this.username;
             },
-            isMe() {
-                return this.item.memberName === this.username;
-            },
             deleteItem() {
                 if (window.confirm("삭제하시겠습니까?")) {
                     axios.delete('/api/v1/item/' + this.itemId)
@@ -187,7 +348,7 @@
             getComments() {
                 axios.get('/api/v1/item/' + this.itemId + '/comments?size=' + this.size + "&page=" + this.page)
                     .then(response => {
-                        this.comments = response.data.reverse();
+                        this.comments = response.data;
                     }).catch(error => {
                     console.log(error);
                 });
@@ -198,11 +359,17 @@
                         this.item = response.data;
                         this.sellerId = response.data.sellerId;
                         this.commentCount = response.data.commentCount;
+                        this.likeCount = response.data.heartCount;
+                        this.isMe = response.data.memberName === this.username;
+
                     }).catch(error => {
                     console.log(error);
                 });
             },
             getTimeAgo(date) {
+                if (this.item.itemStatus !== 'BIDDING') {
+                    return "경매종료";
+                }
                 const currentDate = new Date();
                 const timeDiff = new Date(date) - currentDate;
 
@@ -233,6 +400,11 @@
                 axios.post('/api/v1/item/' + this.itemId + '/likes')
                     .then(response => {
                         this.likeStatus = response.data.likeStatus;
+                        if (this.likeStatus) {
+                            this.likeCount++;
+                        } else {
+                            this.likeCount--;
+                        }
                     }).catch(error => {
                     console.log(error);
                 })
@@ -244,9 +416,146 @@
                     }).catch(error => {
                     console.log(error);
                 })
-            }
+            },
+            updateItem() {
+                window.location.href = "/item/update/" + this.itemId
+            },
+            openBidModal() {
+                this.isModal = true;
+                this.updateData();
+            },
+            closeBidModal() {
+                this.isModal = false;
+            },
+            updateData() {
+                console.log("updateData");
+                axios.get('/api/v1/bid/list?itemId=' + this.itemId)
+                    .then(response => {
+                        this.bids = [];
+                        this.bids = response.data.bids;
+                        this.avgPrice = response.data.bidDetails.avgPrice;
+                    }).catch();
+            },
+            submitPrice() {
+                if (this.bidPrice < 100) {
+                    alert("최소 100원부터 가능합니다.");
+                    return;
+                }
+                axios.post('/api/v1/bid', {
+                    itemId: this.itemId,
+                    itemPrice: this.bidPrice
+                }).then(response => {
+                    this.updateData();
+                    alert("입찰을 완료했습니다.");
+                    this.bidPrice = '';
+                }).catch(error => {
+                    console.log(error)
+                });
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/new-bid", {},
+                        JSON.stringify({
+                            itemId: this.itemId,
+                            memberName: this.username
+                        }));
+                })
+            },
+            deleteBid(bidId) {
+                axios.delete('/api/v1/bid/' + bidId, {})
+                    .then(response => {
+                        this.updateData();
+                    }).catch();
+            },
+            soldOut() {
+                axios.put('/api/v1/item/sold-out', {
+                    itemId: this.itemId
+                }).then(response => {
+                    this.updateData();
+                    alert("판매를 완료했습니다.");
+                }).catch(error => {
+                    console.log(error)
+                });
+
+                socket = new SockJS("/ws-stomp");
+                ws = Stomp.over(socket);
+                ws.connect({}, (frame) => {
+                    ws.send("/pub/notification/sold-out", {},
+                        JSON.stringify({
+                            itemId: this.itemId
+                        }));
+                })
+                this.bidPriceInput = 0;
+            },
         }
     })
+    $(document).ready(function () {
+        $('#search-input').on('keypress', function (event) {
+            if (event.keyCode === 13 || event.which === 13) {
+                $('#search-button').click();
+            }
+        })
+    });
+
+    if (localStorage.getItem('chatStatus') === '1') {
+        $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
+    }
+
+    if (localStorage.getItem('notificationStatus') === '1') {
+        $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
+    }
+
+    search = () => {
+        const searchText = document.getElementById('search-input').value;
+        if (searchText === '') return;
+        window.location.href = window.location.protocol + "//" + window.location.host + "/home?q=" + searchText;
+    }
+
+    readNotification = () => {
+        localStorage.setItem('notificationStatus', "0");
+        $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification.png');
+    }
+
+    readChat = () => {
+        localStorage.setItem('chatStatus', "0");
+        $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat.png');
+    }
+
+    socketConnect = () => {
+        const username = localStorage.getItem('username');
+
+        if (username === null || username === '') return;
+
+        axios.get('/api/v1/socket-id')
+            .then(response => {
+                const socketPath = response.data;
+                const socket = new SockJS("/ws-stomp");
+                const ws = Stomp.over(socket);
+
+                ws.connect({}, (frame) => {
+                    ws.subscribe(socketPath,
+                        (message) => {
+                            console.log(message.body);
+                            if (message.body === 'NOTIFICATION') {
+                                localStorage.setItem('notificationStatus', '1');
+                                $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
+                            } else {
+                                if (window.location.href.includes("/chat-room/list")) return;
+                                localStorage.setItem('chatStatus', '1');
+                                $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
+                            }
+                        }
+                    );
+                }, (error) => {
+                    console.log(error);
+                });
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+    socketConnect();
 </script>
+
 </body>
 </html>
