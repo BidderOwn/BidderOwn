@@ -87,14 +87,7 @@ public class ItemService {
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
         List<Item> items = itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
-        return items.stream()
-                .map(item -> ItemsResponse.of__v12(
-                        item,
-                        // 상품 입찰 최저가
-                        itemCustomRepository.findItemBidMinPriceByItemId__v1(item.getId()),
-                        // 상품 입찰 최고가
-                        itemCustomRepository.findItemBidMaxPriceByItemId__v1(item.getId())
-                )).toList();
+        return items.stream().map(ItemsResponse::of__v12).toList();
     }
 
     /**
@@ -103,14 +96,7 @@ public class ItemService {
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<Item> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
-        return items.stream()
-                .map(item -> ItemsResponse.of__v12(
-                        item,
-                        // 상품 입찰 최저가
-                        itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
-                        // 상품 입찰 최고가
-                        itemCustomRepository.findItemBidMaxPriceByItemId(item.getId())
-                )).toList();
+        return items.stream().map(ItemsResponse::of__v12).toList();
     }
 
     /**
@@ -120,10 +106,6 @@ public class ItemService {
     public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
         List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
         for (ItemsResponse item : items) {
-            // 상품 입찰 최고가
-            item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
-            // 상품 입찰 최저가
-            item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
             // 상품 count 정보
             item.setCounts(itemRedisService.getItemCounts(item.getId()));
         }

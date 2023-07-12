@@ -18,10 +18,6 @@ public class ItemsResponse {
     private String title;
     @Schema(description = "최소희망가격")
     private int minimumPrice;
-    @Schema(description = "최고가격")
-    private Integer maxPrice;
-    @Schema(description = "최저가격")
-    private Integer minPrice;
     @Schema(description = "댓글수")
     private Integer commentsCount;
     @Schema(description = "입찰수")
@@ -40,8 +36,6 @@ public class ItemsResponse {
             Long id,
             String title,
             int minimumPrice,
-            Integer maxPrice,
-            Integer minPrice,
             Integer commentsCount,
             Integer bidCount,
             Integer heartsCount,
@@ -49,31 +43,6 @@ public class ItemsResponse {
             ItemStatus itemStatus,
             LocalDateTime expireAt
     ) {
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.commentsCount = commentsCount;
-        this.bidCount = bidCount;
-        this.heartsCount = heartsCount;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
-            Integer commentsCount,
-            Integer bidCount,
-            Integer heartsCount,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
-    ) {
-        // v2에서 사용됨
         this.id = id;
         this.title = title;
         this.minimumPrice = minimumPrice;
@@ -103,16 +72,12 @@ public class ItemsResponse {
     }
 
     public static ItemsResponse of__v12(
-            Item item,
-            Integer minPrice,
-            Integer maxPrice
+            Item item
     ) {
         return ItemsResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
                 .minimumPrice(item.getMinimumPrice())
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
                 .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
                 .heartsCount(item.getHearts().size())
@@ -124,16 +89,12 @@ public class ItemsResponse {
 
     public static ItemsResponse of(
             Item item,
-            Integer maxPrice,
-            Integer minPrice,
             ItemCounts itemCounts
     ) {
         return ItemsResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
                 .minimumPrice(item.getMinimumPrice())
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
                 .commentsCount(itemCounts.getCommentCount())
                 .bidCount(itemCounts.getBidCount())
                 .heartsCount(itemCounts.getHeartCount())
