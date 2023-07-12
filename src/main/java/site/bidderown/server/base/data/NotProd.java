@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
@@ -30,7 +31,7 @@ import java.util.List;
 @Configuration
 @Transactional
 public class NotProd {
-    private boolean initDataDone = false;
+    private boolean initDataDone = true;
 
     @Bean
     CommandLineRunner initData(
@@ -235,58 +236,50 @@ public class NotProd {
             bidRepository.saveAll(bidList);
             commentRepository.saveAll(commentList);
 
+            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
+            bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
 
-//            for (int i = 0; i < 11; i++) {
-//                imageService.create(items.get(i), List.of("image" + (i + 1) + ".jpeg"));
-//                items.get(i).setThumbnailImageFileName("image" + (i + 1) + ".jpeg");
-//                itemRepository.save(items.get(i));
-//                itemRedisRepository.save(items.get(i).getId(), 3);
-//            }
-//
-//            bidService.create(BidRequest.of(items.get(0).getId(), 145_000), members.get(1).getName());
-//            bidService.create(BidRequest.of(items.get(0).getId(), 120_000), members.get(2).getName());
-//
-//            bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
-//            bidService.create(BidRequest.of(items.get(1).getId(), 75_000), members.get(2).getName());
-//            bidService.create(BidRequest.of(items.get(1).getId(), 80_000), members.get(3).getName());
-//
-//            bidService.create(BidRequest.of(items.get(2).getId(), 70_000), members.get(3).getName());
-//            bidService.create(BidRequest.of(items.get(2).getId(), 65_000), members.get(4).getName());
-//
-//            bidService.create(BidRequest.of(items.get(3).getId(), 76_000), members.get(2).getName());
-//            bidService.create(BidRequest.of(items.get(3).getId(), 70_000), members.get(1).getName());
-//
-//            bidService.create(BidRequest.of(items.get(4).getId(), 460_000), members.get(9).getName());
-//            bidService.create(BidRequest.of(items.get(4).getId(), 430_000), members.get(8).getName());
-//
-//            bidService.create(BidRequest.of(items.get(5).getId(), 30_000), members.get(1).getName());
-//            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(2).getName());
-//            bidService.create(BidRequest.of(items.get(5).getId(), 28_000), members.get(3).getName());
-//            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(0).getName());
-//
-//            bidService.create(BidRequest.of(items.get(6).getId(), 1450000), members.get(3).getName());
-//            bidService.create(BidRequest.of(items.get(6).getId(), 1430000), members.get(4).getName());
-//
-//            bidService.create(BidRequest.of(items.get(7).getId(), 505_000), members.get(6).getName());
-//            bidService.create(BidRequest.of(items.get(7).getId(), 480_000), members.get(8).getName());
-//
-//            bidService.create(BidRequest.of(items.get(8).getId(), 280_000), members.get(1).getName());
-//            bidService.create(BidRequest.of(items.get(8).getId(), 270_000), members.get(2).getName());
-//            bidService.create(BidRequest.of(items.get(8).getId(), 290_000), members.get(3).getName());
-//
-//            bidService.create(BidRequest.of(items.get(9).getId(), 143_000), members.get(4).getName());
-//            bidService.create(BidRequest.of(items.get(9).getId(), 147_000), members.get(5).getName());
-//            bidService.create(BidRequest.of(items.get(9).getId(), 142_000), members.get(3).getName());
-//            bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
-//            bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
-//
-//            for (int i = 0; i < 11; i++) {
-//                if (i == 10) {
-//                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
-//                } else {
-//                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
-//                }
-//            }
+            bidService.create(BidRequest.of(items.get(1).getId(), 90_000), members.get(0).getName());
+            bidService.create(BidRequest.of(items.get(1).getId(), 75_000), members.get(2).getName());
+            bidService.create(BidRequest.of(items.get(1).getId(), 80_000), members.get(3).getName());
+
+            bidService.create(BidRequest.of(items.get(2).getId(), 70_000), members.get(3).getName());
+            bidService.create(BidRequest.of(items.get(2).getId(), 65_000), members.get(4).getName());
+
+            bidService.create(BidRequest.of(items.get(3).getId(), 76_000), members.get(2).getName());
+            bidService.create(BidRequest.of(items.get(3).getId(), 70_000), members.get(1).getName());
+
+            bidService.create(BidRequest.of(items.get(4).getId(), 460_000), members.get(9).getName());
+            bidService.create(BidRequest.of(items.get(4).getId(), 430_000), members.get(8).getName());
+
+            bidService.create(BidRequest.of(items.get(5).getId(), 30_000), members.get(1).getName());
+            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(2).getName());
+            bidService.create(BidRequest.of(items.get(5).getId(), 28_000), members.get(3).getName());
+            bidService.create(BidRequest.of(items.get(5).getId(), 27_000), members.get(0).getName());
+
+            bidService.create(BidRequest.of(items.get(6).getId(), 1450000), members.get(3).getName());
+            bidService.create(BidRequest.of(items.get(6).getId(), 1430000), members.get(4).getName());
+
+            bidService.create(BidRequest.of(items.get(7).getId(), 505_000), members.get(6).getName());
+            bidService.create(BidRequest.of(items.get(7).getId(), 480_000), members.get(8).getName());
+
+            bidService.create(BidRequest.of(items.get(8).getId(), 280_000), members.get(1).getName());
+            bidService.create(BidRequest.of(items.get(8).getId(), 270_000), members.get(2).getName());
+            bidService.create(BidRequest.of(items.get(8).getId(), 290_000), members.get(3).getName());
+
+            bidService.create(BidRequest.of(items.get(9).getId(), 143_000), members.get(4).getName());
+            bidService.create(BidRequest.of(items.get(9).getId(), 147_000), members.get(5).getName());
+            bidService.create(BidRequest.of(items.get(9).getId(), 142_000), members.get(3).getName());
+            bidService.create(BidRequest.of(items.get(9).getId(), 141_000), members.get(2).getName());
+            bidService.create(BidRequest.of(items.get(9).getId(), 139_000), members.get(1).getName());
+
+            for (int i = 0; i < 11; i++) {
+                if (i == 10) {
+                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(0));
+                } else {
+                    commentService.create(CommentRequest.of("어디서 거래 가능하세요?"), items.get(i).getId(), members.get(i + 1));
+                }
+            }
         };
     }
 }
