@@ -28,6 +28,9 @@ spring:
   batch:
     job:
       names: ${job.name:NONE}
+  devtools:
+    livereload:
+      enabled=true:
 
 custom:
   socket:
