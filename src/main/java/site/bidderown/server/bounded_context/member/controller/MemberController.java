@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemSimpleResponse;
 import site.bidderown.server.bounded_context.item.service.ItemService;
@@ -48,7 +47,6 @@ public class MemberController {
         return "usr/my_page";
     }
 
-    @ResponseBody
     @GetMapping("/form-login")
     public String loginPage(Model model) {
         return "usr/form_login";
