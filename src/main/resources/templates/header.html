@@ -1,8 +1,8 @@
 <div>
     <div th:replace="import::head"></div>
-    <div class="flex flex-col items-center w-full h-[70px] bg-white" id="header_app">
+    <div class="flex fixed z-10 top-0 flex-col items-center w-full h-[70px] pb-[5px] bg-white" id="header_app">
 
-        <div class="fixed z-10 top-0 flex w-[600px] h-[70px] justify-between items-center px-3 bg-white">
+        <div class="flex w-[600px] h-[70px] justify-between items-center bg-white">
 
             <div class="flex ml-auto mr pr-[12px]">
                 <!-- 채팅-->
@@ -20,18 +20,18 @@
             </div>
         </div>
 
-        <div class="flex w-[600px] h-[70px] justify-between items-center px-3 bg-white">
+        <div class="flex w-[600px] h-[70px] justify-between items-center bg-white">
             <a href="/home">
                 <img src="https://kr.object.ncloudstorage.com/s3bucket/bidder_own_logo.png" class ="h-[32px] w-full">
             </a>
 
-            <div class="flex mx-[8px] h-[32px] max-w-[350px] border-solid border-[1px] border-zinc-300 rounded-lg">
-                <button id="search-button" onclick="search()">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/search.png" class=" mx-[6px] w-[24px] h-[24px]">
+            <div class="flex mx-[8px] h-[32px] max-w-[350px] border-solid border-[1px] border-zinc-300 rounded-[5px]">
+                <button class="mr-[5px]" id="search-button" onclick="search()">
+                    <img src="https://kr.object.ncloudstorage.com/s3bucket/search.png" class=" mx-[6px] w-[18px] h-[18px]">
                 </button>
-                <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[360px]" id="search-input"/>
-
+                <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[313px] text-[14px] rounded-r-[5px]" id="search-input"/>
             </div>
+
 
             <div class="flex">
                 <a href="/my-page" onclick="readChat()" class="mr-2">
