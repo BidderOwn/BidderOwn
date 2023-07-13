@@ -30,7 +30,7 @@ import java.util.List;
 @EntityListeners(value = ItemEntityListener.class)
 public class Item extends BaseEntity {
 
-    @Column(length = 30)
+    @Column(length = 100)
     private String title;
 
     @Column(length = 500)
