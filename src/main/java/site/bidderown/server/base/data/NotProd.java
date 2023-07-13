@@ -5,13 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
-import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidJdbcRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
 import site.bidderown.server.bounded_context.bid.service.BidService;
-import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
-import site.bidderown.server.bounded_context.comment.entity.Comment;
 import site.bidderown.server.bounded_context.comment.repository.CommentRepository;
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
@@ -24,7 +20,6 @@ import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"dev"})
@@ -106,7 +101,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(160000)
-                            .build(), member1),
+                            .build(), member3),
 
                     Item.of(ItemRequest.builder().
                             title("나이키 터미네이터 하이 그래닛 앤 다크 옵시디언")
@@ -118,7 +113,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(110000)
-                            .build(), member2),
+                            .build(), member4),
                     Item.of(ItemRequest.builder().
                             title("보테가 베네타 미니 레더 카세트백 화이트")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -127,7 +122,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(1167000)
-                            .build(), member1),
+                            .build(), member5),
 
                     Item.of(ItemRequest.builder().
                             title("플레이 꼼데가르송 레드 하트 티셔츠 블랙")
@@ -139,7 +134,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(80000)
-                            .build(), member2),
+                            .build(), member6),
                     Item.of(ItemRequest.builder().
                             title("스타벅스 x 웜그레이테일 23 서머 허기베어 키체인")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -148,7 +143,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(30000)
-                            .build(), member1),
+                            .build(), member7),
 
                     Item.of(ItemRequest.builder().
                             title("팔라스 더블 집 자켓 스모크 블루 - 23SS")
@@ -160,7 +155,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(230000)
-                            .build(), member2),
+                            .build(), member8),
                     Item.of(ItemRequest.builder().
                             title("슈프림 x 팀버랜드 리플렉티브 테이핑 아노락 스톤 - 21SS")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -169,7 +164,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(425000)
-                            .build(), member1),
+                            .build(), member9),
 
                     Item.of(ItemRequest.builder().
                             title("스와치 x 오메가 바이오세라믹 문스와치 미션 투 우라노스")
@@ -181,7 +176,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(419000)
-                            .build(), member2),
+                            .build(), member11),
                     Item.of(ItemRequest.builder().
                             title("카시오 지샥 x 디스이즈네버댓 DW-5600TINT23-7DF 스켈레톤 (스페셜 패키지 화이트 버전)")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -190,7 +185,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(230000)
-                            .build(), member1),
+                            .build(), member5),
 
                     Item.of(ItemRequest.builder().
                             title("샤넬 클래식 카드 홀더 그레인드 카프스킨 & 실버 메탈 블랙")
@@ -202,7 +197,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(1130000)
-                            .build(), member2),
+                            .build(), member8),
                     Item.of(ItemRequest.builder().
                             title("아이앱 스튜디오 우븐 쇼츠 네이비- 더현대 서울 한정")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -211,7 +206,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(130000)
-                            .build(), member1),
+                            .build(), member7),
 
                     Item.of(ItemRequest.builder().
                             title("휴먼 메이드 그래픽 티셔츠 #13 화이트")
@@ -223,7 +218,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(160000)
-                            .build(), member2),
+                            .build(), member9),
                     Item.of(ItemRequest.builder().
                             title("(W) 헌터 오리지널 쇼트 레인 부츠 블랙")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -232,7 +227,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(230000)
-                            .build(), member1),
+                            .build(), member4),
 
                     Item.of(ItemRequest.builder().
                             title("샤넬 코드 컬러 리미티드 에디션 미르와르 두블르 화세뜨 111 발레리나")
@@ -244,7 +239,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(130000)
-                            .build(), member2),
+                            .build(), member3),
                     Item.of(ItemRequest.builder().
                             title("몽클레르 로고 베이스볼 캡 블랙 - 23SS")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -253,7 +248,7 @@ public class NotProd {
                                     " 홍대입구 직거래 오후6시 이후 ")
                             .period(3)
                             .minimumPrice(130000)
-                            .build(), member1),
+                            .build(), member5),
 
                     Item.of(ItemRequest.builder().
                             title("루이비통 LV 트레이너 스니커즈 모노그램 데님 블랙")
@@ -265,7 +260,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(1500000)
-                            .build(), member2),
+                            .build(), member6),
                     Item.of(ItemRequest.builder().
                             title("(W) 샤넬 스니커즈 카프스킨 & 화이트")
                             .description("1년 반정도 전에 선물 받았구요\n" +
@@ -286,7 +281,7 @@ public class NotProd {
                                     "택배비별도")
                             .period(3)
                             .minimumPrice(450000)
-                            .build(), member2)
+                            .build(), member11)
 
             );
             itemRepository.saveAll(items);
