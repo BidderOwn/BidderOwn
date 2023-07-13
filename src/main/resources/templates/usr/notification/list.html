@@ -13,7 +13,7 @@
                     알림
                 </div>
                 <div class="ml-auto mt-2">
-                    <a v-on:click="readAllNotification()" id ="readAllNotification" class=" text-[12px] font-semibold hover:bg-zinc-200"> 모든 알림 지우기</a>
+                    <a v-on:click="readAllNotification()" id ="readAllNotification" class=" text-[12px] py-1 px-1 font-semibold hover:bg-zinc-200 rounded-[3px] cursor-pointer"> 모든 알림 지우기</a>
                 </div>
             </div>
 
@@ -27,7 +27,7 @@
                     <!--     알림 아이템     -->
                     <div v-for="notification in notifications">
                         <!-- 입찰 알림 -->
-                        <div class="rounded-xl border border-gray-200 hover:bg-zinc-200 m-2" v-if="notification.notificationType === 'BID'"
+                        <div class="rounded-xl border border-gray-200 hover:bg-zinc-1r00 m-2" v-if="notification.notificationType === 'BID'"
                              v-on:click="clickNotification(notification.itemId)">
                             <button class="flex px-3 py-5  items-center">
                                 <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
