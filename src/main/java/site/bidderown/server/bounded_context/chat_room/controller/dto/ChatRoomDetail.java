@@ -5,13 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
 import site.bidderown.server.bounded_context.chat_room.entity.ChatRoom;
 import site.bidderown.server.bounded_context.chat_room.repository.dto.ChatRoomInfo;
-import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.member.entity.Member;
-
-import java.util.List;
 
 @Schema(description = "채팅방 상세")
 @Getter
@@ -29,7 +24,7 @@ public class ChatRoomDetail {
     private Long itemId;
 
     @Builder
-    private ChatRoomDetail(Long toUserId, String itemTitle, String itemImageName, int price, Long itemId){
+    private ChatRoomDetail(Long toUserId, String itemTitle, String itemImageName, int price, Long itemId) {
         this.toUserId = toUserId;
         this.itemTitle = itemTitle;
         this.itemImageName = itemImageName;
@@ -41,7 +36,11 @@ public class ChatRoomDetail {
         return ChatRoomDetail.builder()
                 .toUserId(ChatRoom.resolveToMember(chatRoomInfo.getChatRoom(), fromUsername).getId())
                 .itemTitle(chatRoomInfo.getItem().getTitle())
-                .itemImageName(chatRoomInfo.getItem().getImages().get(0).getFileName())
+                .itemImageName(
+                        chatRoomInfo.getItem().getImages().size() > 0 ?
+                                chatRoomInfo.getItem().getImages().get(0).getFileName() :
+                                null
+                )
                 .price(chatRoomInfo.getItem().getMinimumPrice())
                 .itemId(chatRoomInfo.getItem().getId())
                 .build();

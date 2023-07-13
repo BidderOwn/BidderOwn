@@ -6,10 +6,10 @@
     <!--  모달  -->
     <div th:replace="header::div"></div>
     <div v-if="isModal" id="black-bg" class="flex items-center justify-center">
-        <div class="w-[476px] h-[456px] p-[35px] bg-white rounded-[8px] overflow-y-scroll mt-[-175px] drop-shadow-md" id="white-bg">
+        <div class="w-[476px] h-[456px] p-[30px] bg-white rounded-[8px] overflow-y-scroll mt-[-175px] drop-shadow-md" id="white-bg">
             <div>
                 <!--       제목, 닫기 아이콘         -->
-                <div v-if="item.itemStatus==='BIDDING' && !isMe" class="flex justify-between mb-[16px]">
+                <div v-if="!isMe" class="flex justify-between mb-[16px]">
                     <div class="flex items-baseline">
                         <span class="text-[18px] font-semibold mr-[8px]">입찰하기</span>
                         <span class="text-[12px] text-[#515151] mr-[4px]">판매가</span>
@@ -22,28 +22,30 @@
                 </div>
 
                 <!--        입찰가격 input        -->
-                <div v-if="item.itemStatus==='BIDDING' && !isMe">
-                    <div class="flex justify-between">
-                        <label>
-                            <input v-on:keyup.enter="submitPrice" class="w-[354px] text-[14px]" type="number"
-                                   step="100"
-                                   placeholder="입찰할 가격을 입력해주세요 (단위 100원)" v-model="bidPrice">
-                        </label>
-                        <input type="submit" v-on:click="submitPrice"
-                               class="flex text-[#496AFF] text-[14px] cursor-pointer" value="입찰하기">
+                <div v-if="!isMe">
+                    <div v-if="item.itemStatus==='BID_END' || item.itemStatus==='SOLDOUT'">
+                        <div class="flex justify-between">
+                            <label>
+                                <input class="w-[354px] text-[14px]" type="text" placeholder="경매가 종료되었습니다.">
+                            </label>
+                        </div>
+                        <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
                     </div>
-                    <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
+                    <div v-else>
+                        <div class="flex justify-between">
+                            <label>
+                                <input v-on:keyup.enter="submitPrice" class="w-[354px] text-[14px]" type="number"
+                                       step="100"
+                                       placeholder="입찰할 가격을 입력해주세요 (단위 100원)" v-model="bidPrice">
+                            </label>
+                            <input type="submit" v-on:click="submitPrice"
+                                   class="flex text-[#496AFF] text-[14px] cursor-pointer" value="입찰하기">
+                        </div>
+                        <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
+                    </div>
                 </div>
 
                 <!--        입찰 경매 종료        -->
-                <div v-else-if="item.itemStatus==='BID_END' && item.itemStatus==='SOLDOUT' && !isMe">
-                    <div class="flex justify-between">
-                        <label>
-                            <input class="w-[354px] text-[14px]" type="text" placeholder="경매가 종료되었습니다.">
-                        </label>
-                    </div>
-                    <div class="border-t-[1px] border-inherit mt-1 mb-[35px]"></div>
-                </div>
 
                 <div class="flex justify-between items-center mb-[17px]">
                     <div class="flex items-baseline">
@@ -66,6 +68,12 @@
                                 <div class="font-medium text-[14px]"> {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을
                                     제시하였습니다.
                                 </div>
+
+                            </div>
+                            <div v-if="isMe">
+                                <a class="border-solid px-2 py-1 text-[14px] text-[#496AFF] hover:bg-gray-100 rounded-md cursor-pointer"
+                                   v-on:click="clickChatButtonByBidderName(bid.bidderName)">채팅하기
+                                </a>
                             </div>
                             <div class="items-center" v-if="bid.bidderName === username">
                                 <button v-on:click="deleteBid(bid.bidId)" class="text-[12px] text-[#515151]">
@@ -305,6 +313,9 @@
             clickChatButton() {
                 window.location.href = window.location.protocol + "//" + window.location.host + "/chat-room/list?itemId=" + this.itemId + "&buyerName=" + this.username;
             },
+            clickChatButtonByBidderName(bidderName) {
+                window.location.href  = window.location.protocol + "//" + window.location.host + "/chat-room/list?itemId=" + this.itemId + "&buyerName=" + bidderName;
+            },
             deleteItem() {
                 if (window.confirm("삭제하시겠습니까?")) {
                     axios.delete('/api/v1/item/' + this.itemId)
@@ -462,73 +473,6 @@
             },
         }
     })
-    $(document).ready(function () {
-        $('#search-input').on('keypress', function (event) {
-            if (event.keyCode === 13 || event.which === 13) {
-                $('#search-button').click();
-            }
-        })
-    });
-
-    if (localStorage.getItem('chatStatus') === '1') {
-        $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_1.png.png');
-    }
-
-    if (localStorage.getItem('notificationStatus') === '1') {
-        $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_1.png');
-    }
-
-    search = () => {
-        const searchText = document.getElementById('search-input').value;
-        if (searchText === '') return;
-        window.location.href = window.location.protocol + "//" + window.location.host + "/home?q=" + searchText;
-    }
-
-    readNotification = () => {
-        localStorage.setItem('notificationStatus', "0");
-        $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification.png');
-    }
-
-    readChat = () => {
-        localStorage.setItem('chatStatus', "0");
-        $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat.png');
-    }
-
-    socketConnect = () => {
-        const username = localStorage.getItem('username');
-
-        if (username === null || username === '') return;
-
-        axios.get('/api/v1/socket-id')
-            .then(response => {
-                const socketPath = response.data;
-                const socket = new SockJS("/ws-stomp");
-                const ws = Stomp.over(socket);
-
-                ws.connect({}, (frame) => {
-                    ws.subscribe(socketPath,
-                        (message) => {
-                            console.log(message.body);
-                            if (message.body === 'NOTIFICATION') {
-                                localStorage.setItem('notificationStatus', '1');
-                                $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
-                            } else {
-                                if (window.location.href.includes("/chat-room/list")) return;
-                                localStorage.setItem('chatStatus', '1');
-                                $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
-                            }
-                        }
-                    );
-                }, (error) => {
-                    console.log(error);
-                });
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    }
-    // checkNotRead();
-    socketConnect();
 </script>
 </body>
 </html>
