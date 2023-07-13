@@ -6,10 +6,9 @@
 <div id="app">
     <div th:replace="header::div"></div>
     <div class="flex flex-col items-center mt-20">
-        <!--    <div clss="mr-5">{{ username }}</div>-->
         <!-- 선택 박스   -->
         <div class="w-[600px] text-end mr-[20px] mb-3">
-            <select class="w-[180px] border border-gray-200 rounded-l px-1 py-1" :value="selected" @change="setOrder($event)">
+            <select class="w-[130px] border border-gray-200 rounded-l px-1 py-1" :value="selected" @change="setOrder($event)">
                 <option v-for="(item, index) in selectList"
                         :key="index"
                         :value="item.value">
@@ -36,41 +35,34 @@
                         </span>
                         </button>
                     </div>
-
-
                     <!--   제목   -->
                     <div class="flex justify-start items-center mt-1">
-                        <a class="truncate text-[14px] text-[#34383B] font-semibold">{{ item.title }}</a>
+                        <a class="truncate text-[15px] text-[#34383B] font-semibold">{{ item.title }}</a>
                     </div>
 
-                    <div class = " mt-1 flex">
+                    <div class = "flex">
                         <div class="mr-1 text-[15px] text-[#242729] font-bold">{{ item.minimumPrice }}원</div>
 
                         <div v-if="item.itemStatus === 'BID_END'" class="flex items-center">
-                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5">입찰종료</span>
+                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5 rounded-[3px]">입찰종료</span>
                         </div>
                         <div v-if="item.itemStatus === 'SOLDOUT'" class="flex items-center">
-                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5">판매완료</span>
+                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5 rounded-[3px]">판매완료</span>
                         </div>
                         <div v-if="item.itemStatus === 'BIDDING'" class="flex items-center">
-                            <span class="text-[7px] text-gray-600 bg-gray-200 py-[0.5px] px-[5px] ">입찰중</span>
+                            <span class="text-[7px] text-gray-600 bg-gray-200 py-[0.5px] px-[5px] rounded-[3px]">입찰중</span>
                         </div>
                     </div>
 
-                    <div class="mt-1  text-[11px] text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
+                    <div class="text-[11px] text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
 
-                    <div class="mt-1 flex">
+                    <div class="flex">
                         <!--  비드 카운트  -->
                         <span class="flex items-center mr-2">
-
-                                <span class="text-[11px] text-[#34383B] font-bold">입찰   </span>
-                                <span class="pl-1.5 text-[11px] text-[#34383B] font-bold">{{ item.bidCount }} </span>
-                                <span class="pl-1.5 text-[11px] text-[#34383B] font-bold">댓글 </span>
-                                <span class="pl-1.5 text-[11px] text-[#34383B] font-bold">{{ item.commentsCount }} </span>
-
-                            <!--  댓글 카운트
-                                <span class="text-[11px] text-[#697175] text-gray-600"> ()</span>
-                                -->
+                                <span class="text-[11px] text-[#34383B]">입찰   </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">{{ item.bidCount }} </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">댓글 </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">{{ item.commentsCount }} </span>
                             </span>
 
 
@@ -81,7 +73,7 @@
         </div>
         <input type="hidden" id="username" th:value="${username}">
         <input type="hidden" id="searchText" th:value="${searchText}">
-        <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[35px] mr-[50px] fixed bottom-0 right-0">
+        <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[40px] mr-[100px] fixed bottom-0 right-0">
             <img src="https://kr.object.ncloudstorage.com/s3bucket/add_item.png">
         </button>
         <button class="hover:bg-zinc-200 text-[11px] mb-10 px-7 rounded-xl border border-gray-200 h-[40px]" v-on:click="addData">
