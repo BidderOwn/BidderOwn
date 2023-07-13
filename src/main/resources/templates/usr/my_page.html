@@ -15,7 +15,7 @@
             </div>
             <div class="w-full h-[8px] bg-[#F5F6F8]"></div>
             <!--  판매내역 - 페이지이동 -->
-            <button class="w-full h-[60px] px-6 hover:bg-gray-100" @click="moveToSalesList()">
+            <button class="w-full h-[60px] px-6 hover:bg-gray-100" @click="moveToSaleList()">
                 <div>
                     <div class="flex flex-row">
                         <img src="https://kr.object.ncloudstorage.com/s3bucket/sell.png" class="object-fill w-[20px] h-[20px]">
@@ -62,14 +62,14 @@
                 this.username = localStorage.getItem('username');
             },
             methods: {
-                moveToSalesList() {
-                    window.location.href = window.location.protocol + "//" + window.location.host + "/home"
+                moveToSaleList() {
+                    window.location.href = window.location.protocol + "//" + window.location.host + "/item/sale-list"
                 },
-                moveToBidsList() {
-                    window.location.href = window.location.protocol + "//" + window.location.host + "/home"
+                moveToBidList() {
+                    window.location.href = window.location.protocol + "//" + window.location.host + "/item/bid-list"
                 },
-                moveToLikesList() {
-                    window.location.href = window.location.protocol + "//" + window.location.host + "/home"
+                moveToLikeList() {
+                    window.location.href = window.location.protocol + "//" + window.location.host + "/item/heart-list"
                 },
             }
         })

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<div th:replace="import::head"></div>
+<body>
+<div id="app">
+  <div th:replace="header::div"></div>
+  <div class="flex flex-col items-center mt-20">
+    <!-- 알림 시작 -->
+    <div class="w-[600px] h-screen px-3 mr-4">
+
+      <div class="flex" >
+        <div class="ml-2 text-[20px] font-bold">
+          입찰 상품
+        </div>
+
+      </div>
+
+
+      <div class="flex justify-start h-5/6 w-full">
+
+        <div class="flex flex-col w-full overflow-y-auto">
+
+
+          <!--     아이템     -->
+          <div v-for="item in bidItems">
+            <!-- 입찰 알림 -->
+            <div class="rounded-xl border shadow border-gray-200 hover:bg-zinc-200 m-2"
+                 v-on:click="moveToItemDetail(item.itemId)">
+              <button class="flex px-3 py-2 items-center">
+                <img class ="rounded-xl ml-2 w-[60px] h-[60px]" :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName">
+                <div class="flex flex-col w-[200px] items-start ml-2">
+                  <div class="w-[200px] truncate text-left text-[12px] text-[#242729] font-semibold"> {{item.title}}</div>
+                  <div class="w-[200px] truncate text-left text-[13px] text-[#242729] font-bold"> {{item.minimumPrice}}</div>
+                  <div class="w-[200px] truncate text-left text-[9px] text-gray-600">{{item.expireAt}}</div>
+                </div>
+                <div class="flex ml-48 text-[13px] text-[#242729]">{{item.itemStatus}}</div>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 알림 끝 -->
+</div>
+</body>
+
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      username: '',
+      bidItems: [],
+
+    },
+    created() {
+      this.username = localStorage.getItem('username');
+      this.initData();
+    },
+    methods: {
+      initData() {
+        this.getBidItems();
+      },
+      getBidItems() {
+        axios.get('/api/v1/item/bid/me')
+                .then(response => {
+                  this.bidItems = response.data;
+                })
+      },
+      moveToBidList(itemId) {
+        window.location.href = "/bid/list?itemId=" + itemId
+      },
+    }
+  })
+</script>
+</html>

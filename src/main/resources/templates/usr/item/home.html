@@ -25,7 +25,7 @@
                 <div class="flex flex-col w-[180px] h-[330px] mb-[20px] cursor-pointer"
                      v-on:click="clickItem(item.id)">
                     <!--   이미지   -->
-                    <div class="relative rounded-2xl w-full h-[210px] truncate">
+                    <div class="shadow relative rounded-2xl w-full h-[210px] truncate">
                         <img class="object-cover h-[210px] w-full" :src="item.thumbnailImageUrl">
                         <!--  좋아요 카운트  -->
                         <button class="absolute bottom-3 right-3 ">
@@ -40,7 +40,7 @@
 
                     <!--   제목   -->
                     <div class="flex justify-start items-center mt-1">
-                            <a class="truncate text-[14px] text-[#34383B] font-semibold">{{ item.title }}</a>
+                        <a class="truncate text-[14px] text-[#34383B] font-semibold">{{ item.title }}</a>
                     </div>
 
                     <div class = " mt-1 flex">

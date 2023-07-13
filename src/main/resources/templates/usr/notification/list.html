@@ -5,7 +5,7 @@
 <div id="app">
     <div th:replace="header::div"></div>
     <div class="flex flex-col items-center mt-20">
-    <!-- 알림 시작 -->
+        <!-- 알림 시작 -->
         <div class="w-[600px] h-screen px-3 mr-4">
 
             <div class="flex" >
@@ -18,67 +18,67 @@
             </div>
 
 
-                <div class="flex justify-start h-5/6 w-full">
+            <div class="flex justify-start h-5/6 w-full">
 
-                    <!--   알림창 시작     -->
-                    <div class="flex flex-col justify-between w-full overflow-y-auto">
+                <!--   알림창 시작     -->
+                <div class="flex flex-col w-full overflow-y-auto">
 
 
-                        <!--     알림 아이템     -->
-                        <div v-for="notification in notifications">
-                            <!-- 입찰 알림 -->
-                            <div class="rounded-xl border border-gray-200 hover:bg-zinc-200 m-2" v-if="notification.notificationType === 'BID'"
-                                 v-on:click="clickNotification(notification.itemId)">
-                                <button class="flex px-3 py-5  items-center">
-                                    <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
-                                    <div class="flex flex-col items-start ml-2">
-                                        <div class="text-[15px] text-[#242729] font-semibold"> 입찰 알림</div>
-                                        <div class="text-left text-[11px] text-[#242729]"> 등록하신 상품에 입찰이 등록되었습니다. 바로 확인해보세요!</div>
-                                        <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
-                                    </div>
-                                </button>
-                            </div>
-                            <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID_END'"
-                                 v-on:click="clickNotification(notification.itemId)">
-                                <button class="flex px-3 py-5  items-center">
-                                    <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
-                                    <div class="flex flex-col items-start ml-2">
-                                        <div class="text-[15px] text-[#242729] font-semibold"> 경매 종료</div>
-                                        <div class="text-left text-[11px] text-[#242729]"> 경매가 종료되었습니다. 판매자의 연락을 기다려주세요!</div>
-                                        <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
-                                    </div>
-                                </button>
-                            </div>
+                    <!--     알림 아이템     -->
+                    <div v-for="notification in notifications">
+                        <!-- 입찰 알림 -->
+                        <div class="rounded-xl border border-gray-200 hover:bg-zinc-200 m-2" v-if="notification.notificationType === 'BID'"
+                             v-on:click="clickNotification(notification.itemId)">
+                            <button class="flex px-3 py-5  items-center">
+                                <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
+                                <div class="flex flex-col items-start ml-2">
+                                    <div class="text-[15px] text-[#242729] font-semibold"> 입찰 알림</div>
+                                    <div class="text-left text-[11px] text-[#242729]"> 등록하신 상품에 입찰이 등록되었습니다. 바로 확인해보세요!</div>
+                                    <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'BID_END'"
+                             v-on:click="clickNotification(notification.itemId)">
+                            <button class="flex px-3 py-5  items-center">
+                                <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
+                                <div class="flex flex-col items-start ml-2">
+                                    <div class="text-[15px] text-[#242729] font-semibold"> 경매 종료</div>
+                                    <div class="text-left text-[11px] text-[#242729]"> 경매가 종료되었습니다. 판매자의 연락을 기다려주세요!</div>
+                                    <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
+                                </div>
+                            </button>
+                        </div>
 
-                            <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'SOLDOUT'"
-                                 v-on:click="clickNotification(notification.itemId)">
-                                <button class="flex px-3 py-5  items-center">
-                                    <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
-                                    <div class="flex flex-col items-start ml-2">
-                                        <div class="text-[15px] text-[#242729] font-semibold"> 판매 완료</div>
-                                        <div class="text-left text-[11px] text-[#242729]"> 가격을 제시한 물건의 판매가 완료되었습니다.</div>
-                                        <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
-                                    </div>
-                                </button>
-                            </div>
-                            <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'COMMENT'"
-                                 v-on:click="clickNotification(notification.itemId)">
-                                <button class="flex px-3 py-5  items-center">
-                                    <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
-                                    <div class="flex flex-col items-start ml-2">
-                                        <div class="text-[15px] text-[#242729] font-semibold"> 댓글 등록</div>
-                                        <div class="text-left text-[11px] text-[#242729]"> 등록하신 상품에 댓글이 등록되었습니다. 바로 확인해보세요!</div>
-                                        <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
-                                    </div>
-                                </button>
-                            </div>
+                        <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'SOLDOUT'"
+                             v-on:click="clickNotification(notification.itemId)">
+                            <button class="flex px-3 py-5  items-center">
+                                <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
+                                <div class="flex flex-col items-start ml-2">
+                                    <div class="text-[15px] text-[#242729] font-semibold"> 판매 완료</div>
+                                    <div class="text-left text-[11px] text-[#242729]"> 가격을 제시한 물건의 판매가 완료되었습니다.</div>
+                                    <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="hover:bg-zinc-200" v-if="notification.notificationType === 'COMMENT'"
+                             v-on:click="clickNotification(notification.itemId)">
+                            <button class="flex px-3 py-5  items-center">
+                                <img class ="ml-2 w-[40px] h-[40px]" src="https://kr.object.ncloudstorage.com/s3bucket/notification.PNG">
+                                <div class="flex flex-col items-start ml-2">
+                                    <div class="text-[15px] text-[#242729] font-semibold"> 댓글 등록</div>
+                                    <div class="text-left text-[11px] text-[#242729]"> 등록하신 상품에 댓글이 등록되었습니다. 바로 확인해보세요!</div>
+                                    <div class="truncate text-[11px] text-gray-600">{{notification.elapsedTime}}</div>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- 알림 끝 -->
+</div>
+<!-- 알림 끝 -->
 </div>
 </body>
 
@@ -133,8 +133,8 @@
             readAllNotification() {
                 axios.put('/api/v1/notification/readAll',{
                 }).then(response => {
-                        this.updateData();
-                    }).catch(error => {
+                    this.updateData();
+                }).catch(error => {
                     console.log(error);
                 })
             },
