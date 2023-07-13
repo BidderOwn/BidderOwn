@@ -31,4 +31,24 @@ public class ItemController {
         model.addAttribute("itemId", id);
         return "usr/item/detail";
     }
+    @GetMapping("/sale-list")
+    public String showSaleItemList() {
+        return "usr/item/sale_list";
+    }
+
+    @GetMapping("/heart-list")
+    public String showHeartItemList() {
+        return "usr/item/heart_list";
+    }
+
+    @GetMapping("/bid-list")
+    public String showBidItemList() {
+        return "usr/item/bid_list";
+    }
+    @GetMapping("/update/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String showUpdateItem(Model model, @PathVariable Long id) {
+        model.addAttribute("itemId", id);
+        return "/usr/item/update";
+    }
 }

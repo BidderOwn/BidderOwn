@@ -5,11 +5,10 @@
 <body>
 <div id="app">
     <div th:replace="header::div"></div>
-    <div class="flex flex-col items-center mt-10">
-        <!--    <div clss="mr-5">{{ username }}</div>-->
+    <div class="flex flex-col items-center mt-20">
         <!-- 선택 박스   -->
-        <div class="w-[1230px] text-end mr-[80px] mb-3">
-            <select class="bg-gray-200 rounded-sm px-1 py-1" :value="selected" @change="setOrder($event)">
+        <div class="w-[600px] text-end mr-[20px] mb-3">
+            <select class="w-[130px] border border-gray-200 rounded-l px-1 py-1" :value="selected" @change="setOrder($event)">
                 <option v-for="(item, index) in selectList"
                         :key="index"
                         :value="item.value">
@@ -19,58 +18,66 @@
         </div>
 
         <!-- 그리드 -->
-        <div class="grid grid-cols-3 place-items-center w-[1200px] snap-y">
+        <div class="grid grid-cols-3 place-items-center w-[600px] snap-y">
             <div v-for="item in items" v-bind:key="item.id">
                 <!--  아이템 하나  -->
-                <div class="flex flex-col w-[350px] min-w-[350px] h-[300px] mb-[30px] cursor-pointer"
+                <div class="flex flex-col w-[180px] h-[330px] mb-[20px] cursor-pointer"
                      v-on:click="clickItem(item.id)">
                     <!--   이미지   -->
-                    <div class="w-[350px] h-[230px] truncate rounded-lg">
-                        <img class="object-cover h-full w-full" :src="item.thumbnailImageUrl" width="350" height="212">
+                    <div class="shadow relative rounded-2xl w-full h-[210px] truncate">
+                        <img class="object-cover h-[210px] w-full" :src="item.thumbnailImageUrl">
+                        <!--  좋아요 카운트  -->
+                        <button class="absolute bottom-3 right-3 ">
+                        <span class="flex items-center mr-2">
+                                    <img v-if="!item.likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/empty_heart.png" class="w-[15px] h-[15px]">
+                                    <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png" class="w-[15px] h-[15px]">
+
+                        </span>
+                        </button>
                     </div>
                     <!--   제목   -->
                     <div class="flex justify-start items-center mt-1">
-                        <div class="flex items-start">
-                            <div v-if="item.itemStatus === '경매종료' || item.itemStatus === '판매완료'" class="text-xl font-bold text-gray-600">{{ item.title }}</div>
-                            <div v-else class="text-xl font-bold">{{ item.title }}</div>
-                            <div v-if="item.itemStatus === '경매종료' || item.itemStatus === '판매완료'" class="text-sm text-gray-600 ml-1 pt-[2px]">경매종료</div>
+                        <a class="truncate text-[15px] text-[#34383B] font-semibold">{{ item.title }}</a>
+                    </div>
+
+                    <div class = "flex">
+                        <div class="mr-1 text-[15px] text-[#242729] font-bold">{{ item.minimumPrice }}원</div>
+
+                        <div v-if="item.itemStatus === 'BID_END'" class="flex items-center">
+                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5 rounded-[3px]">입찰종료</span>
                         </div>
-                        <div class="flex ml-auto">
-                            <span class="flex mr-2">
-                                <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png" class="w-[20px] h-[20px]">
-                                <span class="text-sm text-gray-600">{{ item.bidCount }}</span>
-                            </span>
-                                <span class="flex items-center">
-                                <img src="https://kr.object.ncloudstorage.com/s3bucket/comment.png" class="w-[18px] h-[18px] mr-1">
-                                <span class="text-sm text-gray-600">{{ item.commentsCount }}</span>
-                            </span>
+                        <div v-if="item.itemStatus === 'SOLDOUT'" class="flex items-center">
+                            <span class="text-[7px] text-gray-600 bg-gray-200 ml-1 p-0.5 rounded-[3px]">판매완료</span>
+                        </div>
+                        <div v-if="item.itemStatus === 'BIDDING'" class="flex items-center">
+                            <span class="text-[7px] text-gray-600 bg-gray-200 py-[0.5px] px-[5px] rounded-[3px]">입찰중</span>
                         </div>
                     </div>
 
-                    <div class="text-sm text-indigo-400">₩{{ item.minimumPrice }}</div>
+                    <div class="text-[11px] text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
+
                     <div class="flex">
-                        <span class="text-sm text-gray-600" v-if="isPriceShow(item.minPrice)">
-                            최저가 ₩{{ item.minPrice }} ~ &nbsp
-                        </span>
-                        <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최저가&nbsp₩&nbsp~&nbsp</span>
+                        <!--  비드 카운트  -->
+                        <span class="flex items-center mr-2">
+                                <span class="text-[11px] text-[#34383B]">입찰   </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">{{ item.bidCount }} </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">댓글 </span>
+                                <span class="pl-1.5 text-[11px] text-[#34383B]">{{ item.commentsCount }} </span>
+                            </span>
 
-                        <span class="text-sm text-gray-600" v-if="isPriceShow(item.maxPrice)">
-                            최고가 ₩{{ item.maxPrice }}
-                        </span>
-                        <span class="text-sm text-gray-600"  v-if="isPriceShow(item.minPrice) === false">최고가&nbsp₩&nbsp</span>
+
                     </div>
-                    <div class="text-sm text-gray-600" v-if="item.itemStatus === 'BIDDING'">{{ item.expireAt }}</div>
                     <div v-else>&nbsp</div>
                 </div>
             </div>
         </div>
         <input type="hidden" id="username" th:value="${username}">
         <input type="hidden" id="searchText" th:value="${searchText}">
-        <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[35px] mr-[50px] fixed bottom-0 right-0">
+        <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[40px] mr-[100px] fixed bottom-0 right-0">
             <img src="https://kr.object.ncloudstorage.com/s3bucket/add_item.png">
         </button>
-        <button class="mb-10" v-on:click="addData">
-            더 불러오기
+        <button class="hover:bg-zinc-200 text-[11px] mb-10 px-7 rounded-xl border border-gray-200 h-[40px]" v-on:click="addData">
+            더보기
         </button>
 
     </div>
@@ -92,12 +99,14 @@
             size: 9,
             searchText: '',
             prefix: '/api/v1/item/list',
+            likes: [],
         },
         created() {
             this.username = document.getElementById('username').value;
             this.searchText = document.getElementById('searchText').value;
             localStorage.setItem("username", this.username);
             this.selected = this.selectList[0].value;
+            this.getLikeIdList();
             this.addData();
         },
         methods: {
@@ -110,6 +119,7 @@
                                 title: item.title,
                                 bidCount: item.bidCount,
                                 commentsCount: item.commentsCount,
+                                heartsCount: item.heartsCount,
                                 minimumPrice: item.minimumPrice,
                                 minPrice: item.minPrice,
                                 maxPrice: item.maxPrice,
@@ -117,6 +127,7 @@
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
                                 thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
+                                likeStatus: this.checkLikeId(item.id),
                             },
                         )
                     })
@@ -184,6 +195,17 @@
                 }
                 query += "&size=" + this.size;
                 return query;
+            },
+            getLikeIdList() {
+                axios.get('/api/v1/item/home/likes')
+                    .then(response => {
+                        this.likes = response.data;
+                    }).catch(error => {
+                    console.log(error);
+                })
+            },
+            checkLikeId(itemId) {
+                return this.likes.includes(itemId);
             }
         }
     })

@@ -3,10 +3,8 @@ package site.bidderown.server.bounded_context.chat_room.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.exception.custom_exception.SoldOutItemException;
-import site.bidderown.server.bounded_context.chat.controller.dto.ChatResponse;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomDetail;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomRequest;
 import site.bidderown.server.bounded_context.chat_room.controller.dto.ChatRoomResponse;
@@ -45,6 +43,9 @@ public class ChatRoomService {
 
     @Transactional
     public Long handleChatRoom(ChatRoomRequest chatRoomRequest) {
+        if(chatRoomRequest.getItemId() == null)
+            return -1L;
+
         Item item = itemService.getItem(chatRoomRequest.getItemId());
         Member buyer = memberService.getMember(chatRoomRequest.getBuyerName());
         Member seller = item.getMember();

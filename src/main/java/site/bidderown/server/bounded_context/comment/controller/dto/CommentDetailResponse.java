@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.comment.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,18 +8,25 @@ import lombok.NoArgsConstructor;
 import site.bidderown.server.bounded_context.comment.entity.Comment;
 import java.time.LocalDateTime;
 
+@Schema(description = "댓글상세 응답")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentDetailResponse {
+    @Schema(description = "댓글ID")
     private Long commentId;
+    @Schema(description = "작성자ID")
     private Long memberId;
+    @Schema(description = "작성자이름")
     private String memberName;
+    @Schema(description = "내용")
     private String content;
+    @Schema(description = "생성일자")
     private LocalDateTime createdAt;
+    @Schema(description = "수정일자")
     private LocalDateTime updatedAt;
 
     @Builder
-    private CommentDetailResponse (
+    public CommentDetailResponse (
             Long commentId,
             Long memberId,
             String memberName,

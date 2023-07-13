@@ -80,11 +80,13 @@ public class NotificationService {
         return createNotifications(notifications);
     }
     @Transactional
-    public Notification createNewCommentNotification(Long itemId) {
+    public Notification createNewCommentNotification(Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
-        sendNotification(item.getMember().getId());
-        messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
 
+        if(item.getMember().getName().equals(writerName))
+            return null;
+
+        messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
         return notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.COMMENT));
 
     }

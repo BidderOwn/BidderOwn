@@ -1,4 +1,4 @@
-package site.bidderown.server.base.redis;
+package site.bidderown.server.base.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

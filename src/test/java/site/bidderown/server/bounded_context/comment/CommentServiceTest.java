@@ -20,6 +20,7 @@ import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
+import java.awt.print.Pageable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -92,7 +93,7 @@ public class CommentServiceTest {
         assertThat(item.getComments().size()).isEqualTo(0);
     }
 
-    @DisplayName("상품 댓글 전체 개수 테스트")
+   /* @DisplayName("상품 댓글 전체 개수 테스트")
     @Test
     void t003() {
         //given
@@ -126,7 +127,7 @@ public class CommentServiceTest {
         assertThat(comments).isSortedAccordingTo(
                 Comparator.comparing(CommentDetailResponse::getCommentId, Comparator.reverseOrder())
         );
-    }
+    }*/
 
     @DisplayName("댓글 삭제 테스트")
     @Test

@@ -24,15 +24,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final ItemRedisService itemRedisService;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
     private final HeartRepository heartRepository;
+
 
     @Transactional
     public Item create(ItemRequest request, Long memberId) {
@@ -52,17 +52,80 @@ public class ItemService {
     }
 
     public ItemDetailResponse getItemDetail(Long id) {
-        ItemDetailResponse item = itemCustomRepository.findItemById(id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
-        item.setBidCount(itemRedisService.getBidCount(item.getId()));
-        item.setHeartCount(itemRedisService.getHeartCount(item.getId()));
-        return item;
+        Item item = itemCustomRepository.findItemById(id);
+        return ItemDetailResponse.of(
+                item,
+                // 상품 입찰 최고가
+                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
+                // 상품 입찰 최저가
+                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
+                // 상품 count 정보
+                itemRedisService.getItemCounts(item)
+        );
     }
 
-    public ItemUpdate updateById(Long itemId, ItemUpdate itemUpdate) {
-        Item findItem = getItem(itemId);
-        findItem.update(itemUpdate);
-        return new ItemUpdate(findItem.getTitle(), findItem.getDescription());
+    /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public ItemDetailResponse getItemDetail__v1(Long id) {
+        Item item = itemCustomRepository.findItemById(id);
+        return ItemDetailResponse.of__v1(
+                item,
+                // 상품 입찰 최고가
+                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
+                // 상품 입찰 최저가
+                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
+                item.getBids().size(),
+                item.getComments().size(),
+                item.getHearts().size()
+        );
+    }
+
+    /**
+     * @description 테스트를 위한 메서드입니다.
+     */
+    @Transactional(readOnly = true)
+    public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
+        return items.stream().map(ItemsResponse::of__v12).toList();
+    }
+
+    /**
+     * @description 테스트를 위한 메서드입니다.
+     */
+    @Transactional(readOnly = true)
+    public List<ItemsResponse> getItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<Item> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
+        return items.stream().map(ItemsResponse::of__v12).toList();
+    }
+
+    /**
+     * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
+     */
+    @Transactional(readOnly = true)
+    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+        for (ItemsResponse item : items) {
+            // 상품 count 정보
+            item.setCounts(itemRedisService.getItemCounts(item.getId()));
+        }
+        return items;
+    }
+
+    public ItemUpdateResponse getUpdateItem(Long itemId) {
+        return ItemUpdateResponse.of(getItem(itemId));
+    }
+
+    @Transactional
+    public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
+        Item item = getItem(itemId);
+
+        if (!item.getMember().getName().equals(memberName)) {
+            throw new ForbiddenException("수정권한이 없습니다.");
+        }
+
+        item.update(request);
+        return item;
     }
 
     @Transactional
@@ -74,16 +137,6 @@ public class ItemService {
         }
 
         item.updateDeleted();
-    }
-
-    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
-        items.forEach(itemsResponse -> {
-            itemsResponse.setBidCount(itemRedisService.getBidCount(itemsResponse.getId()));
-            itemsResponse.setCommentsCount(itemRedisService.getCommentCount(itemsResponse.getId()));
-            itemsResponse.setHeartsCount(itemRedisService.getHeartCount(itemsResponse.getId()));
-        });
-        return items;
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
@@ -154,8 +207,6 @@ public class ItemService {
         Item item = itemRepository.save(Item.of(request, member));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
-
-        itemRedisService.createWithExpire(item, request.getPeriod());
 
         return item;
     }

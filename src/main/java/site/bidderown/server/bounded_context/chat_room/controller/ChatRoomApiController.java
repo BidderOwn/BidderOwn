@@ -1,5 +1,7 @@
 package site.bidderown.server.bounded_context.chat_room.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,25 +16,29 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1")
+@Tag(name = "채팅룸 chat-room-api-controller", description = "채팅룸 관련 api 입니다.")
+@RequestMapping("/api/v1/chat-room")
 public class ChatRoomApiController {
 
     private final ChatRoomService chatRoomService;
 
+    @Operation(summary = "채팅방 목록", description = "참여중인 채팅방 목록을 가져옵니다.")
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/chat-room/list")
+    @GetMapping("/list")
     public List<ChatRoomResponse> findChatRoomList(@AuthenticationPrincipal User user) {
         return chatRoomService.getChatRooms(user.getUsername());
     }
 
-    @GetMapping("/chat-detail/{chatRoomId}")
-    public ChatRoomDetail joinChat(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
+    @Operation(summary = "채팅방 상세정보", description = "채팅방 id를 이용해 채팅방에 대한 상세 정보를 조회합니다.")
+    @GetMapping("/detail/{chatRoomId}")
+    public ChatRoomDetail getChatRoomDetail(@AuthenticationPrincipal User user, @PathVariable Long chatRoomId){
         return chatRoomService.getChatRoomDetail(chatRoomId, user.getUsername());
     }
 
-    @PostMapping("/chat-room")
+    @Operation(summary = "채팅방 생성", description = "itemId와 buyerName을 이용해 기존 채팅룸이 있다면 chatRoomId를 반환하고 없다면 생성하여 반환합니다.")
+    @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public String handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
-        return "/chat/list?id=" + chatRoomService.handleChatRoom(chatRoomRequest);
+    public Long handleChatRoom(@RequestBody ChatRoomRequest chatRoomRequest){
+        return chatRoomService.handleChatRoom(chatRoomRequest);
     }
 }
