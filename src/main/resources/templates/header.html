@@ -66,12 +66,12 @@
 
         readNotification = () => {
             localStorage.setItem('notificationStatus', "0");
-            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification.png');
+            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_0.png');
         }
 
         readChat = () => {
             localStorage.setItem('chatStatus', "0");
-            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat.png');
+            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_0.png');
         }
 
         socketConnect = () => {
@@ -91,11 +91,11 @@
                                 console.log(message.body);
                                 if (message.body === 'NOTIFICATION') {
                                     localStorage.setItem('notificationStatus', '1');
-                                    $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_noti.png');
+                                    $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_1.png');
                                 } else {
                                     if (window.location.href.includes("/chat-room/list")) return;
                                     localStorage.setItem('chatStatus', '1');
-                                    $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_noti.png');
+                                    $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_1.png');
                                 }
                             }
                         );

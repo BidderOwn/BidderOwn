@@ -7,14 +7,26 @@
     <div th:replace="header::div"></div>
     <div class="flex flex-col items-center mt-20">
         <!-- 선택 박스   -->
-        <div class="w-[600px] text-end mr-[20px] mb-3">
-            <select class="w-[130px] border border-gray-200 rounded-l px-1 py-1" :value="selected" @change="setOrder($event)">
-                <option v-for="(item, index) in selectList"
-                        :key="index"
-                        :value="item.value">
-                    {{ item.name }}
-                </option>
-            </select>
+        <div class="flex w-[600px] justify-end">
+            <div class=" text-end mb-3 mr-[10px]">
+                <select class="w-[130px] border border-gray-200 rounded-l px-1 py-1 text-[14px]" :value="filter" @change="setFilter($event)">
+                    <option v-for="(item, index) in filterList"
+                            :key="index"
+                            :value="item.value">
+                        {{ item.name }}
+                    </option>
+                </select>
+            </div>
+            <!-- 선택 박스   -->
+            <div class="text-end mb-3 mr-[10px]">
+                <select class="w-[100px] border border-gray-200 rounded-l px-1 py-1 text-[14px]" :value="selected" @change="setOrder($event)">
+                    <option v-for="(item, index) in selectList"
+                            :key="index"
+                            :value="item.value">
+                        {{ item.name }}
+                    </option>
+                </select>
+            </div>
         </div>
 
         <!-- 그리드 -->
@@ -93,7 +105,12 @@
                 {name: "인기순", value: '2'},
                 {name: "종료임박순", value: '3'}
             ],
+            filterList: [
+                {name: "입찰상품만 보기", value: false},
+                {name: "전체 보기", value: true},
+            ],
             selected: '',
+            filter: false,
             items: [],
             page: 0,
             size: 9,
@@ -111,6 +128,7 @@
         },
         methods: {
             addData() {
+                console.log(this.prefix + this.getQuery() + this.getLastItemId());
                 axios.get(this.prefix + this.getQuery() + this.getLastItemId()).then(response => {
                     response.data.forEach(item => {
                         this.items.push(
@@ -140,6 +158,12 @@
                 this.page = 0;
                 this.items = [];
                 this.selected = event.target.value;
+                this.addData();
+            },
+            setFilter(event) {
+                this.page = 0;
+                this.items = [];
+                this.filter = event.target.value;
                 this.addData();
             },
             clickItem(itemId) {
@@ -183,6 +207,10 @@
                         query += '&';
                     }
                     query += 'q=' + this.searchText;
+                }
+
+                if (this.filter) {
+                    query += '&filter=' + this.filter;
                 }
                 return query;
             },

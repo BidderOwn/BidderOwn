@@ -85,8 +85,13 @@ public class ItemService {
      * @description 테스트를 위한 메서드입니다.
      */
     @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems__v1(int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = itemCustomRepository.findItems__v1(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems__v1(ItemsRequest itemsRequest, Pageable pageable) {
+        List<Item> items = itemCustomRepository.findItems__v1(
+                itemsRequest.getS(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
         return items.stream().map(ItemsResponse::of__v12).toList();
     }
 
@@ -94,8 +99,14 @@ public class ItemService {
      * @description 테스트를 위한 메서드입니다.
      */
     @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<Item> items = itemCustomRepository.findItems__v2(lastItemId, sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
+        List<Item> items = itemCustomRepository.findItems__v2(
+                itemsRequest.getId(),
+                itemsRequest.getS(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
         return items.stream().map(ItemsResponse::of__v12).toList();
     }
 
@@ -103,10 +114,15 @@ public class ItemService {
      * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
      */
     @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems(lastItemId, sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(
+                itemsRequest.getId(),
+                itemsRequest.getS(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
         for (ItemsResponse item : items) {
-            // 상품 count 정보
             item.setCounts(itemRedisService.getItemCounts(item.getId()));
         }
         return items;
