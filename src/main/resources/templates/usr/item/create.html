@@ -80,7 +80,7 @@
             <div class="flex mt-2 border border-gray-400 rounded-lg">
                 <div class="filebox p-1">
                     <input class="upload-name p-[10px]" value="첨부파일" placeholder="첨부파일" disabled v-model="filenames">
-                    <label class="h-[35px] rounded-lg p-2 pb-3 text-white bg-[#496AFF] cursor-pointer" for="file">파일찾기</label>
+                    <label class="h-[35px] p-2 pb-3 text-[15px] text-[#496AFF] cursor-pointer" for="file">파일찾기</label>
                     <input type="file" name="images" accept=".gif, .jpg, .png" multiple id="file"
                            v-on:change="onFileChange">
                 </div>
@@ -94,7 +94,7 @@
             </div>
             <!--  등록 버튼  -->
             <div class="flex justify-center mt-1 mb-10 ">
-                <button class="w-full h-[80px]  py-1 px-8 rounded-lg bg-[#496AFF] border border-slate-300 hover:border-indigo-300 text-lg font-semibold text-white"
+                <button class="w-full py-1 px-5 rounded-lg bg-[#496AFF] border border-slate-300 hover:border-indigo-300 text-lg font-semibold text-white"
                         type="submit" v-on:click="submit" @click="createProduct">작성 완료
                 </button>
             </div>
