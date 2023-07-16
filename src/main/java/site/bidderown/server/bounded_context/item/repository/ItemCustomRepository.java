@@ -51,7 +51,7 @@ public class ItemCustomRepository {
         return queryFactory
                 .selectFrom(item)
                 .where(
-                        ltItemId(lastItemId, pageable.getPageSize()),
+                        ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
                         eqBidding(isAll)
@@ -83,7 +83,7 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .where(
-                        betweenItemId(lastItemId, pageable.getPageSize()),
+                        ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
                         eqBidding(isAll)
@@ -123,28 +123,7 @@ public class ItemCustomRepository {
                 .fetchFirst();
     }
 
-    public Integer findItemBidMaxPriceByItemId__v1(Long itemId) {
-        return queryFactory.select(bid.price.max())
-                .from(bid)
-                .where(bid.item.id.eq(itemId))
-                .fetchOne();
-    }
-
-    public Integer findItemBidMinPriceByItemId__v1(Long itemId) {
-        return queryFactory.select(bid.price.min())
-                .from(bid)
-                .where(bid.item.id.eq(itemId))
-                .fetchOne();
-    }
-
-    private BooleanExpression betweenItemId(Long itemId, int size) {
-        if (itemId == null) {
-            return null;
-        }
-        return item.id.lt(itemId).and(item.id.gt(itemId - size - 1));
-    }
-
-    private BooleanExpression ltItemId(Long itemId, int size) {
+    private BooleanExpression ltItemId(Long itemId) {
         if (itemId == null) {
             return null;
         }
