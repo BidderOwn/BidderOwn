@@ -1,5 +1,6 @@
 ## 경매를 통해 중고물품을 사고 파는 BidderOwn
-![스크린샷 2023-07-17 오후 11.49.13.png](..%2F..%2F..%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-07-17%20%EC%98%A4%ED%9B%84%2011.49.13.png)
+![홈_화면_AdobeExpress](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/758d5e6a-935f-41ec-9c41-f1870d6c6311)
+
 
 ## 🧑🏻‍💻 팀 소개
 
@@ -79,4 +80,5 @@
 <img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">
 
 ## ⚙️ 프로젝트 구조도
-![구조도.png](..%2F..%2F..%2F..%2FDownloads%2F%EA%B5%AC%EC%A1%B0%EB%8F%84.png)
+![구조도](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/1d064e44-ba80-4310-86f7-1f0165cced3d)
+
