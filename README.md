@@ -35,17 +35,22 @@
   </tr>
 </table>
 
+<br>
+
 ## 📅 프로젝트 기간
 - 기획: 23.05.22 ~ 23.05.26
 - 구현: 23.05.27 ~ 23.07.13
 - 리팩토링: 23.07.14 ~
 
+<br>
 
 ## 📋 프로젝트 설명
 - 경매를 통해 사고 파는 중고 거래 서비스입니다.
 - 판매자는 판매 희망가격을 올립니다.
 - 구매자들은 가격을 보고 더 높은 가격 혹은 더 낮은 가격을 제시할 수 있습니다.
 - 판매자는 자신이 원하는 구매자와 채팅을 통해 판매 여부를 결정할 수 있습니다.
+
+<br>
 
 ## 🔧 기술 스택
 <div align=left>
@@ -78,6 +83,8 @@
 <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
 <img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white">
+
+<br>
 
 ## ⚙️ 프로젝트 구조도
 ![구조도](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/1d064e44-ba80-4310-86f7-1f0165cced3d)

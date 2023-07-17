@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://mariadb-1-service:3306/bidder_own?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul
+  jpa:
+    hibernate:
+      ddl-auto: create
+  redis:
+    host: redis-1-service
+
+server:
+  shutdown: graceful
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

@@ -22,7 +22,7 @@ import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.util.List;
 
-@Profile({"dev"})
+@Profile({"prod", "dev"})
 @Configuration
 @Transactional
 public class NotProd {
