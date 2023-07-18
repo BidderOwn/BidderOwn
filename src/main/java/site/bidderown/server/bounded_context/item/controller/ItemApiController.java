@@ -1,8 +1,6 @@
 package site.bidderown.server.bounded_context.item.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,45 +29,30 @@ public class ItemApiController {
     private final MemberService memberService;
 
     @Operation(summary = "모든 상품 조회",
-               description = "item entity: querydsl, pagination\n" +
-                             "count: jpa 사용\n" +
-                             "min, max: querydsl")
+               description = """
+                       item entity: querydsl, pagination
+                       count: jpa 사용
+                       min, max: querydsl""")
     @GetMapping("/list-v1")
-    public List<ItemsResponse> getItems__v1(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            Pageable pageable
-    ) {
-        return itemService.getItems__v1(sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems__v1(ItemsRequest itemsRequest, Pageable pageable) {
+        return itemService.getItems__v1(itemsRequest, pageable);
     }
 
     @Operation(summary = "모든 상품 조회",
-               description = "itemsResponse: querydsl, no offset\n" +
-                             "count: querydsl - v1과 유사\n" +
-                             "min, max: querydsl - 정렬 후 limit 1")
+               description = """
+                       itemsResponse: querydsl, no offset
+                       count: querydsl - v1과 유사
+                       min, max: querydsl - 정렬 후 limit 1""")
     @GetMapping("/list-v2")
-    public List<ItemsResponse> getItems__v2(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            @RequestParam(name = "id", required = false) Long lastItemId,
-            Pageable pageable
-    ) {
-        return itemService.getItems__v2(lastItemId, sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
+        return itemService.getItems__v2(itemsRequest, pageable);
     }
 
     @Operation(summary = "모든 상품 가져오기",
-               description = "ItemsResponse: v2와 유사\n" +
-                             "count: redis cqrs\n" +
-                             "min, max: v2와 동일")
+               description = "제목, 가격, 입찰 남은 날짜, 입찰 개수, 댓글 개수를 가져옵니다.")
     @GetMapping("/list")
-    public List<ItemsResponse> getItems(
-            @RequestParam(name="s", defaultValue = "1") int sortCode,
-            @RequestParam(name = "q", defaultValue = "") String searchText,
-            @Parameter(name = "id", description = "마지막상품의 id")
-            @RequestParam(name = "id", required = false) Long lastItemId,
-            Pageable pageable
-    ) {
-        return itemService.getItems(lastItemId, sortCode, searchText, pageable);
+    public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
+        return itemService.getItems(itemsRequest, pageable);
     }
 
     @Operation(summary = "상품 등록", description = "경매하고 싶은 상품을 등록합니다.")

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +31,12 @@ public class ItemCustomRepository {
     /**
      * 성능 테스트를 위한 메서드입니다.
      */
-    public List<Item> findItems__v1(int sortCode, String searchText, Pageable pageable) {
+    public List<Item> findItems__v1(int sortCode, String searchText, boolean isAll, Pageable pageable) {
         return queryFactory.selectFrom(item)
                 .where(
                         eqToSearchText(searchText),
-                        eqNotDeleted()
+                        eqNotDeleted(),
+                        eqBidding(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -45,13 +47,14 @@ public class ItemCustomRepository {
     /**
      * 성능 테스트를 위한 메서드입니다.
      */
-    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
         return queryFactory
                 .selectFrom(item)
                 .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
                         eqNotDeleted(),
-                        betweenItemId(lastItemId, pageable.getPageSize()),
-                        eqToSearchText(searchText)
+                        eqBidding(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -65,7 +68,7 @@ public class ItemCustomRepository {
      * @param pageable   페이징: 9
      * @return 홈화면에 보여질 아이템 리스트
      */
-    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, Pageable pageable) {
+    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -80,9 +83,10 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
                         eqNotDeleted(),
-                        betweenItemId(lastItemId, pageable.getPageSize()),
-                        eqToSearchText(searchText)
+                        eqBidding(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -119,25 +123,16 @@ public class ItemCustomRepository {
                 .fetchFirst();
     }
 
-    public Integer findItemBidMaxPriceByItemId__v1(Long itemId) {
-        return queryFactory.select(bid.price.max())
-                .from(bid)
-                .where(bid.item.id.eq(itemId))
-                .fetchOne();
-    }
-
-    public Integer findItemBidMinPriceByItemId__v1(Long itemId) {
-        return queryFactory.select(bid.price.min())
-                .from(bid)
-                .where(bid.item.id.eq(itemId))
-                .fetchOne();
-    }
-
-    private BooleanExpression betweenItemId(Long itemId, int size) {
+    private BooleanExpression ltItemId(Long itemId) {
         if (itemId == null) {
             return null;
         }
-        return item.id.lt(itemId).and(item.id.gt(itemId - size - 1));
+        return item.id.lt(itemId);
+    }
+
+    private BooleanExpression eqBidding(boolean isAll) {
+        if (isAll) return null;
+        return item.itemStatus.eq(ItemStatus.BIDDING);
     }
 
     private OrderSpecifier<?>[] orderBySortCode(int sortCode) {
@@ -147,7 +142,6 @@ public class ItemCustomRepository {
             case 3 -> orderSpecifiers.add(item.expireAt.asc());
         }
         orderSpecifiers.add(item.id.desc());
-        orderSpecifiers.add(item.itemStatus.desc());
         return orderSpecifiers.toArray(new OrderSpecifier[0]);
     }
 

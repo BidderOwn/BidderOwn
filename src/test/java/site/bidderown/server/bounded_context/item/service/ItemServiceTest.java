@@ -19,6 +19,7 @@ import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemsRequest;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
@@ -86,9 +87,10 @@ public class ItemServiceTest {
         int sortCode = 1;
         String searchText = "test";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(sortCode).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -104,9 +106,10 @@ public class ItemServiceTest {
         int sortCode = 2;
         String searchText = "test";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(sortCode).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -122,9 +125,10 @@ public class ItemServiceTest {
         int sortCode = 3;
         String searchText = "test";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(sortCode).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, sortCode, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -139,9 +143,10 @@ public class ItemServiceTest {
         //given
         String searchText = "test_title_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(1).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(1);
@@ -156,9 +161,10 @@ public class ItemServiceTest {
         //given
         String searchText = "test_description_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(1).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(1);
@@ -175,9 +181,10 @@ public class ItemServiceTest {
         //given
         String searchText = "test_member_1";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(1).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, 1, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(5);
@@ -191,10 +198,12 @@ public class ItemServiceTest {
     void test008() {
         //given
         String searchText = "test_";
+        int sortCode = 2;
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(sortCode).q(searchText).build();
 
         //when
-        List<ItemsResponse> items = itemService.getItems(null, 2, searchText, pageRequest);
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
         assertThat(items).isSortedAccordingTo(
