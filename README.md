@@ -1,16 +1,5 @@
 ## 경매를 통해 중고물품을 사고 파는 BidderOwn
-
-| **메인 페이지** | **상품 등록** | **마이페이지** |
-| :---: |  :---: | :---: |
-| ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) | ![녹화_2023_07_18_17_52_44_831](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/d3657e9c-e532-4ec0-a49b-8dd1e9790116) | ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) | 
-
-| **입찰 등록** |
-| :---: |
-| ![입찰하기](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7afbc0a7-94f9-436f-b517-60b534ff91c3) |
-
-| **채팅 및 실시간 알림** |
-| :---: |
-| ![채팅(구매자)](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/62bfa4d4-aaf7-4cee-8d23-39e9b84b4846) |
+![스크린샷 2023-07-18 오전 12 57 42](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/52871020-9ceb-4b9c-beab-d2feb34f6817)
 
 ## 🧑🏻‍💻 팀 소개
 
@@ -59,6 +48,20 @@
 - 판매자는 상품을 올릴 때, 판매 희망가격과 경매 기간 입력합니다.
 - 구매자들은 가격을 보고 더 높은 가격 혹은 더 낮은 가격을 제시할 수 있습니다.
 - 판매자는 자신이 원하는 구매자와 채팅을 통해 판매 여부를 결정할 수 있습니다.
+
+<br>
+
+| **메인 페이지** | **상품 등록** | **마이페이지** |
+| :---: |  :---: | :---: |
+| ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) | ![녹화_2023_07_18_17_52_44_831](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/d3657e9c-e532-4ec0-a49b-8dd1e9790116) | ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) | 
+
+| **입찰 등록** |
+| :---: |
+| ![입찰하기](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7afbc0a7-94f9-436f-b517-60b534ff91c3) |
+
+| **채팅 및 실시간 알림** |
+| :---: |
+| ![채팅(구매자)](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/62bfa4d4-aaf7-4cee-8d23-39e9b84b4846) |
 
 <br>
 
