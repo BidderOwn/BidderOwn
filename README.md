@@ -1,8 +1,8 @@
 ## 경매를 통해 중고물품을 사고 파는 BidderOwn
 
-| **메인 페이지** |
-| :---: |
-| ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) |
+| **메인 페이지** | **마이페이지** |
+| :---: |  :---: |
+| ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) | ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) |
 
 | **상품 등록** |
 | :---: |
@@ -21,9 +21,8 @@
 | :---: |
 | ![채팅(판매자)](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/0f04a6c0-c35b-4458-9a1b-3e949c2b35cd) |
 
-| **마이페이지** |
-| :---: |
-| ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) |
+
+
 
 ## 🧑🏻‍💻 팀 소개
 
