@@ -1,6 +1,29 @@
 ## 경매를 통해 중고물품을 사고 파는 BidderOwn
-![홈_화면_AdobeExpress](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/758d5e6a-935f-41ec-9c41-f1870d6c6311)
 
+| **메인 페이지** |
+| :---: |
+| ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) |
+
+| **상품 등록** |
+| :---: |
+| ![녹화_2023_07_18_17_52_44_831](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/d3657e9c-e532-4ec0-a49b-8dd1e9790116) |
+
+| **입찰 등록** |
+| :---: |
+| ![입찰하기](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7afbc0a7-94f9-436f-b517-60b534ff91c3) |
+
+
+| **채팅(구매자)** |
+| :---: |
+| ![채팅(구매자)](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/62bfa4d4-aaf7-4cee-8d23-39e9b84b4846) |
+
+| **채팅(판매자)** |
+| :---: |
+| ![채팅(판매자)](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/0f04a6c0-c35b-4458-9a1b-3e949c2b35cd) |
+
+| **마이페이지** |
+| :---: |
+| ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) |
 
 ## 🧑🏻‍💻 팀 소개
 
