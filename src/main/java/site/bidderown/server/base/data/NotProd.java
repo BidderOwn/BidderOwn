@@ -19,7 +19,8 @@ import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-
+import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
+import java.util.ArrayList;
 import java.util.List;
 
 @Profile({"prod", "dev"})
