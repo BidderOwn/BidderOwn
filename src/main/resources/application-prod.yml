@@ -4,7 +4,7 @@ spring:
     url: jdbc:mariadb://mariadb-1-service:3306/bidder_own?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Seoul
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
   redis:
     host: redis-1-service
 
