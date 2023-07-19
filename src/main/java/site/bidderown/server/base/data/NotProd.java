@@ -70,7 +70,7 @@ public class NotProd {
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
             long startTime = System.currentTimeMillis();
-
+            /*
             List<Item> items = List.of(
                     Item.of(ItemRequest.builder().
                             title("나이키 에어포스 1 '07 로우 화이트")
@@ -292,7 +292,18 @@ public class NotProd {
                 itemRepository.save(items.get(i));
                 itemRedisRepository.save(items.get(i).getId(), 3);
             }
+            */
+            ArrayList<BulkInsertItem> bulkInsertItems = new ArrayList<>();
+            for(int i = 0; i < 100000; i++){
+                bulkInsertItems.add(BulkInsertItem.builder()
+                        .title("testItem")
+                        .description("testDescription")
+                        .minimumPrice(10000)
+                        .memberId(member1.getId())
+                        .build());
+            }
 
+            itemJdbcRepository.insertItemList(bulkInsertItems);
 
 
         };
