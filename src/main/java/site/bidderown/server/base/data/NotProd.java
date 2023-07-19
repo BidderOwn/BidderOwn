@@ -23,7 +23,7 @@ import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 import java.util.ArrayList;
 import java.util.List;
 
-@Profile({"prod", "dev"})
+@Profile({"dev"})
 @Configuration
 @Transactional
 public class NotProd {
