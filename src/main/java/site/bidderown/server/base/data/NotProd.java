@@ -70,6 +70,18 @@ public class NotProd {
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
+            ArrayList<BulkInsertItem> bulkInsertItems = new ArrayList<>();
+            for(int i = 0; i < 10000; i++){
+                bulkInsertItems.add(BulkInsertItem.builder()
+                        .title("testItem")
+                        .description("testDescription")
+                        .minimumPrice(10000)
+                        .memberId(member1.getId())
+                        .build());
+            }
+
+            itemJdbcRepository.insertItemList(bulkInsertItems);
+            
             long startTime = System.currentTimeMillis();
             /*
             List<Item> items = List.of(
@@ -294,17 +306,6 @@ public class NotProd {
                 itemRedisRepository.save(items.get(i).getId(), 3);
             }
             */
-            ArrayList<BulkInsertItem> bulkInsertItems = new ArrayList<>();
-            for(int i = 0; i < 100000; i++){
-                bulkInsertItems.add(BulkInsertItem.builder()
-                        .title("testItem")
-                        .description("testDescription")
-                        .minimumPrice(10000)
-                        .memberId(member1.getId())
-                        .build());
-            }
-
-            itemJdbcRepository.insertItemList(bulkInsertItems);
 
 
         };
