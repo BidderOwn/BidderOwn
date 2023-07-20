@@ -23,7 +23,7 @@ import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 import java.util.ArrayList;
 import java.util.List;
 
-@Profile({"dev"})
+@Profile({"prod","dev"})
 @Configuration
 @Transactional
 public class NotProd {
@@ -70,7 +70,19 @@ public class NotProd {
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
-            long startTime = System.currentTimeMillis();
+            ArrayList<BulkInsertItem> bulkInsertItems = new ArrayList<>();
+            for(int n = 0; n < 300; n++) {
+                for (int i = 0; i < 1000; i++) {
+                    bulkInsertItems.add(BulkInsertItem.builder()
+                            .title("testItem")
+                            .description("testDescription")
+                            .minimumPrice(10000)
+                            .memberId(member1.getId())
+                            .build());
+                }
+            }
+
+            itemJdbcRepository.insertItemList(bulkInsertItems);
             /*
             List<Item> items = List.of(
                     Item.of(ItemRequest.builder().
