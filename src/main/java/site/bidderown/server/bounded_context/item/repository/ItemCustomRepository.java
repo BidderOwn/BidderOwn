@@ -32,7 +32,8 @@ public class ItemCustomRepository {
      * 성능 테스트를 위한 메서드입니다.
      */
     public List<Item> findItems__v1(int sortCode, String searchText, boolean isAll, Pageable pageable) {
-        return queryFactory.selectFrom(item)
+        return queryFactory
+                .selectFrom(item)
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted(),

@@ -50,7 +50,9 @@ public class TimeUtils {
                 plusNDay.getYear(),
                 plusNDay.getMonth(),
                 plusNDay.getDayOfMonth(),
-                plusNDay.getHour(), 0, 0);
+                plusNDay.getHour(),
+                plusNDay.getMinute(),
+                plusNDay.getSecond());
     }
 
     public static LocalDateTime getCurrentOClockPlus(int hour) {
