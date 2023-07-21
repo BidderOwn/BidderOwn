@@ -37,3 +37,4 @@ out/
 .vscode/
 application-secret.yml
 /resources/images/item/*
+application-leuiprod.yml
