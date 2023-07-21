@@ -11,7 +11,6 @@ import javax.annotation.PreDestroy;
 @Profile({"dev", "test"})
 @Configuration(value = "EmbeddedRedisConfig")
 public class EmbeddedRedisConfig {
-
     @Value("${spring.redis.port}")
     private int redisPort;
 
