@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Component
 public class S3Uploader {
-
+    
     private final AmazonS3Client amazonS3Client;
 
     @Value("${spring.cloud.aws.s3.bucket}")
@@ -32,12 +32,12 @@ public class S3Uploader {
 
     private String upload(File uploadFile, String dirName) {
         String fileName = dirName + "/" + uploadFile.getName();
-        String uploadImageUrl = putS3(uploadFile, fileName);
+        putS3(uploadFile, fileName);
         removeNewFile(uploadFile);
-        return uploadImageUrl;
+        return uploadFile.getName();
     }
 
-    private String putS3(File uploadFile, String fileName) {
+    private void putS3(File uploadFile, String fileName) {
         amazonS3Client.putObject(
                 new PutObjectRequest(
                         bucket,
@@ -45,7 +45,7 @@ public class S3Uploader {
                         uploadFile
                 ).withCannedAcl(CannedAccessControlList.PublicRead)
         );
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        amazonS3Client.getUrl(bucket, fileName);
     }
 
     private void removeNewFile(File targetFile) {

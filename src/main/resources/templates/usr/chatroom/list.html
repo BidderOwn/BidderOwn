@@ -19,7 +19,7 @@
                             v-for="chatRoom in chatRooms" :key="chatRoom.chatRoomId"
                             @click="connectChatRoom(chatRoom.chatRoomId)">
                         <!--      아바타      -->
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png"
+                        <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/profile.png"
                              class="w-[35px] h-[35px] mr-1">
                         <!--      사용자 이름, 아이템 제목      -->
                         <div class="flex flex-col items-start justify-start ml-2 truncate w-[100px]">
@@ -68,7 +68,7 @@
                                        @keyup.enter="sendMessage"/>
                             </label>
                             <button class="min-w-[8%]" @click="sendMessage">
-                                <img src="https://kr.object.ncloudstorage.com/s3bucket/submit.png"
+                                <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/submit.png"
                                      class="w-[25px] h-[25px]">
                             </button>
                         </div>
@@ -216,7 +216,7 @@
                     const data = response.data;
                     this.toUserId = data.toUserId;
                     this.itemPrice = data.price;
-                    this.itemImageUrl = 'https://kr.object.ncloudstorage.com/s3bucket/' + data.itemImageName;
+                    this.itemImageUrl = 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/item/' + data.itemImageName;
                     this.itemTitle = data.itemTitle;
                     this.itemId = data.itemId;
                 }).catch(error => {

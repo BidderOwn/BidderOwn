@@ -41,8 +41,8 @@
                         <!--  좋아요 카운트  -->
                         <button class="absolute bottom-3 right-3 ">
                         <span class="flex items-center mr-2">
-                                    <img v-if="!item.likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/empty_heart.png" class="w-[15px] h-[15px]">
-                                    <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png" class="w-[15px] h-[15px]">
+                                    <img v-if="!item.likeStatus" src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/heart_empty.png" class="w-[15px] h-[15px]">
+                                    <img v-else src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/heart_full.png" class="w-[15px] h-[15px]">
 
                         </span>
                         </button>
@@ -86,7 +86,7 @@
         <input type="hidden" id="username" th:value="${username}">
         <input type="hidden" id="searchText" th:value="${searchText}">
         <button v-on:click="addItem" class="w-[70px] h-[70px] mb-[40px] mr-[100px] fixed bottom-0 right-0">
-            <img src="https://kr.object.ncloudstorage.com/s3bucket/add_item.png">
+            <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/add_item.png">
         </button>
         <button class="hover:bg-zinc-200 text-[11px] mb-10 px-7 rounded-xl border border-gray-200 h-[40px]" v-on:click="addData">
             더보기
@@ -144,7 +144,7 @@
                                 expireAt: this.getTimeAgo(item.expireAt),
                                 itemStatus : item.itemStatus,
                                 thumbnailImageName: item.thumbnailImageName,
-                                thumbnailImageUrl: 'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName,
+                                thumbnailImageUrl: 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/item/' + item.thumbnailImageName,
                                 likeStatus: this.checkLikeId(item.id),
                             },
                         )
