@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import site.bidderown.server.base.util.ImageUtils;
+import site.bidderown.server.base.s3bucket.S3Uploader;
 import site.bidderown.server.bounded_context.image.entity.Image;
 import site.bidderown.server.bounded_context.image.repository.ImageRepository;
 import site.bidderown.server.bounded_context.item.entity.Item;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class ImageService {
 
     private final ImageRepository imageRepository;
-    private final ImageUtils imageUtils;
+    private final S3Uploader s3Uploader;
 
     /**
      * 실제 이미지 파일을 저장하고 데이터베이스에 저장
@@ -27,13 +28,15 @@ public class ImageService {
      */
     @Transactional
     public String create(List<MultipartFile> images, Item item) {
-        List<String> fileNames = imageUtils.uploadMulti(images, "item");
-        imageRepository.saveAll(
-                fileNames.stream()
-                        .map(fileName -> Image.of(item, fileName))
-                        .collect(Collectors.toList())
-        );
-        return fileNames.get(0);
+        return images.stream()
+                .map(image -> {
+                    try {
+                        return s3Uploader.upload(image, "item");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).map(fileName -> Image.of(item, fileName))
+                .toList().get(0).getFileName();
     }
 
     /**

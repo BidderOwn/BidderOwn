@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.base.util.ImageUtils;
+import site.bidderown.server.base.s3bucket.S3Uploader;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.service.BidService;
 import site.bidderown.server.bounded_context.image.service.ImageService;
@@ -29,6 +29,7 @@ import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,9 +51,6 @@ public class ItemServiceTest {
 
     @Autowired
     private MemberService memberService;
-
-    @Autowired
-    private ImageUtils imageUtils;
 
     @Autowired
     private ImageService imageService;
@@ -363,10 +361,16 @@ public class ItemServiceTest {
         Item item = itemRepository.save(Item.of(request, member));
 
         List<String> fileNames = request.getImages().stream()
-                .map(image -> imageUtils.createFileName(image.getOriginalFilename(), "test"))
+                .map(image -> createFileName(image.getOriginalFilename(), "test"))
                 .collect(Collectors.toList());
 
         imageService.create(item, fileNames);
         return item;
+    }
+    private String createFileName(String originalFilename, String kind) {
+        String ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+        long nowDate = System.currentTimeMillis();
+        long timeStamp = new Timestamp(nowDate).getTime();
+        return kind + "_" + timeStamp + ext;
     }
 }

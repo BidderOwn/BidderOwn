@@ -221,14 +221,10 @@ public class ItemService {
 
     private Item _create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
-        String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
+        String thumbnailImageFileName = imageService.create(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
 
         return item;
-    }
-
-    private String saveAndGetThumbnailImageFileName(List<MultipartFile> images, Item item) {
-        return imageService.create(images, item);
     }
 
     private boolean hasAuthorization(Item item, String memberName) {

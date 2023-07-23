@@ -25,10 +25,16 @@ spring:
   redis:
     host: localhost
     port: 6379
-  batch:
-    job:
-      names: ${job.name:NONE}
-
+  cloud:
+    aws:
+      s3:
+        bucket: leuibucket
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+      credentials:
+        instanceProfile: true
 custom:
   socket:
     path: '/sub/alarm/'
