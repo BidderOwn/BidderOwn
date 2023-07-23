@@ -7,27 +7,27 @@
             <div class="flex ml-auto mr pr-[12px]">
                 <!-- 채팅-->
                 <a href="/chat-room/list" onclick="readChat()" class="mr-2">
-                    <img id="chat-icon" src="https://kr.object.ncloudstorage.com/s3bucket/chat_text_0.png" class="h-[14px]"/>
+                    <img id="chat-icon" src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/chat_button_0.png" class="h-[20px] w-[30px]"/>
                 </a>
                 <!-- 알림-->
                 <a href="/notifications" onclick="readNotification()" class="mr-2">
-                    <img id="notification-icon" src="https://kr.object.ncloudstorage.com/s3bucket/notification_text_0.png" class="h-[14px]"/>
+                    <img id="notification-icon" src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/notification_button_0.png" class="h-[20px] w-[30px]"/>
                 </a>
                 <!-- 입찰-->
                 <a href="/item/bid-list">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/bid_text.png" class="h-[14px]"/>
+                    <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/bid_button.png" class="h-[20px] w-[30px]"/>
                 </a>
             </div>
         </div>
 
         <div class="flex w-[600px] h-[70px] justify-between items-center bg-white">
             <a href="/home">
-                <img src="https://kr.object.ncloudstorage.com/s3bucket/bidder_own_logo.png" class ="h-[32px] w-full">
+                <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/bidderown_logo.png" class ="h-[23px] w-[145px]">
             </a>
 
             <div class="flex mx-[8px] h-[32px] max-w-[350px] border-solid border-[1px] border-zinc-300 rounded-[5px]">
                 <button class="mr-[5px]" id="search-button" onclick="search()">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/search.png" class=" mx-[6px] w-[18px] h-[18px]">
+                    <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/search.png" class=" mx-[6px] w-[18px] h-[18px]">
                 </button>
                 <input type="text" placeholder="찾으시는 상품, 판매자, 내용을 입력하세요" class="w-[313px] text-[14px] rounded-r-[5px]" id="search-input"/>
             </div>
@@ -35,7 +35,7 @@
 
             <div class="flex">
                 <a href="/my-page" onclick="readChat()" class="mr-2">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/myPage.jpg" class="w-[38px] h-[38px]"/>
+                    <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/profile.png" class="w-[38px] h-[38px]"/>
                 </a>
             </div>
         </div>
@@ -51,11 +51,11 @@
         });
 
         if (localStorage.getItem('chatStatus') === '1') {
-            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_1.png.png');
+            $('#chat-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/chat_button_1.png.png');
         }
 
         if (localStorage.getItem('notificationStatus') === '1') {
-            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_1.png');
+            $('#notification-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/notification_button_1.png');
         }
 
         search = () => {
@@ -66,12 +66,12 @@
 
         readNotification = () => {
             localStorage.setItem('notificationStatus', "0");
-            $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_0.png');
+            $('#notification-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/notification_button_0.png');
         }
 
         readChat = () => {
             localStorage.setItem('chatStatus', "0");
-            $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_0.png');
+            $('#chat-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/chat_button_0.png');
         }
 
         socketConnect = () => {
@@ -91,11 +91,11 @@
                                 console.log(message.body);
                                 if (message.body === 'NOTIFICATION') {
                                     localStorage.setItem('notificationStatus', '1');
-                                    $('#notification-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/notification_text_1.png');
+                                    $('#notification-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/notification_text_1.png');
                                 } else {
                                     if (window.location.href.includes("/chat-room/list")) return;
                                     localStorage.setItem('chatStatus', '1');
-                                    $('#chat-icon').attr('src', 'https://kr.object.ncloudstorage.com/s3bucket/chat_text_1.png');
+                                    $('#chat-icon').attr('src', 'https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/chat_text_1.png');
                                 }
                             }
                         );

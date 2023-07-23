@@ -16,7 +16,7 @@
                         <span class="text-[12px] text-[#515151]">{{ item.minimumPrice }}원</span>
                     </div>
                     <button v-on:click="closeBidModal()" class="text-[12px] text-[#515151]">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                        <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/close_x.png"
                              class="w-[22px] h-[22px]">
                     </button>
                 </div>
@@ -54,7 +54,7 @@
                         <span class="text-[12px] text-[#515151]">{{ maxPrice }}원</span>
                     </div>
                     <button v-if="isMe" v-on:click="closeBidModal()" class="text-[12px] text-[#515151]">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                        <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/close_x.png"
                              class="w-[22px] h-[22px]">
                     </button>
                 </div>
@@ -63,7 +63,7 @@
                     <div class="flex items-center">
                         <div class="flex justify-between w-[406px]">
                             <div class="flex">
-                                <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png"
+                                <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/profile.png"
                                      class="w-[24px] h-[24px] mr-[8px]">
                                 <div class="font-medium text-[14px]"> {{ bid.bidderName }}님이 {{ bid.bidPrice }}원을
                                     제시하였습니다.
@@ -77,7 +77,7 @@
                             </div>
                             <div class="items-center" v-if="bid.bidderName === username">
                                 <button v-on:click="deleteBid(bid.bidId)" class="text-[12px] text-[#515151]">
-                                    <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
+                                    <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/close_x.png"
                                          class="w-[18px] h-[18px]">
                                 </button>
                             </div>
@@ -92,7 +92,7 @@
         <!--  이미지  -->
         <div class="w-[600] h-[404] truncate rounded-lg mb-[5px]">
             <img class="object-cover h-full w-full"
-                 :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName">
+                 :src="'https://leuibucket.s3.ap-northeast-2.amazonaws.com/item/' + item.thumbnailImageName">
         </div>
         <!--  설명  -->
         <div class="flex flex-col">
@@ -102,12 +102,12 @@
                 <!--    좋아요, 비더, 댓글    -->
                 <div class="flex">
                     <span class="flex mr-[7px] items-center">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/heart_black_blank.png"
+                        <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/heart_black_blank.png"
                              class="w-[16px] h-[16px] mr-[2px]">
                         <span class="text-[14px]">{{ likeCount }}</span>
                     </span>
                     <span class="flex">
-                        <img src="https://kr.object.ncloudstorage.com/s3bucket/person.png"
+                        <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/person.png"
                              class="w-[20px] h-[20px]">
                         <span class="text-[14px] text-gray-600">{{ item.bidCount }}</span>
                     </span>
@@ -167,7 +167,7 @@
             <!--  댓글 리스트  -->
             <div class="mt-4" v-for="comment in comments" v-bind:key="comment.commentId">
                 <div class="flex items-center">
-                    <img src="https://kr.object.ncloudstorage.com/s3bucket/profile.png"
+                    <img src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/profile.png"
                          class="w-[32px] h-[32px] mr-[9px]">
                     <div class="flex flex-col">
                         <div class="text-base font-medium mr-[9px]"> {{ comment.memberName }}</div>
@@ -179,9 +179,9 @@
         <div v-if="!isModal" class="flex items-center border-solid w-[588px] h-[70px] bg-white fixed bottom-0">
             <div v-if="!isMe" class="flex justify-between w-[588px]">
                 <button id="likeItemButton" @click="likeItem()">
-                    <img v-if="!likeStatus" src="https://kr.object.ncloudstorage.com/s3bucket/heart_black_blank.png"
+                    <img v-if="!likeStatus" src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/heart_empty.png"
                          class="w-[28px] h-[28px]">
-                    <img v-else src="https://kr.object.ncloudstorage.com/s3bucket/full_heart.png"
+                    <img v-else src="https://leuibucket.s3.ap-northeast-2.amazonaws.com/static/heart_full.png"
                          class="w-[28px] h-[28px]">
                 </button>
                 <button class="

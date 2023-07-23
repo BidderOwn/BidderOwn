@@ -28,7 +28,7 @@
             <div class="rounded-xl border shadow border-gray-200 hover:bg-zinc-200 m-2"
                  v-on:click="moveToItemDetail(item.itemId)">
               <button class="flex px-3 py-2 items-center">
-                <img class ="rounded-xl ml-2 w-[60px] h-[60px]" :src="'https://kr.object.ncloudstorage.com/s3bucket/' + item.thumbnailImageName">
+                <img class ="rounded-xl ml-2 w-[60px] h-[60px]" :src="'https://leuibucket.s3.ap-northeast-2.amazonaws.com/item/' + item.thumbnailImageName">
                 <div class="flex flex-col w-[200px] items-start ml-2">
                   <div class="w-[200px] truncate text-left text-[12px] text-[#242729] font-semibold"> {{item.title}}</div>
                   <div class="w-[200px] truncate text-left text-[13px] text-[#242729] font-bold"> {{item.minimumPrice}}</div>
