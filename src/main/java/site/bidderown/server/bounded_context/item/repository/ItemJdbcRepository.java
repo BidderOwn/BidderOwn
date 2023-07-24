@@ -10,7 +10,6 @@ import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-
 @Repository
 @RequiredArgsConstructor
 @Slf4j
@@ -20,7 +19,7 @@ public class ItemJdbcRepository {
 
 
     public void insertItemList(List<BulkInsertItem> itemList){
-        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id, bid_count, comment_count) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.batchUpdate("insert into item (title,created_at, updated_at, expire_at ,item_status, description , minimum_Price, member_id) values (?, ?, ?, ?, ?, ?, ?, ?)",
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -32,8 +31,7 @@ public class ItemJdbcRepository {
                         ps.setString(6, itemList.get(i).getDescription());
                         ps.setLong(7, itemList.get(i).getMinimumPrice());
                         ps.setLong(8, itemList.get(i).getMemberId());
-                        ps.setLong(9, 0L);
-                        ps.setLong(10, 0L);
+
                     }
 
                     @Override
