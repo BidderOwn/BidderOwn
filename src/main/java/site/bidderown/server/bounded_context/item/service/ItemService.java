@@ -96,7 +96,7 @@ public class ItemService {
     }
 
     /**
-     * @description 테스트를 위한 메서드입니다.
+     * @description N + 1발생 코드
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
@@ -109,6 +109,45 @@ public class ItemService {
         );
         return items.stream().map(ItemsResponse::of__v12).toList();
     }
+
+    /**
+     * @description 서브 쿼리를 날려 한번에 모든 데이터를 가져오는 코드입니다.
+     */
+    /*
+    @Transactional(readOnly = true)
+    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems__v2(
+                itemsRequest.getId(),
+                itemsRequest.getS(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
+        return items;
+    }*/
+
+    /**
+     * @description 서브쿼리 부분을 분리하여 데이터를 가져오는 코드입니다.
+     * (item별로 따로 서브쿼리가 나가서 성능이 저하되는 것 같습니다)
+     */
+    /*
+    @Transactional(readOnly = true)
+    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
+        List<ItemsResponse> items = itemCustomRepository.findItems(
+                itemsRequest.getId(),
+                itemsRequest.getS(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
+
+        for (ItemsResponse item : items) {
+            item.setCounts(itemCustomRepository.findItemCountsById(item.getId()));
+        }
+        return items;
+    }
+    */
+
 
     /**
      * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
@@ -127,6 +166,7 @@ public class ItemService {
         }
         return items;
     }
+
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
         return ItemUpdateResponse.of(getItem(itemId));

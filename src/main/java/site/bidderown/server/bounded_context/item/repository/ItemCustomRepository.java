@@ -14,6 +14,7 @@ import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
+import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +63,37 @@ public class ItemCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
+    /**
+     * @description 서브 쿼리를 날려 한번에 모든 데이터를 가져오는 코드입니다.
+     */
+/*    public List<ItemsResponse> findItems__v2(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt,
+                                item.comments.size(),
+                                item.hearts.size(),
+                                item.bids.size()
+                        )
+                )
+                .from(item)
+                .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqBidding(isAll)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }*/
 
     /**
      * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
@@ -94,7 +126,19 @@ public class ItemCustomRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
-
+    public ItemCounts findItemCountsById(Long id) {
+        return queryFactory.select(
+                        Projections.constructor(
+                                ItemCounts.class
+                                , item.comments.size()
+                                , item.hearts.size()
+                                , item.bids.size()
+                        )
+                )
+                .from(item)
+                .where(item.id.eq(id), eqNotDeleted())
+                .fetchOne();
+    }
     /**
      * @param id 상품 아이디
      * @return Optional로 받아서 404 처리

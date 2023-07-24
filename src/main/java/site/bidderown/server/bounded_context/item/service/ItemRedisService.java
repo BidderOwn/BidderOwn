@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.base.redis.buffer.CountTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.bounded_context.item.repository.ItemCustomRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
@@ -17,6 +18,7 @@ public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
     private final ItemRepository itemRepository;
+    private final ItemCustomRepository itemCustomRepository;
 
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
@@ -39,6 +41,10 @@ public class ItemRedisService {
     }
 
     public ItemCounts getItemCounts(Long itemId) {
+        /**
+         *  N + 1발생
+         */
+/*
         return itemRedisRepository.getItemCounts(itemId)
                 .orElseGet(() -> {
                     Item item = itemRepository.findById(itemId)
@@ -48,6 +54,14 @@ public class ItemRedisService {
                             item.getComments().size(),
                             item.getHearts().size()
                     );
+                });
+*/
+        /**
+         *  서브쿼리
+         */
+        return itemRedisRepository.getItemCounts(itemId)
+                .orElseGet(() -> {
+                    return itemCustomRepository.findItemCountsById(itemId);
                 });
     }
 

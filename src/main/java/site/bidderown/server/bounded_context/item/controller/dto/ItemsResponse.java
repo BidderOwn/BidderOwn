@@ -71,6 +71,29 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
+    public ItemsResponse(
+            Long id,
+            String title,
+            int minimumPrice,
+            String thumbnailImageName,
+            ItemStatus itemStatus,
+            LocalDateTime expireAt,
+            int commentsCount,
+            int heartsCount,
+            int bidCount
+    ) {
+        // v2 한번에 다 가져올 때 사용
+        this.id = id;
+        this.title = title;
+        this.minimumPrice = minimumPrice;
+        this.thumbnailImageName = thumbnailImageName;
+        this.itemStatus = itemStatus;
+        this.expireAt = expireAt;
+        this.commentsCount = commentsCount;
+        this.heartsCount = heartsCount;
+        this.bidCount = bidCount;
+    }
+
     public static ItemsResponse of__v12(
             Item item
     ) {
