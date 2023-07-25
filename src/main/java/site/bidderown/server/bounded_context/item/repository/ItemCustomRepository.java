@@ -98,6 +98,63 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
+    public List<ItemsResponse> findItemsNoOffset(Long lastItemId, String searchText, boolean isAll, int pageSize) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqBidding(isAll)
+                )
+                .orderBy(orderBySortCode(1))
+                .limit(pageSize)
+                .fetch();
+    }
+
+    public List<ItemsResponse> findItemsSortBy3(String searchText, boolean isAll, Pageable pageable) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqBidding(isAll)
+                )
+                .orderBy(orderBySortCode(3))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+
     /**
      * @param id 상품 아이디
      * @return Optional로 받아서 404 처리

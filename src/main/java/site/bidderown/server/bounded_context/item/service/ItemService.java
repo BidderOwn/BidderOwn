@@ -93,6 +93,21 @@ public class ItemService {
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
+        if (itemsRequest.getS() == 1) {
+            return itemCustomRepository.findItemsNoOffset(
+                    itemsRequest.getId(),
+                    itemsRequest.getQ(),
+                    itemsRequest.isFilter(),
+                    pageable.getPageSize()
+            );
+        }
+        if (itemsRequest.getS() == 3) {
+            return itemCustomRepository.findItemsSortBy3(
+                    itemsRequest.getQ(),
+                    itemsRequest.isFilter(),
+                    pageable
+            );
+        }
         return itemCustomRepository.findItems(
                 itemsRequest.getId(),
                 itemsRequest.getS(),
@@ -100,6 +115,7 @@ public class ItemService {
                 itemsRequest.isFilter(),
                 pageable
         );
+
     }
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
