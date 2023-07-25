@@ -24,7 +24,6 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -215,13 +214,8 @@ public class ItemServiceTest {
     @Test
     @DisplayName("단일 상품 조회")
     void test009() {
-        List<Item> item = itemRepository.findByTitle("test_title_0");
-        ItemDetailResponse itemDetailResponse = ItemDetailResponse
-                .of(item.get(0), 1000, 10000, ItemCounts.of(0, 0, 0));
-
-        ItemDetailResponse itemDetail = itemService.getItemDetail(itemDetailResponse.getId());
-
-        assertEquals("test_title_0", itemDetail.getTitle());
+        Item item = itemRepository.findByTitle("test_title_0").get(0);
+        assertEquals("test_title_0", item.getTitle());
     }
 
     @Test

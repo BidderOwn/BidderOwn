@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import site.bidderown.server.base.base_entity.BaseEntity;
-import site.bidderown.server.bounded_context.heart.entitylistener.HeartEntityListener;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
 
@@ -14,7 +13,6 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@EntityListeners(value = HeartEntityListener.class)
 public class Heart extends BaseEntity {
 
     /**

@@ -52,33 +52,11 @@ public class ItemService {
     }
 
     public ItemDetailResponse getItemDetail(Long id) {
-        Item item = itemCustomRepository.findItemById(id);
-        return ItemDetailResponse.of(
-                item,
-                // 상품 입찰 최고가
-                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
-                // 상품 입찰 최저가
-                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
-                // 상품 count 정보
-                itemRedisService.getItemCounts(item)
-        );
-    }
-
-    /**
-     * 성능 테스트를 위한 메서드입니다.
-     */
-    public ItemDetailResponse getItemDetail__v1(Long id) {
-        Item item = itemCustomRepository.findItemById(id);
-        return ItemDetailResponse.of__v1(
-                item,
-                // 상품 입찰 최고가
-                itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()),
-                // 상품 입찰 최저가
-                itemCustomRepository.findItemBidMinPriceByItemId(item.getId()),
-                item.getBids().size(),
-                item.getComments().size(),
-                item.getHearts().size()
-        );
+        ItemDetailResponse item = itemCustomRepository.findItemById(id)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
+        item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
+        item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
+        return item;
     }
 
     /**
@@ -115,17 +93,13 @@ public class ItemService {
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
-        List<ItemsResponse> items = itemCustomRepository.findItems(
+        return itemCustomRepository.findItems(
                 itemsRequest.getId(),
                 itemsRequest.getS(),
                 itemsRequest.getQ(),
                 itemsRequest.isFilter(),
                 pageable
         );
-        for (ItemsResponse item : items) {
-            item.setCounts(itemRedisService.getItemCounts(item.getId()));
-        }
-        return items;
     }
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
@@ -160,24 +134,6 @@ public class ItemService {
         return itemRepository
                 .findByMemberAndDeletedIsFalse(member)
                 .stream()
-                .map(ItemSimpleResponse::of)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemSimpleResponse> getItems(Long memberId) {
-        return itemRepository
-                .findByMemberIdAndDeletedIsFalse(memberId)
-                .stream()
-                .map(ItemSimpleResponse::of)
-                .collect(Collectors.toList());
-    }
-
-    public List<ItemSimpleResponse> getBidItems(Long memberId) {
-        Member member = memberService.getMember(memberId);
-        List<Bid> bids = member.getBids();
-        return bids.stream()
-                .map(Bid::getItem)
-                .filter(item -> !item.isDeleted())
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
     }
