@@ -66,12 +66,6 @@ public class ItemApiController {
         return "/home";
     }
 
-    @Operation(summary = "상품 상세정보", description = "id를 이용하여 상품을 조회합니다.")
-    @GetMapping("/{id}/v1")
-    public ItemDetailResponse getDetailItem__v1(@PathVariable Long id) {
-        return itemService.getItemDetail__v1(id);
-    }
-
     @Operation(summary = "상품 상세정보", description = "id를 이용하여 상품을 조회합니다. - 레디스 적용")
     @GetMapping("/{id}")
     public ItemDetailResponse getDetailItem(@PathVariable Long id) {
@@ -100,7 +94,7 @@ public class ItemApiController {
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
+        MemberDetail memberDetail = MemberDetail.from(memberService.getMember(user.getUsername()));
         itemService.updateDeleted(id, user.getUsername());
         return "/home";
     }

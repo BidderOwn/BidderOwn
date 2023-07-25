@@ -69,8 +69,6 @@ public class NotProd {
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
-            long startTime = System.currentTimeMillis();
-
             List<Item> items = List.of(
                     Item.of(ItemRequest.builder().
                             title("나이키 에어포스 1 '07 로우 화이트")
@@ -292,9 +290,6 @@ public class NotProd {
                 itemRepository.save(items.get(i));
                 itemRedisRepository.save(items.get(i).getId(), 3);
             }
-
-
-
         };
     }
 }

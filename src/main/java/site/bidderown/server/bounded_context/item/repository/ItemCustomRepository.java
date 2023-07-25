@@ -10,7 +10,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.base.exception.custom_exception.NotFoundException;
+import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
@@ -77,6 +77,9 @@ public class ItemCustomRepository {
                                 item.id,
                                 item.title,
                                 item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
                                 item.expireAt
@@ -100,28 +103,48 @@ public class ItemCustomRepository {
      * @return Optional로 받아서 404 처리
      * @description 상품 ItemDetailResponse로 받음
      */
-    public Item findItemById(Long id) {
-        return Optional.ofNullable(queryFactory.select(item)
-                .from(item)
-                .where(item.id.eq(id), eqNotDeleted())
-                .fetchOne())
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 회원입니다.", id + ""));
+    public Optional<ItemDetailResponse> findItemById(Long id) {
+        return Optional.ofNullable(
+                queryFactory.select(
+                            Projections.constructor(
+                                    ItemDetailResponse.class,
+                                    item.id,
+                                    item.member.id,
+                                    item.title,
+                                    item.description,
+                                    item.member.name,
+                                    item.minimumPrice,
+                                    item.thumbnailImageFileName,
+                                    item.bids.size(),
+                                    item.comments.size(),
+                                    item.hearts.size(),
+                                    item.itemStatus,
+                                    item.expireAt
+                            )
+                        )
+                        .from(item)
+                        .where(
+                                item.id.eq(id),
+                                eqNotDeleted()
+                        )
+                        .fetchOne()
+        );
     }
 
     public Integer findItemBidMaxPriceByItemId(Long itemId) {
-        return queryFactory.select(bid.price)
+        return queryFactory
+                .select(bid.price.max())
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
-                .orderBy(bid.price.desc())
-                .fetchFirst();
+                .fetchOne();
     }
 
     public Integer findItemBidMinPriceByItemId(Long itemId) {
-        return queryFactory.select(bid.price)
+        return queryFactory
+                .select(bid.price.min())
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
-                .orderBy(bid.price.asc())
-                .fetchFirst();
+                .fetchOne();
     }
 
     private BooleanExpression ltItemId(Long itemId) {
