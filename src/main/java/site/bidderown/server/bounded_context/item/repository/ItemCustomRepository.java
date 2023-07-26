@@ -64,13 +64,7 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    /**
-     * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
-     * @param searchText 검색어(제목, 내용, 작성자)
-     * @param pageable   페이징: 9
-     * @return 홈화면에 보여질 아이템 리스트
-     */
-    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
+    public List<ItemsResponse> findItemsLegacy(Pageable pageable, int sortCode, String searchText, boolean isAll) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -88,7 +82,6 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .where(
-                        ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
                         eqAll(isAll)
@@ -166,6 +159,27 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
+    public List<ItemsResponse> findItemsSortByPopularity(List<Long> ids) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(item.id.in(ids))
+                .orderBy(item.bids.size().desc())
+                .fetch();
+    }
 
     /**
      * @param id 상품 아이디

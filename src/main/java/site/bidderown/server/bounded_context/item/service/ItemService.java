@@ -1,5 +1,6 @@
 package site.bidderown.server.bounded_context.item.service;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
     private final HeartRepository heartRepository;
@@ -85,19 +87,17 @@ public class ItemService {
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
-        if (itemsRequest.getS() == 1) {
-            return getItemsSortByIdDesc(itemsRequest, pageable);
-        }
-        if (itemsRequest.getS() == 3) {
-            return getItemsSortByExpireAt(itemsRequest, pageable);
-        }
-        return itemCustomRepository.findItems(
-                itemsRequest.getId(),
-                itemsRequest.getS(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
-                pageable
-        );
+         return switch (itemsRequest.getS()) {
+            case 1 -> getItemsSortByIdDesc(itemsRequest, pageable);
+            case 2 -> getItemsSortByPopularity(itemsRequest, pageable);
+            case 3 -> getItemsSortByExpireAt(itemsRequest, pageable);
+            default -> itemCustomRepository.findItemsLegacy(
+                    pageable,
+                    itemsRequest.getS(),
+                    itemsRequest.getQ(),
+                    itemsRequest.isFilter()
+            );
+        };
     }
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
@@ -172,6 +172,10 @@ public class ItemService {
         item.closeBid();
     }
 
+    /**
+     * 최신순 정렬
+     * @description No offset 적용
+     */
     private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
         return itemCustomRepository.findItemsNoOffset(
                 itemsRequest.getId(),
@@ -181,6 +185,29 @@ public class ItemService {
         );
     }
 
+    /**
+     * 인기순 정렬
+     * @description Redis ranking 사용, 검색어 혹은 레디스에 데이터가 없을 때 기존 방식 사용 findItemLegacy()
+     */
+    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest itemsRequest, Pageable pageable) {
+        List<Long> ids = itemRedisService.getItemIdsByRanking(pageable);
+
+        if (!StringUtils.isEmpty(itemsRequest.getQ()) || ids.size() == 0) {
+            return itemCustomRepository.findItemsLegacy(
+                    pageable,
+                    itemsRequest.getS(),
+                    itemsRequest.getQ(),
+                    itemsRequest.isFilter()
+            );
+        }
+
+        return itemCustomRepository.findItemsSortByPopularity(ids);
+    }
+
+    /**
+     * 경매마감순
+     * @description 커버링 인덱스 적용
+     */
     private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest itemsRequest, Pageable pageable) {
         return itemCustomRepository.findItemsSortByExpireAt(
                 itemsRequest.getQ(),

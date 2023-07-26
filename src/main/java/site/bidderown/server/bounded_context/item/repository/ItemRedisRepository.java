@@ -1,17 +1,22 @@
 package site.bidderown.server.bounded_context.item.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
+@Slf4j
 @RequiredArgsConstructor
 @Repository
 public class ItemRedisRepository {
@@ -41,6 +46,22 @@ public class ItemRedisRepository {
 
     public boolean contains(Long itemId) {
         return !Objects.isNull(valueOperations.get(biddingItemExpireKey + itemId));
+    }
+
+    public List<Long> getBidRankingRange(Pageable pageable) {
+        Set<String> ids = zSetOperations.reverseRange(
+                bidRankingKey,
+                (long) pageable.getPageNumber() * pageable.getPageSize(),
+                ((long) pageable.getPageNumber() * pageable.getPageSize()) + pageable.getPageSize() - 1
+        );
+
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+
+        return ids.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
     }
 
     public void increaseScore(Long itemId, int delta) {
