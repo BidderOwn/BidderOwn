@@ -11,10 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
-import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.item.service.ItemService;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,26 +24,6 @@ import java.util.List;
 public class ItemApiController {
 
     private final ItemService itemService;
-    private final MemberService memberService;
-    private final ItemRedisService itemRedisService;
-
-    @GetMapping("/test-increase/{itemId}")
-    public void testIncrease(@PathVariable Long itemId) {
-        Item item = itemService.getItem(itemId);
-        itemRedisService.increaseBidScore(item.getId());
-    }
-
-    @GetMapping("/test-decrease/{itemId}")
-    public void testDecrease(@PathVariable Long itemId) {
-        Item item = itemService.getItem(itemId);
-        itemRedisService.decreaseBidScore(item.getId());
-    }
-
-    @GetMapping("/test-delete/{itemId}")
-    public void testDelete(@PathVariable Long itemId) {
-        Item item = itemService.getItem(itemId);
-        itemRedisService.removeBidRankingKey(item.getId());
-    }
 
     @Operation(summary = "모든 상품 조회",
                description = """
