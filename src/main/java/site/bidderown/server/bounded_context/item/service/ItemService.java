@@ -123,8 +123,19 @@ public class ItemService {
         if (!hasAuthorization(item, memberName)) {
             throw new ForbiddenException("삭제 권한이 없습니다.");
         }
-
         item.updateDeleted();
+    }
+
+    @Transactional
+    public void soldOut(Long itemId, String memberName) {
+        Item item = getItem(itemId);
+
+        if (!hasAuthorization(item, memberName)) {
+            throw new ForbiddenException("판매완료 권한이 없습니다.");
+        }
+
+        item.soldOutItem();
+        item.getBids().forEach(Bid::updateBidResultFail);
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
@@ -153,18 +164,6 @@ public class ItemService {
                 .map(Heart::getItem)
                 .map(ItemSimpleResponse::of)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void soldOut(Long itemId, String memberName) {
-        Item item = getItem(itemId);
-
-        if (!hasAuthorization(item, memberName)) {
-            throw new ForbiddenException("판매완료 권한이 없습니다.");
-        }
-
-        item.soldOutItem();
-        item.getBids().forEach(Bid::updateBidResultFail);
     }
 
     @Transactional

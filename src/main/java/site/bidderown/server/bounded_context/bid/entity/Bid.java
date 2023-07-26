@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+//TODO Listner
 public class Bid extends BaseEntity {
   
     private int price;

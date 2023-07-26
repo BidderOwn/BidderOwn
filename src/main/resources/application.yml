@@ -40,7 +40,8 @@ custom:
   redis:
     item:
       bidding:
-        info-key: 'bidding-item:'
+        expire-key: 'bidding-item:'
+        ranking-key: 'bid-ranking'
 springdoc:
   swagger-ui:
     path: /swagger-ui.html        # Swagger UI 경로 => localhost:8080/swagger-ui.html
