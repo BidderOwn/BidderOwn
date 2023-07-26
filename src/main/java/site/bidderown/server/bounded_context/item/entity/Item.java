@@ -27,7 +27,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(indexes = @Index(name = "idx__expire__at", columnList = "expireAt"))
+@Table(indexes = @Index(name = "idx_item_expire_at", columnList = "expireAt, itemStatus, deleted"))
 @EntityListeners(value = ItemEntityListener.class)
 public class Item extends BaseEntity {
 

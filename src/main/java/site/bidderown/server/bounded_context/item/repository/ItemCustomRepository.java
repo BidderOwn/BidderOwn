@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -121,12 +122,27 @@ public class ItemCustomRepository {
                         eqNotDeleted(),
                         eqBidding(isAll)
                 )
-                .orderBy(orderBySortCode(1))
+                .orderBy(item.id.desc())
                 .limit(pageSize)
                 .fetch();
     }
 
-    public List<ItemsResponse> findItemsSortBy3(String searchText, boolean isAll, Pageable pageable) {
+    public List<ItemsResponse> findItemsSortByExpireAt(String searchText, boolean isAll, Pageable pageable) {
+        List<Long> ids = queryFactory
+                .select(item.id)
+                .from(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqBidding(isAll)
+                )
+                .orderBy(item.expireAt.asc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        if (CollectionUtils.isEmpty(ids)) return new ArrayList<>();
+
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -144,13 +160,8 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .where(
-                        eqToSearchText(searchText),
-                        eqNotDeleted(),
-                        eqBidding(isAll)
+                       item.id.in(ids)
                 )
-                .orderBy(orderBySortCode(3))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
     }
 
