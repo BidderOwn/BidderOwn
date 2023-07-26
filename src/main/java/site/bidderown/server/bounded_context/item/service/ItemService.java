@@ -28,22 +28,14 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCustomRepository itemCustomRepository;
-    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
     private final HeartRepository heartRepository;
 
-
-    @Transactional
-    public Item create(ItemRequest request, Long memberId) {
-        Member member = memberService.getMember(memberId);
-        return _create(request, member);
-    }
-
     @Transactional
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
-        return _create(request, member);
+        return create(request, member);
     }
 
     public Item getItem(Long id) {
@@ -93,6 +85,12 @@ public class ItemService {
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
+        if (itemsRequest.getS() == 1) {
+            return getItemsSortByIdDesc(itemsRequest, pageable);
+        }
+        if (itemsRequest.getS() == 3) {
+            return getItemsSortByExpireAt(itemsRequest, pageable);
+        }
         return itemCustomRepository.findItems(
                 itemsRequest.getId(),
                 itemsRequest.getS(),
@@ -175,7 +173,24 @@ public class ItemService {
         item.closeBid();
     }
 
-    private Item _create(ItemRequest request, Member member) {
+    private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
+        return itemCustomRepository.findItemsNoOffset(
+                itemsRequest.getId(),
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable.getPageSize()
+        );
+    }
+
+    private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest itemsRequest, Pageable pageable) {
+        return itemCustomRepository.findItemsSortByExpireAt(
+                itemsRequest.getQ(),
+                itemsRequest.isFilter(),
+                pageable
+        );
+    }
+
+    private Item create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);

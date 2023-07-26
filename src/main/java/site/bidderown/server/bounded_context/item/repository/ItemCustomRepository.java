@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -37,7 +38,7 @@ public class ItemCustomRepository {
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -55,7 +56,7 @@ public class ItemCustomRepository {
                         ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -90,13 +91,81 @@ public class ItemCustomRepository {
                         ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
     }
+
+    public List<ItemsResponse> findItemsNoOffset(Long lastItemId, String searchText, boolean isAll, int pageSize) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqAll(isAll)
+                )
+                .orderBy(item.id.desc())
+                .limit(pageSize)
+                .fetch();
+    }
+
+    public List<ItemsResponse> findItemsSortByExpireAt(String searchText, boolean isAll, Pageable pageable) {
+        List<Long> ids = queryFactory
+                .select(item.id)
+                .from(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqAll(isAll)
+                )
+                .orderBy(
+                        item.expireAt.asc(),
+                        item.itemStatus.asc()
+                )
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+
+        if (CollectionUtils.isEmpty(ids)) return new ArrayList<>();
+
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.comments.size(),
+                                item.bids.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(item.id.in(ids))
+                .fetch();
+    }
+
 
     /**
      * @param id 상품 아이디
@@ -154,7 +223,7 @@ public class ItemCustomRepository {
         return item.id.lt(itemId);
     }
 
-    private BooleanExpression eqBidding(boolean isAll) {
+    private BooleanExpression eqAll(boolean isAll) {
         if (isAll) return null;
         return item.itemStatus.eq(ItemStatus.BIDDING);
     }

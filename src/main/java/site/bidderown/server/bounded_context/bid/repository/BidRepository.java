@@ -13,7 +13,6 @@ import java.util.Optional;
 
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
-    List<Bid> findByItem(Item item);
 
     List<Bid> findByItemOrderByUpdatedAtDesc(Item item);
 
