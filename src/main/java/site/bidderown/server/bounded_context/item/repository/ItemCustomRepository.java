@@ -38,7 +38,7 @@ public class ItemCustomRepository {
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -56,7 +56,7 @@ public class ItemCustomRepository {
                         ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -91,7 +91,7 @@ public class ItemCustomRepository {
                         ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(orderBySortCode(sortCode))
                 .offset(pageable.getOffset())
@@ -120,7 +120,7 @@ public class ItemCustomRepository {
                         ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
                 .orderBy(item.id.desc())
                 .limit(pageSize)
@@ -134,9 +134,12 @@ public class ItemCustomRepository {
                 .where(
                         eqToSearchText(searchText),
                         eqNotDeleted(),
-                        eqBidding(isAll)
+                        eqAll(isAll)
                 )
-                .orderBy(item.expireAt.asc())
+                .orderBy(
+                        item.expireAt.asc(),
+                        item.itemStatus.asc()
+                )
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();
@@ -159,9 +162,7 @@ public class ItemCustomRepository {
                         )
                 )
                 .from(item)
-                .where(
-                       item.id.in(ids)
-                )
+                .where(item.id.in(ids))
                 .fetch();
     }
 
@@ -222,7 +223,7 @@ public class ItemCustomRepository {
         return item.id.lt(itemId);
     }
 
-    private BooleanExpression eqBidding(boolean isAll) {
+    private BooleanExpression eqAll(boolean isAll) {
         if (isAll) return null;
         return item.itemStatus.eq(ItemStatus.BIDDING);
     }
