@@ -49,19 +49,16 @@ public class ItemRedisRepository {
     }
 
     public List<Long> getBidRankingRange(Pageable pageable) {
-        Set<String> ids = zSetOperations.reverseRange(
-                bidRankingKey,
-                (long) pageable.getPageNumber() * pageable.getPageSize(),
-                ((long) pageable.getPageNumber() * pageable.getPageSize()) + pageable.getPageSize() - 1
-        );
+        long start = pageable.getOffset();
+        long end = pageable.getOffset() + pageable.getPageSize() - 1;
+
+        Set<String> ids = zSetOperations.reverseRange(bidRankingKey, start, end);
 
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
 
-        return ids.stream()
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
+        return ids.stream().map(Long::parseLong).collect(Collectors.toList());
     }
 
     public void increaseScore(Long itemId, int delta) {
@@ -69,7 +66,6 @@ public class ItemRedisRepository {
     }
 
     public void decreaseScore(Long itemId, int delta) {
-        if (delta > 0) throw new RuntimeException("decreaseScore");
         zSetOperations.incrementScore(bidRankingKey, itemId.toString(), delta);
     }
 
