@@ -37,4 +37,11 @@ public class ItemRedisService {
     public void decreaseBidScore(Long itemId) {
         itemRedisRepository.decreaseScore(itemId, -1);
     }
+
+    /**
+     * 테스트 코드를 위한 메스드입니다.
+     */
+    public void flushBidRanking() {
+        itemRedisRepository.flushBidRanking();
+    }
 }

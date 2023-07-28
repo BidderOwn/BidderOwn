@@ -72,5 +72,9 @@ public class ItemRedisRepository {
     public void removeBidRankingKey(Long itemId) {
         zSetOperations.remove(bidRankingKey, itemId.toString());
     }
+
+    public void flushBidRanking() {
+        redisTemplate.delete(bidRankingKey);
+    }
 }
 

@@ -70,6 +70,7 @@ public class ItemServiceTest {
         Member member1 = memberService.join("test_member_1", "");
         memberService.join("test_member_2", "");
         initItemData(member1);
+        itemRedisService.flushBidRanking();
     }
 
     @Test
@@ -108,6 +109,9 @@ public class ItemServiceTest {
 
         //when
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
+
+        List<Long> itemIds = itemRedisService.getItemIdsByRanking(pageRequest);
+        System.out.println(itemIds);
 
         //then
         assertThat(items.size()).isEqualTo(PAGE_SIZE);
