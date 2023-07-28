@@ -1,6 +1,8 @@
 package site.bidderown.server.bounded_context.item.service;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemCustomRepository itemCustomRepository;
+    private final ItemRedisService itemRedisService;
     private final MemberService memberService;
     private final ImageService imageService;
     private final HeartRepository heartRepository;
@@ -85,19 +89,17 @@ public class ItemService {
      */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
-        if (itemsRequest.getS() == 1) {
-            return getItemsSortByIdDesc(itemsRequest, pageable);
-        }
-        if (itemsRequest.getS() == 3) {
-            return getItemsSortByExpireAt(itemsRequest, pageable);
-        }
-        return itemCustomRepository.findItems(
-                itemsRequest.getId(),
-                itemsRequest.getS(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
-                pageable
-        );
+        return switch (itemsRequest.getS()) {
+            case 1 -> getItemsSortByIdDesc(itemsRequest, pageable);
+            case 2 -> getItemsSortByPopularity(itemsRequest, pageable);
+            case 3 -> getItemsSortByExpireAt(itemsRequest, pageable);
+            default -> itemCustomRepository.findItemsDefault(
+                    pageable,
+                    itemsRequest.getS(),
+                    itemsRequest.getQ(),
+                    itemsRequest.isFilter()
+            );
+        };
     }
 
     public ItemUpdateResponse getUpdateItem(Long itemId) {
@@ -123,8 +125,19 @@ public class ItemService {
         if (!hasAuthorization(item, memberName)) {
             throw new ForbiddenException("삭제 권한이 없습니다.");
         }
-
         item.updateDeleted();
+    }
+
+    @Transactional
+    public void soldOut(Long itemId, String memberName) {
+        Item item = getItem(itemId);
+
+        if (!hasAuthorization(item, memberName)) {
+            throw new ForbiddenException("판매완료 권한이 없습니다.");
+        }
+
+        item.soldOutItem();
+        item.getBids().forEach(Bid::updateBidResultFail);
     }
 
     public List<ItemSimpleResponse> getItems(String memberName) {
@@ -156,23 +169,15 @@ public class ItemService {
     }
 
     @Transactional
-    public void soldOut(Long itemId, String memberName) {
-        Item item = getItem(itemId);
-
-        if (!hasAuthorization(item, memberName)) {
-            throw new ForbiddenException("판매완료 권한이 없습니다.");
-        }
-
-        item.soldOutItem();
-        item.getBids().forEach(Bid::updateBidResultFail);
-    }
-
-    @Transactional
     public void closeBid(Long itemId) {
         Item item = getItem(itemId);
         item.closeBid();
     }
 
+    /**
+     * 최신순 정렬
+     * @description No offset 적용
+     */
     private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
         return itemCustomRepository.findItemsNoOffset(
                 itemsRequest.getId(),
@@ -182,6 +187,30 @@ public class ItemService {
         );
     }
 
+    /**
+     * 인기순 정렬(입찰 중인 상품만 보여준다.)
+     * @description Redis ranking 사용, 검색어 혹은 레디스에 데이터가 없을 때 기존 방식 사용 findItemLegacy()
+     */
+    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest itemsRequest, Pageable pageable) {
+        List<Long> ids = itemRedisService.getItemIdsByRanking(pageable);
+
+        if (!StringUtils.isEmpty(itemsRequest.getQ()) || ids.size() == 0) {
+            ids = itemCustomRepository.findItemIdsSortByPopularity(
+                    pageable,
+                    itemsRequest.getQ()
+            );
+        }
+
+        List<ItemsResponse> items =  itemCustomRepository.findItemsInIdsSortByPopularity(ids);
+        sortByBidCountAndIdDesc(items);
+
+        return items;
+    }
+
+    /**
+     * 경매마감순
+     * @description 커버링 인덱스 적용
+     */
     private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest itemsRequest, Pageable pageable) {
         return itemCustomRepository.findItemsSortByExpireAt(
                 itemsRequest.getQ(),
@@ -204,5 +233,17 @@ public class ItemService {
 
     private boolean hasAuthorization(Item item, String memberName) {
         return item.getMember().getName().equals(memberName);
+    }
+
+    /**
+     * 이미 가져온 상품을 입찰 개수 기준으로 정렬한다.
+     */
+    private void sortByBidCountAndIdDesc(List<ItemsResponse> items) {
+        items.sort((i1, i2) -> {
+            if (!i1.getBidCount().equals(i2.getBidCount())) {
+                return i2.getBidCount().compareTo(i1.getBidCount());
+            }
+            return i2.getId().compareTo(i1.getId());
+        });
     }
 }

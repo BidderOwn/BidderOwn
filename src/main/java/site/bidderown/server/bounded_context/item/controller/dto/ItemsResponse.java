@@ -17,10 +17,10 @@ public class ItemsResponse {
     private String title;
     @Schema(description = "최소희망가격")
     private int minimumPrice;
-    @Schema(description = "댓글수")
-    private Integer commentsCount;
     @Schema(description = "입찰수")
     private Integer bidCount;
+    @Schema(description = "댓글수")
+    private Integer commentsCount;
     @Schema(description = "좋아요수")
     private Integer heartsCount;
     @Schema(description = "썸네일사진 이름")
@@ -35,8 +35,8 @@ public class ItemsResponse {
             Long id,
             String title,
             int minimumPrice,
-            Integer commentsCount,
             Integer bidCount,
+            Integer commentsCount,
             Integer heartsCount,
             String thumbnailImageName,
             ItemStatus itemStatus,
@@ -58,8 +58,8 @@ public class ItemsResponse {
                 .id(item.getId())
                 .title(item.getTitle())
                 .minimumPrice(item.getMinimumPrice())
-                .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
+                .commentsCount(item.getComments().size())
                 .heartsCount(item.getHearts().size())
                 .thumbnailImageName(item.getThumbnailImage())
                 .itemStatus(item.getItemStatus())

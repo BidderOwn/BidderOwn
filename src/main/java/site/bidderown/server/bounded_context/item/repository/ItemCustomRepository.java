@@ -29,57 +29,15 @@ public class ItemCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    /**
-     * 성능 테스트를 위한 메서드입니다.
-     */
-    public List<Item> findItems__v1(int sortCode, String searchText, boolean isAll, Pageable pageable) {
+    public List<ItemsResponse> findItemsDefault(Pageable pageable, int sortCode, String searchText, boolean isAll) {
         return queryFactory
-                .selectFrom(item)
-                .where(
-                        eqToSearchText(searchText),
-                        eqNotDeleted(),
-                        eqAll(isAll)
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    /**
-     * 성능 테스트를 위한 메서드입니다.
-     */
-    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
-        return queryFactory
-                .selectFrom(item)
-                .where(
-                        ltItemId(lastItemId),
-                        eqToSearchText(searchText),
-                        eqNotDeleted(),
-                        eqAll(isAll)
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    /**
-     * @param sortCode   정렬 기준, 1: 최신순 / 2: 인기순 / 3: 경매 마감순
-     * @param searchText 검색어(제목, 내용, 작성자)
-     * @param pageable   페이징: 9
-     * @return 홈화면에 보여질 아이템 리스트
-     */
-    public List<ItemsResponse> findItems(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
-        return queryFactory
-                .select(
-                        Projections.constructor(
+                .select(Projections.constructor(
                                 ItemsResponse.class,
                                 item.id,
                                 item.title,
                                 item.minimumPrice,
-                                item.comments.size(),
                                 item.bids.size(),
+                                item.comments.size(),
                                 item.hearts.size(),
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
@@ -88,7 +46,6 @@ public class ItemCustomRepository {
                 )
                 .from(item)
                 .where(
-                        ltItemId(lastItemId),
                         eqToSearchText(searchText),
                         eqNotDeleted(),
                         eqAll(isAll)
@@ -107,8 +64,8 @@ public class ItemCustomRepository {
                                 item.id,
                                 item.title,
                                 item.minimumPrice,
-                                item.comments.size(),
                                 item.bids.size(),
+                                item.comments.size(),
                                 item.hearts.size(),
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
@@ -153,8 +110,8 @@ public class ItemCustomRepository {
                                 item.id,
                                 item.title,
                                 item.minimumPrice,
-                                item.comments.size(),
                                 item.bids.size(),
+                                item.comments.size(),
                                 item.hearts.size(),
                                 item.thumbnailImageFileName,
                                 item.itemStatus,
@@ -166,6 +123,42 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
+    public List<ItemsResponse> findItemsInIdsSortByPopularity(List<Long> ids) {
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ItemsResponse.class,
+                                item.id,
+                                item.title,
+                                item.minimumPrice,
+                                item.bids.size(),
+                                item.comments.size(),
+                                item.hearts.size(),
+                                item.thumbnailImageFileName,
+                                item.itemStatus,
+                                item.expireAt
+                        )
+                )
+                .from(item)
+                .where(item.id.in(ids))
+                .fetch();
+    }
+
+    public List<Long> findItemIdsSortByPopularity(Pageable pageable, String searchText) {
+        return queryFactory
+                .select(item.id)
+                .from(item)
+                .leftJoin(item.bids, bid)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted()
+                )
+                .groupBy(item.id)
+                .orderBy(bid.count().desc())
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetch();
+    }
 
     /**
      * @param id 상품 아이디
@@ -175,21 +168,21 @@ public class ItemCustomRepository {
     public Optional<ItemDetailResponse> findItemById(Long id) {
         return Optional.ofNullable(
                 queryFactory.select(
-                            Projections.constructor(
-                                    ItemDetailResponse.class,
-                                    item.id,
-                                    item.member.id,
-                                    item.title,
-                                    item.description,
-                                    item.member.name,
-                                    item.minimumPrice,
-                                    item.thumbnailImageFileName,
-                                    item.bids.size(),
-                                    item.comments.size(),
-                                    item.hearts.size(),
-                                    item.itemStatus,
-                                    item.expireAt
-                            )
+                                Projections.constructor(
+                                        ItemDetailResponse.class,
+                                        item.id,
+                                        item.member.id,
+                                        item.title,
+                                        item.description,
+                                        item.member.name,
+                                        item.minimumPrice,
+                                        item.thumbnailImageFileName,
+                                        item.bids.size(),
+                                        item.comments.size(),
+                                        item.hearts.size(),
+                                        item.itemStatus,
+                                        item.expireAt
+                                )
                         )
                         .from(item)
                         .where(
@@ -214,6 +207,42 @@ public class ItemCustomRepository {
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
                 .fetchOne();
+    }
+
+
+    /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public List<Item> findItems__v1(int sortCode, String searchText, boolean isAll, Pageable pageable) {
+        return queryFactory
+                .selectFrom(item)
+                .where(
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqAll(isAll)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    /**
+     * 성능 테스트를 위한 메서드입니다.
+     */
+    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
+        return queryFactory
+                .selectFrom(item)
+                .where(
+                        ltItemId(lastItemId),
+                        eqToSearchText(searchText),
+                        eqNotDeleted(),
+                        eqAll(isAll)
+                )
+                .orderBy(orderBySortCode(sortCode))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
     }
 
     private BooleanExpression ltItemId(Long itemId) {

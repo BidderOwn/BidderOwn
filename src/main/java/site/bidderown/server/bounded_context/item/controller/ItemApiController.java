@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.service.ItemService;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.List;
 public class ItemApiController {
 
     private final ItemService itemService;
-    private final MemberService memberService;
 
     @Operation(summary = "모든 상품 조회",
                description = """
@@ -94,7 +91,6 @@ public class ItemApiController {
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        MemberDetail memberDetail = MemberDetail.from(memberService.getMember(user.getUsername()));
         itemService.updateDeleted(id, user.getUsername());
         return "/home";
     }

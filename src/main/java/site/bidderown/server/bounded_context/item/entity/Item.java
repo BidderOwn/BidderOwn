@@ -103,7 +103,6 @@ public class Item extends BaseEntity {
     public void update(ItemUpdateRequest itemUpdateRequest) {
         this.title = itemUpdateRequest.getTitle();
         this.description = itemUpdateRequest.getDescription();
-        this.setUpdatedAt(LocalDateTime.now());
     }
 
     public void updateStatus(ItemStatus status) {
