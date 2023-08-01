@@ -19,10 +19,11 @@ import site.bidderown.server.bounded_context.item.repository.ItemRepository;
 import site.bidderown.server.bounded_context.item.service.ItemRedisService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-
+import site.bidderown.server.bounded_context.item.repository.dto.BulkInsertItem;
+import java.util.ArrayList;
 import java.util.List;
 
-@Profile({"prod", "dev"})
+@Profile({"prod","dev"})
 @Configuration
 @Transactional
 public class NotProd {
@@ -47,10 +48,7 @@ public class NotProd {
             if (initDataDone) return;
 
             initDataDone = true;
-            // 유저 생성
-//            IntStream.rangeClosed(1, 10)
-//                    .forEach(i -> memberService.loginAsSocial("user_" + i));
-
+          
             Member member1 = memberService.join("user1", "1234");
             Member member2 = memberService.join("user2", "1234");
             Member member3 = memberService.join("모찌맘", "1234");
@@ -68,6 +66,7 @@ public class NotProd {
             Member kakaoMember1 = memberService.loginAsSocial("KAKAO_2810203532");
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
+
 
             List<Item> items = List.of(
                     Item.of(ItemRequest.builder().
