@@ -3,6 +3,7 @@ package site.bidderown.server.bounded_context.comment.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -14,7 +15,6 @@ import site.bidderown.server.bounded_context.comment.controller.dto.CommentRespo
 import site.bidderown.server.bounded_context.comment.service.CommentService;
 
 import javax.validation.Valid;
-import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -35,11 +35,6 @@ public class CommentApiController {
             throw new ForbiddenException("로그인 후 접근이 가능합니다.");
         return CommentResponse.of(commentService.create(request, itemId, user.getUsername()));
     }
-
-/*    @GetMapping("/{id}/comments")
-    public List<CommentDetailResponse> getCommentList(@PathVariable Long id, Pageable pageable) {
-        return commentService.getComments(id, pageable);
-    }*/
 
     @Operation(summary = "댓글 목록", description = "상품에 대한 댓글 목록을 조회합니다.")
     @GetMapping("/{id}/comments")

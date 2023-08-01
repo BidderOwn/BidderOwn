@@ -1,13 +1,10 @@
 package site.bidderown.server.bounded_context.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import site.bidderown.server.base.exception.custom_exception.NotFoundException;
-import site.bidderown.server.base.redis.buffer.CountTask;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.repository.ItemRedisRepository;
-import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.util.List;
 
@@ -16,7 +13,6 @@ import java.util.List;
 public class ItemRedisService {
 
     private final ItemRedisRepository itemRedisRepository;
-    private final ItemRepository itemRepository;
 
     public boolean containsKey(Item item) {
         return itemRedisRepository.contains(item.getId());
@@ -26,35 +22,26 @@ public class ItemRedisService {
         itemRedisRepository.save(item.getId(), expire);
     }
 
-    /**
-     * item 의 count 정보를 한번에 가져오는 메서드
-     */
-    public ItemCounts getItemCounts(Item item) {
-        return itemRedisRepository.getItemCounts(item.getId())
-                .orElseGet(() -> ItemCounts.of(
-                        item.getBids().size(),
-                        item.getComments().size(),
-                        item.getHearts().size()
-                ));
+    public List<Long> getItemIdsByRanking(Pageable pageable) {
+        return itemRedisRepository.getBidRankingRange(pageable);
     }
 
-    public ItemCounts getItemCounts(Long itemId) {
-        return itemRedisRepository.getItemCounts(itemId)
-                .orElseGet(() -> {
-                    Item item = itemRepository.findById(itemId)
-                            .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", itemId + ""));
-                    return ItemCounts.of(
-                            item.getBids().size(),
-                            item.getComments().size(),
-                            item.getHearts().size()
-                    );
-                });
+    public void removeBidRankingKey(Long itemId) {
+        itemRedisRepository.removeBidRankingKey(itemId);
+    }
+
+    public void increaseBidScore(Long itemId) {
+        itemRedisRepository.increaseScore(itemId, 1);
+    }
+
+    public void decreaseBidScore(Long itemId) {
+        itemRedisRepository.decreaseScore(itemId, -1);
     }
 
     /**
-     * Redis 의 pipelining 을 사용하여서 효율적으로 증가
+     * 테스트 코드를 위한 메스드입니다.
      */
-    public void handleTasks(List<CountTask> tasks) {
-        itemRedisRepository.handleTasksWithPipelined(tasks);
+    public void flushBidRanking() {
+        itemRedisRepository.flushBidRanking();
     }
 }

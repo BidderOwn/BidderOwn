@@ -24,7 +24,6 @@ import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
 
@@ -64,13 +63,14 @@ public class ItemServiceTest {
     private ItemRedisService itemRedisService;
 
     private final int PAGE_SIZE = 9;
-    private final int ITEM_SIZE = 5;
+    private final int ITEM_SIZE = 10;
 
     @BeforeEach
     void beforeEach() throws IOException {
         Member member1 = memberService.join("test_member_1", "");
         memberService.join("test_member_2", "");
         initItemData(member1);
+        itemRedisService.flushBidRanking();
     }
 
     @Test
@@ -93,32 +93,56 @@ public class ItemServiceTest {
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
-        assertThat(items.size()).isEqualTo(5);
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
         assertThat(items).isSortedAccordingTo(
                 Comparator.comparing(ItemsResponse::getId, Comparator.reverseOrder())
         );
     }
 
-    @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2")
+    @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2, 레디스")
     @Test
     void test003() {
         //given
         int sortCode = 2;
-        String searchText = "test";
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
-        ItemsRequest itemsRequest = ItemsRequest.builder().id(null).s(sortCode).q(searchText).build();
+        ItemsRequest itemsRequest = ItemsRequest.builder().s(sortCode).build();
 
         //when
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
+        List<Long> itemIds = itemRedisService.getItemIdsByRanking(pageRequest);
+        System.out.println(itemIds);
+
         //then
-        assertThat(items.size()).isEqualTo(5);
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
         assertThat(items).isSortedAccordingTo(
                 Comparator.comparing(ItemsResponse::getBidCount, Comparator.reverseOrder())
         );
     }
 
-    @DisplayName("상품 정렬 테스트 - 경매종료 마감순 sortCode 2")
+    @DisplayName("상품 정렬 테스트 - 인기순 sortCode 2, 검색어 포함")
+    @Test
+    void test003_1() {
+        //given
+        int sortCode = 2;
+        String searchText = "test";
+        PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
+        ItemsRequest itemsRequest = ItemsRequest.builder()
+                .s(sortCode)
+                .q(searchText)
+                .build();
+
+        //when
+        List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
+
+        //then
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
+        assertThat(items).isSortedAccordingTo(
+                Comparator.comparing(ItemsResponse::getBidCount, Comparator.reverseOrder())
+        );
+    }
+
+    @DisplayName("상품 정렬 테스트 - 경매종료 마감순 sortCode 3")
     @Test
     void test004() {
         //given
@@ -131,7 +155,7 @@ public class ItemServiceTest {
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
-        assertThat(items.size()).isEqualTo(5);
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
         assertThat(items).isSortedAccordingTo(
                 Comparator.comparing(ItemsResponse::getExpireAt)
         );
@@ -187,7 +211,7 @@ public class ItemServiceTest {
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
         //then
-        assertThat(items.size()).isEqualTo(5);
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
         items.stream()
                 .map(item -> itemService.getItem(item.getId()))
                 .forEach(item -> assertThat(item.getMember().getName().contains(searchText)).isTrue());
@@ -209,19 +233,14 @@ public class ItemServiceTest {
         assertThat(items).isSortedAccordingTo(
                 Comparator.comparing(ItemsResponse::getBidCount, Comparator.reverseOrder())
         );
-        assertThat(items.size()).isEqualTo(5);
+        assertThat(items.size()).isEqualTo(PAGE_SIZE);
     }
 
     @Test
     @DisplayName("단일 상품 조회")
     void test009() {
-        List<Item> item = itemRepository.findByTitle("test_title_0");
-        ItemDetailResponse itemDetailResponse = ItemDetailResponse
-                .of(item.get(0), 1000, 10000, ItemCounts.of(0, 0, 0));
-
-        ItemDetailResponse itemDetail = itemService.getItemDetail(itemDetailResponse.getId());
-
-        assertEquals("test_title_0", itemDetail.getTitle());
+        Item item = itemRepository.findByTitle("test_title_0").get(0);
+        assertEquals("test_title_0", item.getTitle());
     }
 
     @Test

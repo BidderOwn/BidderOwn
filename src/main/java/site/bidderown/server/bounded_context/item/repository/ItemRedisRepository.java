@@ -1,77 +1,80 @@
 package site.bidderown.server.bounded_context.item.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
-import site.bidderown.server.base.redis.buffer.CountTask;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-/**
- * 아이템 count 정보가 들어있는 redis repository
- * 경매 종료시간에 맞춰 expire time 을 설정해 두었습니다.
- */
 
+@Slf4j
 @RequiredArgsConstructor
 @Repository
 public class ItemRedisRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    private final ObjectMapper objectMapper;
+    private ValueOperations<String, String> valueOperations;
 
-    private HashOperations<String, String, Integer> hashCountOperations;
+    private ZSetOperations<String, String> zSetOperations;
 
-    @Value("${custom.redis.item.bidding.info-key}")
-    private String biddingItemInfoKey;
+    @Value("${custom.redis.item.bidding.expire-key}")
+    private String biddingItemExpireKey;
 
-    @Value("${custom.redis.item.bidding.count-suffix}")
-    private String countSuffix;
+    @Value("${custom.redis.item.bidding.ranking-key}")
+    private String bidRankingKey;
 
     @PostConstruct
     private void init() {
-        hashCountOperations = redisTemplate.opsForHash();
+        valueOperations = redisTemplate.opsForValue();
+        zSetOperations = redisTemplate.opsForZSet();
     }
 
     public void save(Long itemId, int day) {
-        Map<String, Integer> itemCountResponseMap = objectMapper.convertValue(ItemCounts.newInstance(), Map.class);
-        hashCountOperations.putAll(biddingItemInfoKey + itemId, itemCountResponseMap);
-        redisTemplate.expire(biddingItemInfoKey + itemId, day, TimeUnit.DAYS);
+        valueOperations.set(biddingItemExpireKey + itemId, "", day, TimeUnit.DAYS);
+        zSetOperations.add(bidRankingKey, itemId.toString(), 0);
     }
 
     public boolean contains(Long itemId) {
-        return redisTemplate.hasKey(biddingItemInfoKey + itemId) != null;
+        return !Objects.isNull(valueOperations.get(biddingItemExpireKey + itemId));
     }
 
-    public Optional<ItemCounts> getItemCounts(Long itemId) {
-        Map<String, Integer> entries = hashCountOperations.entries(biddingItemInfoKey + itemId);
+    public List<Long> getBidRankingRange(Pageable pageable) {
+        long start = pageable.getOffset();
+        long end = pageable.getOffset() + pageable.getPageSize() - 1;
 
-        if (entries.keySet().size() == 0) return Optional.empty();
+        Set<String> ids = zSetOperations.reverseRange(bidRankingKey, start, end);
 
-        ItemCounts itemCounts =  objectMapper.convertValue(entries, ItemCounts.class);
-        return Optional.ofNullable(itemCounts);
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+
+        return ids.stream().map(Long::parseLong).collect(Collectors.toList());
     }
 
-    public void handleTasksWithPipelined(List<CountTask> tasks) {
-        redisTemplate.executePipelined((RedisCallback<?>) connection -> {
-            for (CountTask task : tasks) {
-                connection.hIncrBy(
-                        (biddingItemInfoKey + task.getId()).getBytes(),
-                        (task.getType() + countSuffix).getBytes(),
-                        task.getDelta()
-                );
-            }
-            return null;
-        });
+    public void increaseScore(Long itemId, int delta) {
+        zSetOperations.incrementScore(bidRankingKey, itemId.toString(), delta);
+    }
+
+    public void decreaseScore(Long itemId, int delta) {
+        zSetOperations.incrementScore(bidRankingKey, itemId.toString(), delta);
+    }
+
+    public void removeBidRankingKey(Long itemId) {
+        zSetOperations.remove(bidRankingKey, itemId.toString());
+    }
+
+    public void flushBidRanking() {
+        redisTemplate.delete(bidRankingKey);
     }
 }
 

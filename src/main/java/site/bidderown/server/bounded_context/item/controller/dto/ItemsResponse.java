@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
-import site.bidderown.server.bounded_context.item.repository.dto.ItemCounts;
 
 import java.time.LocalDateTime;
 
@@ -18,10 +17,10 @@ public class ItemsResponse {
     private String title;
     @Schema(description = "최소희망가격")
     private int minimumPrice;
-    @Schema(description = "댓글수")
-    private Integer commentsCount;
     @Schema(description = "입찰수")
     private Integer bidCount;
+    @Schema(description = "댓글수")
+    private Integer commentsCount;
     @Schema(description = "좋아요수")
     private Integer heartsCount;
     @Schema(description = "썸네일사진 이름")
@@ -36,8 +35,8 @@ public class ItemsResponse {
             Long id,
             String title,
             int minimumPrice,
-            Integer commentsCount,
             Integer bidCount,
+            Integer commentsCount,
             Integer heartsCount,
             String thumbnailImageName,
             ItemStatus itemStatus,
@@ -54,59 +53,17 @@ public class ItemsResponse {
         this.expireAt = expireAt;
     }
 
-    public ItemsResponse(
-            Long id,
-            String title,
-            int minimumPrice,
-            String thumbnailImageName,
-            ItemStatus itemStatus,
-            LocalDateTime expireAt
-    ) {
-        // v3에서 사용됨
-        this.id = id;
-        this.title = title;
-        this.minimumPrice = minimumPrice;
-        this.thumbnailImageName = thumbnailImageName;
-        this.itemStatus = itemStatus;
-        this.expireAt = expireAt;
-    }
-
-    public static ItemsResponse of__v12(
-            Item item
-    ) {
+    public static ItemsResponse of__v12(Item item) {
         return ItemsResponse.builder()
                 .id(item.getId())
                 .title(item.getTitle())
                 .minimumPrice(item.getMinimumPrice())
-                .commentsCount(item.getComments().size())
                 .bidCount(item.getBids().size())
+                .commentsCount(item.getComments().size())
                 .heartsCount(item.getHearts().size())
                 .thumbnailImageName(item.getThumbnailImage())
                 .itemStatus(item.getItemStatus())
                 .expireAt(item.getExpireAt())
                 .build();
-    }
-
-    public static ItemsResponse of(
-            Item item,
-            ItemCounts itemCounts
-    ) {
-        return ItemsResponse.builder()
-                .id(item.getId())
-                .title(item.getTitle())
-                .minimumPrice(item.getMinimumPrice())
-                .commentsCount(itemCounts.getCommentCount())
-                .bidCount(itemCounts.getBidCount())
-                .heartsCount(itemCounts.getHeartCount())
-                .thumbnailImageName(item.getThumbnailImage())
-                .itemStatus(item.getItemStatus())
-                .expireAt(item.getExpireAt())
-                .build();
-    }
-
-    public void setCounts(ItemCounts itemCounts) {
-        this.bidCount = itemCounts.getBidCount();
-        this.commentsCount = itemCounts.getCommentCount();
-        this.heartsCount = itemCounts.getHeartCount();
     }
 }

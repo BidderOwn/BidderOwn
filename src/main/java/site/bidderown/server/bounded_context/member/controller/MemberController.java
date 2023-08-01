@@ -12,20 +12,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemSimpleResponse;
-import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
-import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-
-import java.util.List;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
-    private final ItemService itemService;
 
     @Value("${custom.socket.path}")
     private String socketPath;
@@ -33,17 +27,8 @@ public class MemberController {
     @GetMapping("/my-page")
     @PreAuthorize("isAuthenticated()")
     public String myPage(Model model, @AuthenticationPrincipal User user) {
-        Member member = memberService.getMember(user.getUsername());
-        MemberDetail memberDetail = MemberDetail.of(member);
-
-        model.addAttribute("nickname", memberDetail.getName());
-
-        List<ItemSimpleResponse> items = itemService.getItems(member.getId());
-        List<ItemSimpleResponse> bidItems = itemService.getBidItems(member.getId());
-
-        model.addAttribute("items", items);
-        model.addAttribute("bidItems",bidItems);
-
+        MemberDetail member = MemberDetail.from(memberService.getMember(user.getUsername()));
+        model.addAttribute("nickname", member.getName());
         return "usr/my_page";
     }
 

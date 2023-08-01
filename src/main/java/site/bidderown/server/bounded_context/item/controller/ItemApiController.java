@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import site.bidderown.server.bounded_context.item.controller.dto.*;
 import site.bidderown.server.bounded_context.item.service.ItemService;
-import site.bidderown.server.bounded_context.member.controller.dto.MemberDetail;
-import site.bidderown.server.bounded_context.member.service.MemberService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -26,7 +24,6 @@ import java.util.List;
 public class ItemApiController {
 
     private final ItemService itemService;
-    private final MemberService memberService;
 
     @Operation(summary = "모든 상품 조회",
                description = """
@@ -66,12 +63,6 @@ public class ItemApiController {
         return "/home";
     }
 
-    @Operation(summary = "상품 상세정보", description = "id를 이용하여 상품을 조회합니다.")
-    @GetMapping("/{id}/v1")
-    public ItemDetailResponse getDetailItem__v1(@PathVariable Long id) {
-        return itemService.getItemDetail__v1(id);
-    }
-
     @Operation(summary = "상품 상세정보", description = "id를 이용하여 상품을 조회합니다. - 레디스 적용")
     @GetMapping("/{id}")
     public ItemDetailResponse getDetailItem(@PathVariable Long id) {
@@ -100,7 +91,6 @@ public class ItemApiController {
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteItem(@PathVariable Long id, @AuthenticationPrincipal User user) {
-        MemberDetail memberDetail = MemberDetail.of(memberService.getMember(user.getUsername()));
         itemService.updateDeleted(id, user.getUsername());
         return "/home";
     }

@@ -27,6 +27,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(indexes = @Index(name = "idx_item_expire_at", columnList = "expireAt, itemStatus, deleted"))
 @EntityListeners(value = ItemEntityListener.class)
 public class Item extends BaseEntity {
 
@@ -102,7 +103,6 @@ public class Item extends BaseEntity {
     public void update(ItemUpdateRequest itemUpdateRequest) {
         this.title = itemUpdateRequest.getTitle();
         this.description = itemUpdateRequest.getDescription();
-        this.setUpdatedAt(LocalDateTime.now());
     }
 
     public void updateStatus(ItemStatus status) {
@@ -115,13 +115,6 @@ public class Item extends BaseEntity {
 
     public void closeBid() {
         this.itemStatus = ItemStatus.BID_END;
-    }
-
-    // 낙찰 받은 사람
-    private Member getWinner() {
-        if (bids.isEmpty()) return null;
-        Bid bid = bids.get(0); //최고가
-        return bid.getBidder();
     }
 
     // 썸네일 이미지 얻기 (첫번째 사진)

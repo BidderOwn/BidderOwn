@@ -48,10 +48,7 @@ public class NotProd {
             if (initDataDone) return;
 
             initDataDone = true;
-            // 유저 생성
-//            IntStream.rangeClosed(1, 10)
-//                    .forEach(i -> memberService.loginAsSocial("user_" + i));
-
+          
             Member member1 = memberService.join("user1", "1234");
             Member member2 = memberService.join("user2", "1234");
             Member member3 = memberService.join("모찌맘", "1234");
@@ -70,20 +67,7 @@ public class NotProd {
             Member kakaoMember2 = memberService.loginAsSocial("KAKAO_2829157954");
             Member kakaoMember3 = memberService.loginAsSocial("KAKAO_2829504082");
 
-            ArrayList<BulkInsertItem> bulkInsertItems = new ArrayList<>();
-            for(int n = 0; n < 300; n++) {
-                for (int i = 0; i < 1000; i++) {
-                    bulkInsertItems.add(BulkInsertItem.builder()
-                            .title("testItem")
-                            .description("testDescription")
-                            .minimumPrice(10000)
-                            .memberId(member1.getId())
-                            .build());
-                }
-            }
 
-            itemJdbcRepository.insertItemList(bulkInsertItems);
-            /*
             List<Item> items = List.of(
                     Item.of(ItemRequest.builder().
                             title("나이키 에어포스 1 '07 로우 화이트")
@@ -305,9 +289,6 @@ public class NotProd {
                 itemRepository.save(items.get(i));
                 itemRedisRepository.save(items.get(i).getId(), 3);
             }
-            */
-
-
         };
     }
 }
