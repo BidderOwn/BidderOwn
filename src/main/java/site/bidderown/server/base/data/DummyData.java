@@ -3,14 +3,7 @@ package site.bidderown.server.base.data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.bounded_context.image.service.ImageService;
-import site.bidderown.server.bounded_context.item.controller.dto.ItemRequest;
-import site.bidderown.server.bounded_context.item.entity.Item;
-import site.bidderown.server.bounded_context.item.repository.ItemRepository;
-import site.bidderown.server.bounded_context.member.entity.Member;
-import site.bidderown.server.bounded_context.member.service.MemberService;
-
-import java.util.List;
+import site.bidderown.server.boundedcontext.member.service.MemberService;
 
 @RequiredArgsConstructor
 @Component

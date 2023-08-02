@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
-import site.bidderown.server.bounded_context.member.entity.Member;
-import site.bidderown.server.bounded_context.member.repository.MemberRepository;
+import site.bidderown.server.boundedcontext.member.entity.Member;
+import site.bidderown.server.boundedcontext.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
