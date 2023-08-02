@@ -3,10 +3,9 @@ package site.bidderown.server.base.event;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.item.entity.Item;
+import site.bidderown.server.boundedcontext.item.entity.Item;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
