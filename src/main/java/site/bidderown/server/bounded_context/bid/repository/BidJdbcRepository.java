@@ -18,7 +18,6 @@ import java.util.List;
 public class BidJdbcRepository {
     private final JdbcTemplate jdbcTemplate;
 
-
     public void insertBidList(List<BulkInsertBid> bidList){
         jdbcTemplate.batchUpdate("insert into bid (created_at, updated_at, bid_result, bidder_id, item_id, price) values ( ?, ?, ?, ?, ?, ?)",
                 new BatchPreparedStatementSetter() {

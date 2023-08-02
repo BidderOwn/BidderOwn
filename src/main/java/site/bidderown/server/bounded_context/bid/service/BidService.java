@@ -10,6 +10,7 @@ import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidDetails;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidRequest;
 import site.bidderown.server.bounded_context.bid.controller.dto.BidResponse;
+import site.bidderown.server.bounded_context.bid.controller.dto.BidResponses;
 import site.bidderown.server.bounded_context.bid.entity.Bid;
 import site.bidderown.server.bounded_context.bid.repository.BidCustomRepository;
 import site.bidderown.server.bounded_context.bid.repository.BidRepository;
@@ -34,20 +35,8 @@ public class BidService {
     private final ItemService itemService;
     private final ItemRedisService itemRedisService;
 
-    @Transactional
-    public void create(BidRequest bidRequest, String username) {
-        Item item = itemService.getItem(bidRequest.getItemId());
-
-        if (isMyItem(item, username)) {
-            throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
-        }
-
-        Member member = memberService.getMember(username);
-        bidRepository.save(Bid.of(bidRequest, member, item));
-    }
-
     /**
-     * @description 입찰가 제시
+     * 입찰가 제시
      * 1. 중복 -> 가격 변경
      * 2. 없으면 새로 생성
      */
@@ -76,10 +65,6 @@ public class BidService {
         return  bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
     }
 
-    public List<Bid> getBidsAfter(LocalDateTime createdAt) {
-        return bidRepository.findBidsByCreatedAtAfter(createdAt);
-    }
-
     @Transactional
     public Long create(int price, Item item, Member bidder) {
         if(isMyItem(item, bidder.getName())) {
@@ -91,27 +76,28 @@ public class BidService {
 
     public List<BidResponse> getBids(Long itemId) {
         Item item = itemService.getItem(itemId);
-
         return bidRepository.findByItemOrderByUpdatedAtDesc(item).stream()
-                .map(bid -> BidResponse.of(bid, item)).collect(Collectors.toList());
-    }
-
-    public void clear() {
-        bidRepository.deleteAll();
+                .map(bid -> BidResponse.of(bid, item))
+                .collect(Collectors.toList());
     }
 
     public void delete(Long bidId, String bidderName) {
+        Bid bid = getBid(bidId);
 
-        Bid findBid = bidRepository.findById(bidId)
-                .orElseThrow(() -> new NotFoundException("입찰이 없습니다.", bidId + ""));
-        if(!hasAuthorization(findBid, bidderName)) {
+        if(!hasAuthorization(bid, bidderName)) {
             throw new ForbiddenException("입찰 삭제 권한이 없습니다.");
         }
 
-        bidRepository.delete(findBid);
+        bidRepository.delete(bid);
     }
 
-    public BidDetails getBidStatistics(Long itemId) {
+    public BidResponses getBidListWithStatistics(Long itemId) {
+        BidDetails bidDetails = getBidStatistics(itemId);
+        List<BidResponse> bids = getBids(itemId);
+        return BidResponses.of(bidDetails, bids);
+    }
+
+    private BidDetails getBidStatistics(Long itemId) {
         Item item = itemService.getItem(itemId);
         return BidDetails.of(item, bidRepository.findMaxPrice(item), bidRepository.findMinPrice(item), bidRepository.findAvgPrice(item));
     }

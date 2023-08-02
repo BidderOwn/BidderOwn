@@ -10,6 +10,7 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Entity
 public class Chat extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,27 +24,7 @@ public class Chat extends BaseEntity {
     @Column(length = 500)
     private String message;
 
-    @Builder
-    private Chat(String message, Member sender){
-        this.message = message;
-        this.sender = sender;
-    }
-
     public static Chat of(String message, Member sender, ChatRoom chatRoom){
-        Chat chat = Chat.builder()
-                .message(message)
-                .sender(sender)
-                .build();
-        chat.setChatRoom(chatRoom);
-        return chat;
+        return new Chat(sender, chatRoom, message);
     }
-
-    public void setChatRoom(ChatRoom chatRoom) {
-        if (this.chatRoom != null) {
-            chatRoom.getChatList().remove(this);
-        }
-        this.chatRoom = chatRoom;
-        chatRoom.getChatList().add(this);
-    }
-
 }
