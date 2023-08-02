@@ -27,8 +27,8 @@ public class CommentApiController {
     @Operation(summary = "댓글 생성", description = "상품에 대한 댓글을 작성합니다.")
     @PostMapping("/{itemId}/comment")
     public CommentResponse createComment(
-            @RequestBody CommentRequest request,
             @PathVariable Long itemId,
+            @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal User user
     ) {
         if(user == null)

@@ -62,7 +62,7 @@ public class CommentServiceTest {
         Comment comment = commentService.create(
                 CommentRequest.of(commentText),
                 item.getId(),
-                member
+                member.getName()
         );
 
         //then
@@ -85,49 +85,13 @@ public class CommentServiceTest {
                 () -> commentService.create(
                         CommentRequest.of("test_comment_1"),
                         item.getId(),
-                        member
+                        member.getName()
                 ));
 
         //then
         assertThat(exception.getMessage().contains("상품")).isTrue();
         assertThat(item.getComments().size()).isEqualTo(0);
     }
-
-   /* @DisplayName("상품 댓글 전체 개수 테스트")
-    @Test
-    void t003() {
-        //given
-        Item item = itemRepository.findByTitle("test_title_1").get(0);
-        Member member = memberService.getMember("test_user_1");
-        String commentText = "test_comment_";
-        int commentCount = 5;
-
-        //when
-        for (int i = 0; i < commentCount; i++) {
-            commentService.create(
-                    CommentRequest.of(commentText + i),
-                    item.getId(),
-                    member
-            );
-        }
-
-        List<CommentDetailResponse> comments = commentService.getComments(item.getId());
-
-        //then
-        // 댓글 개수
-        assertThat(comments.size()).isEqualTo(commentCount);
-
-        // 댓글 내용
-        IntStream.range(0, commentCount)
-                .forEach(i ->
-                        assertThat(item.getComments().get(i).getContent())
-                        .isEqualTo(commentText + i));
-
-        // 댓글 정렬 - 최신순
-        assertThat(comments).isSortedAccordingTo(
-                Comparator.comparing(CommentDetailResponse::getCommentId, Comparator.reverseOrder())
-        );
-    }*/
 
     @DisplayName("댓글 삭제 테스트")
     @Test
@@ -141,7 +105,7 @@ public class CommentServiceTest {
         Comment comment = commentService.create(
                 CommentRequest.of("test_comment_2"),
                 item.getId(),
-                member1
+                member1.getName()
         );
 
         //when

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemDetailResponse;
 import site.bidderown.server.bounded_context.item.controller.dto.ItemsResponse;
-import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.entity.ItemStatus;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class ItemCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<ItemsResponse> findItemsDefault(Pageable pageable, int sortCode, String searchText, boolean isAll) {
+    public List<ItemsResponse> findItemsLegacy(Pageable pageable, int sortCode, String searchText, boolean isAll) {
         return queryFactory
                 .select(Projections.constructor(
                                 ItemsResponse.class,
@@ -56,7 +55,7 @@ public class ItemCustomRepository {
                 .fetch();
     }
 
-    public List<ItemsResponse> findItemsNoOffset(Long lastItemId, String searchText, boolean isAll, int pageSize) {
+    public List<ItemsResponse> findItemsSortByIdDesc(Long lastItemId, String searchText, boolean isAll, int pageSize) {
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -207,42 +206,6 @@ public class ItemCustomRepository {
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
                 .fetchOne();
-    }
-
-
-    /**
-     * 성능 테스트를 위한 메서드입니다.
-     */
-    public List<Item> findItems__v1(int sortCode, String searchText, boolean isAll, Pageable pageable) {
-        return queryFactory
-                .selectFrom(item)
-                .where(
-                        eqToSearchText(searchText),
-                        eqNotDeleted(),
-                        eqAll(isAll)
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    /**
-     * 성능 테스트를 위한 메서드입니다.
-     */
-    public List<Item> findItems__v2(Long lastItemId, int sortCode, String searchText, boolean isAll, Pageable pageable) {
-        return queryFactory
-                .selectFrom(item)
-                .where(
-                        ltItemId(lastItemId),
-                        eqToSearchText(searchText),
-                        eqNotDeleted(),
-                        eqAll(isAll)
-                )
-                .orderBy(orderBySortCode(sortCode))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
     }
 
     private BooleanExpression ltItemId(Long itemId) {

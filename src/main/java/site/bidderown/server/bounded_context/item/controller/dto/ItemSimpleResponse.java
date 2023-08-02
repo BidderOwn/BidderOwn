@@ -43,7 +43,7 @@ public class ItemSimpleResponse {
                 .minimumPrice(item.getMinimumPrice())
                 .expireAt(expireAt)
                 .itemId(item.getId())
-                .thumbnailImageName(item.getThumbnailImage())
+                .thumbnailImageName(item.getThumbnailImageFileName())
                 .itemStatus(item.getItemStatus().getStatus())
                 .build();
     }

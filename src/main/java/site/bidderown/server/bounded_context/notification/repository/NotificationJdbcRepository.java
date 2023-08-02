@@ -20,7 +20,6 @@ public class NotificationJdbcRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-
     @Transactional
     public void insertNotificationList(List<BulkInsertNotification> notificationList){
         jdbcTemplate.batchUpdate("insert into notification (created_at, updated_at, notification_type, read_date, item_id, receiver_id) values ( ?, ?, ?, ?, ?, ?)",

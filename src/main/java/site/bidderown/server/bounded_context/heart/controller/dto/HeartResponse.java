@@ -7,6 +7,8 @@ import site.bidderown.server.bounded_context.heart.entity.Heart;
 @Schema(description = "좋아요 응답")
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class HeartResponse {
 
     @Schema(description = "상품ID")
@@ -16,18 +18,7 @@ public class HeartResponse {
     @Schema(description = "좋아요 여부")
     private Boolean likeStatus;
 
-    @Builder
-    public HeartResponse (
-            Long itemId,
-            Long memberId,
-            Boolean likeStatus
-    ) {
-        this.itemId = itemId;
-        this.memberId = memberId;
-        this.likeStatus = likeStatus;
-    }
-
-    public static HeartResponse of (Heart heart, Boolean likeStatus) {
+    public static HeartResponse of(Heart heart, Boolean likeStatus) {
         return HeartResponse.builder()
                 .itemId(heart.getItem().getId())
                 .memberId(heart.getMember().getId())

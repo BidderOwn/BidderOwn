@@ -1,6 +1,7 @@
 package site.bidderown.server.bounded_context.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
@@ -15,9 +16,7 @@ import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.item.service.ItemService;
 import site.bidderown.server.bounded_context.member.entity.Member;
 import site.bidderown.server.bounded_context.member.service.MemberService;
-import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,16 +31,7 @@ public class CommentService {
     public Comment create(CommentRequest request, Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
         Member writer = memberService.getMember(writerName);
-        Comment comment = Comment.of(request, item, writer);
-
-        return commentRepository.save(comment);
-    }
-
-    @Transactional
-    public Comment create(CommentRequest request, Long itemId, Member writer) {
-        Item item = itemService.getItem(itemId);
-        Comment comment = Comment.of(request, item, writer);
-
+        Comment comment = Comment.of(request.getContent(), item, writer);
         return commentRepository.save(comment);
     }
 
@@ -50,16 +40,8 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않습니다.", commentId + ""));
     }
 
-/*    public List<CommentDetailResponse> getComments(Long itemId, Pageable pageable) {
-        return commentRepository
-                .findCommentsByItemIdOrderByIdDesc(itemId, pageable)
-                .stream()
-                .map(CommentDetailResponse::of)
-                .collect(Collectors.toList());
-    }*/
     public List<CommentDetailResponse> getComments(Long itemId, Pageable pageable) {
-        return commentCustomRepository
-                .getComments(itemId, pageable);
+        return commentCustomRepository.getComments(itemId, pageable);
     }
 
     @Transactional
@@ -83,10 +65,6 @@ public class CommentService {
 
         comment.updateContent(commentRequest.getContent());
         return CommentResponse.of(comment);
-    }
-
-    public List<Comment> getCommentsAfter(LocalDateTime createdAt) {
-        return commentRepository.findCommentsByCreatedAtAfter(createdAt);
     }
 
     private boolean hasAuthorization(Comment comment, String memberName) {

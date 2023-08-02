@@ -1,9 +1,6 @@
 package site.bidderown.server.bounded_context.item.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.base.util.TimeUtils;
@@ -27,7 +24,10 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(indexes = @Index(name = "idx_item_expire_at", columnList = "expireAt, itemStatus, deleted"))
+@Table(indexes = @Index(
+        name = "idx_item_expire_at",
+        columnList = "expireAt, itemStatus, deleted")
+)
 @EntityListeners(value = ItemEntityListener.class)
 public class Item extends BaseEntity {
 
@@ -105,22 +105,12 @@ public class Item extends BaseEntity {
         this.description = itemUpdateRequest.getDescription();
     }
 
-    public void updateStatus(ItemStatus status) {
-        this.itemStatus = status;
-    }
-
     public void soldOutItem() {
         this.itemStatus = ItemStatus.SOLDOUT;
     }
 
     public void closeBid() {
         this.itemStatus = ItemStatus.BID_END;
-    }
-
-    // 썸네일 이미지 얻기 (첫번째 사진)
-    public String getThumbnailImage() {
-        if (images.isEmpty()) return null;
-        return images.get(0).getFileName();
     }
 
     public void updateDeleted() {

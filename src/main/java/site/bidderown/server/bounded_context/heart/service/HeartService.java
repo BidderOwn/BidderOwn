@@ -28,34 +28,36 @@ public class HeartService {
     public HeartResponse handleHeart(Long itemId, String username) {
         Item item = itemService.getItem(itemId);
         Member member = memberService.getMember(username);
-        Optional<Heart> opHeart = heartRepository.findByItemIdAndMemberId(itemId, member.getId());
-        if (opHeart.isPresent()) {
-            heartRepository.delete(opHeart.get());
-            return HeartResponse.of(opHeart.get(), false);
-        } else {
-            Heart heart = Heart.builder()
-                    .item(item)
-                    .member(member)
-                    .build();
-            heartRepository.save(heart);
-            return HeartResponse.of(heart, true);
-        }
-    }
 
-    public List<Heart> getHeartsAfter(LocalDateTime createdAt) {
-        return heartRepository.findHeartsByCreatedAtAfter(createdAt);
+        Optional<Heart> opHeart = heartRepository.findByItemIdAndMemberId(itemId, member.getId());
+
+        if (opHeart.isPresent()) {
+            Heart heart = opHeart.get();
+            heartRepository.delete(heart);
+            return HeartResponse.of(heart, false);
+        }
+
+        Heart heart = Heart.of(member, item);
+        heartRepository.save(heart);
+        return HeartResponse.of(heart, true);
     }
 
     public HeartStatus getLikeStatus(Long itemId, String username) {
         Member member = memberService.getMember(username);
         Optional<Heart> heart = heartRepository.findByItemIdAndMemberId(itemId, member.getId());
-        if(heart.isPresent()) return HeartStatus.of(true);
-        else return HeartStatus.of(false);
+
+        if (heart.isPresent()) {
+            return HeartStatus.of(true);
+        }
+
+        return HeartStatus.of(false);
     }
 
     public List<Long> getLikeIdList(String username) {
         Member member = memberService.getMember(username);
-        List<Item> items = heartRepository.findByMemberId(member.getId()).stream().map(Heart::getItem).collect(Collectors.toList());
-        return items.stream().map(Item::getId).collect(Collectors.toList());
+        return heartRepository.findByMemberId(member.getId())
+                .stream()
+                .map(heart -> heart.getItem().getId())
+                .toList();
     }
 }

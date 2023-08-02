@@ -61,7 +61,7 @@ public class ItemsResponse {
                 .bidCount(item.getBids().size())
                 .commentsCount(item.getComments().size())
                 .heartsCount(item.getHearts().size())
-                .thumbnailImageName(item.getThumbnailImage())
+                .thumbnailImageName(item.getThumbnailImageFileName())
                 .itemStatus(item.getItemStatus())
                 .expireAt(item.getExpireAt())
                 .build();

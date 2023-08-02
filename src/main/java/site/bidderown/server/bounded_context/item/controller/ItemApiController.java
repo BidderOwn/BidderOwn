@@ -25,26 +25,6 @@ public class ItemApiController {
 
     private final ItemService itemService;
 
-    @Operation(summary = "모든 상품 조회",
-               description = """
-                       item entity: querydsl, pagination
-                       count: jpa 사용
-                       min, max: querydsl""")
-    @GetMapping("/list-v1")
-    public List<ItemsResponse> getItems__v1(ItemsRequest itemsRequest, Pageable pageable) {
-        return itemService.getItems__v1(itemsRequest, pageable);
-    }
-
-    @Operation(summary = "모든 상품 조회",
-               description = """
-                       itemsResponse: querydsl, no offset
-                       count: querydsl - v1과 유사
-                       min, max: querydsl - 정렬 후 limit 1""")
-    @GetMapping("/list-v2")
-    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
-        return itemService.getItems__v2(itemsRequest, pageable);
-    }
-
     @Operation(summary = "모든 상품 가져오기",
                description = "제목, 가격, 입찰 남은 날짜, 입찰 개수, 댓글 개수를 가져옵니다.")
     @GetMapping("/list")

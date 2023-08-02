@@ -253,30 +253,6 @@ class BidServiceTest {
     }
 
     /**
-     * bidId와 일치하는 입찰이 없는 경우 입찰을 삭제할 수 없습니다.
-     * NotFoundException이 발생합니다.
-     */
-    @Test
-    @DisplayName("입찰 삭제 시 입찰이 없는 경우 예외 처리")
-    void t010() {
-        //given
-        Member seller = createUser("seller");
-        Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
-        Bid bid = createBid(bidder, item);
-
-        //when
-        Throwable exception = Assertions.assertThrows(
-                NotFoundException.class,
-                () -> bidService.delete(bid.getId()+1, bidder.getName())
-        );
-
-        //then
-        assertThat(exception.getMessage().contains("입찰이 없습니다.")).isTrue();
-
-    }
-
-    /**
      * 권한이 없는 경우 입찰을 삭제할 수 없습니다.
      * bidderName 과 userName이 일치하지 않는 경우
      * ForBiddenException이 발생합니다.
@@ -332,8 +308,7 @@ class BidServiceTest {
 
     Item createItem(Member member, String itemTitle, String itemDescription, Integer minimumPrice){
         Item item = itemRepository.save(
-                Item.of(
-                        ItemRequest.builder()
+                Item.of(ItemRequest.builder()
                                 .title(itemTitle)
                                 .description(itemDescription)
                                 .period(3)

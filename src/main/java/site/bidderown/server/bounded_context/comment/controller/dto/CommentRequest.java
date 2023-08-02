@@ -8,23 +8,16 @@ import site.bidderown.server.base.base_entity.BaseEntity;
 import javax.validation.constraints.NotBlank;
 
 @Schema(description = "댓글 요청")
-@Getter @Setter
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class CommentRequest {
-
     @Schema(description = "내용", nullable = false, maxLength = 500)
     @NotBlank
     @Length(max = 500)
     private String content;
 
-    @Builder
-    public CommentRequest(String content) {
-        this.content = content;
-    }
-
     public static CommentRequest of(String content) {
-        return CommentRequest.builder()
-                .content(content)
-                .build();
+        return new CommentRequest(content);
     }
 }

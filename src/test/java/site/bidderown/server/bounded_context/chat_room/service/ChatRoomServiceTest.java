@@ -92,7 +92,7 @@ class ChatRoomServiceTest {
         Member seller = createUser("member1");
         Member buyer = createUser("member2");
         Item item = createItem(seller, "item1", "itemDescription", 10000);
-        item.updateStatus(ItemStatus.SOLDOUT);
+        item.soldOutItem();
 
         //when
         SoldOutItemException exception = assertThrows(

@@ -1,10 +1,7 @@
 package site.bidderown.server.bounded_context.notification.entity;
 
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -13,11 +10,11 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@Entity
 public class Notification extends BaseEntity {
-
-    private LocalDateTime readDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
@@ -28,12 +25,7 @@ public class Notification extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    @Builder
-    public Notification(Item item, Member receiver, NotificationType notificationType) {
-        this.item = item;
-        this.receiver = receiver;
-        this.notificationType = notificationType;
-    }
+    private LocalDateTime readDate;
 
     public static Notification of(Item item, Member receiver, NotificationType notificationType) {
         return Notification.builder()

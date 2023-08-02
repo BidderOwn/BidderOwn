@@ -23,7 +23,6 @@ public class BidResponse {
     private String thumbnailImageName;
     @Schema(description = "입찰ID")
     private Long bidId;
-    // img도 들어가야할 것 같습니다.
 
 
     @Builder
@@ -43,7 +42,7 @@ public class BidResponse {
                 .bidderName(bid.getBidder().getName())
                 .bidPrice(bid.getPrice())
                 .createdDate(createdAt)
-                .thumbnailImageName(item.getThumbnailImage())
+                .thumbnailImageName(item.getThumbnailImageFileName())
                 .bidId(bid.getId())
                 .build();
     }

@@ -49,7 +49,7 @@ public class NotificationService {
     @Transactional
     public void readAll(String username) {
         List<Notification> notifications = notificationRepository.findByReceiverNameAndReadDateIsNull(username);
-        notifications.stream().forEach(Notification::read);
+        notifications.forEach(Notification::read);
     }
 
     public boolean checkNotRead(String memberName) {
@@ -68,8 +68,7 @@ public class NotificationService {
 
         item.getBids().stream()
                 .filter(bid -> !bid.getBidder().getName().equals(request.getMemberName()))
-                .forEach(bid ->
-                {
+                .forEach(bid -> {
                     sendNotification(bid.getBidder().getId());
                     notifications.add(Notification.of(item, bid.getBidder(), NotificationType.BID));
                 });
@@ -88,7 +87,6 @@ public class NotificationService {
 
         messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
         return notificationRepository.save(Notification.of(item, item.getMember(), NotificationType.COMMENT));
-
     }
 
     @Transactional
@@ -96,9 +94,7 @@ public class NotificationService {
         Item item = itemService.getItem(itemId);
         List<Notification> notifications = new ArrayList<>();
 
-        item.getBids().stream()
-                .forEach(bid ->
-                {
+        item.getBids().forEach(bid -> {
                     sendNotification(bid.getBidder().getId());
                     notifications.add(Notification.of(item, bid.getBidder(), NotificationType.SOLDOUT));
                 });

@@ -1,9 +1,6 @@
 package site.bidderown.server.bounded_context.heart.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.item.entity.Item;
 import site.bidderown.server.bounded_context.member.entity.Member;
@@ -12,15 +9,10 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 public class Heart extends BaseEntity {
-
-    /**
-     * 상품 좋아요 클릭
-     * 알림 -> 판매자
-     * 상품 좋아요 +1
-     * 좋아요한사람 마이페이지 -> 즐겨찾기 품목
-     */
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -30,13 +22,10 @@ public class Heart extends BaseEntity {
     @JoinColumn(nullable = false)
     private Item item;
 
-    @Builder
-    private Heart (
-            Member member,
-            Item item
-    ) {
-        this.member = member;
-        this.item = item;
-        item.getHearts().add(this);
+    public static Heart of(Member member, Item item) {
+        return Heart.builder()
+                .member(member)
+                .item(item)
+                .build();
     }
 }

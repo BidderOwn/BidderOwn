@@ -9,7 +9,6 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     List<Notification> findByReceiverAndReadDateIsNullOrderByCreatedAtDesc(Member receiver);
-    Integer countByReceiverAndReadDateIsNull(Member receiver);
 
     Boolean existsByReceiverAndReadDateIsNull(Member receiver);
 

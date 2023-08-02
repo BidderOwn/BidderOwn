@@ -1,9 +1,6 @@
 package site.bidderown.server.bounded_context.comment.entity;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import site.bidderown.server.base.base_entity.BaseEntity;
 import site.bidderown.server.bounded_context.comment.controller.dto.CommentRequest;
 import site.bidderown.server.bounded_context.item.entity.Item;
@@ -13,6 +10,8 @@ import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Entity
 public class Comment extends BaseEntity {
 
@@ -27,28 +26,14 @@ public class Comment extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member writer;
 
-    @Builder
-    private Comment(
-            String content,
-            Item item,
-            Member writer
-    ) {
-        this.content = content;
-        this.writer = writer;
-        this.item = item;
-        this.item.getComments().add(this);
-    }
-
-    public static Comment of (
-        CommentRequest request,
-        Item item,
-        Member writer
-    ) {
-        return Comment.builder()
-                .content(request.getContent())
+    public static Comment of(String content, Item item, Member writer) {
+        Comment comment = Comment.builder()
+                .content(content)
                 .item(item)
                 .writer(writer)
                 .build();
+        item.getComments().add(comment);
+        return comment;
     }
 
     public void updateContent(String content){

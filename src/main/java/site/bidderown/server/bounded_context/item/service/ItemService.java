@@ -55,45 +55,13 @@ public class ItemService {
         return item;
     }
 
-    /**
-     * @description 테스트를 위한 메서드입니다.
-     */
-    @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems__v1(ItemsRequest itemsRequest, Pageable pageable) {
-        List<Item> items = itemCustomRepository.findItems__v1(
-                itemsRequest.getS(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
-                pageable
-        );
-        return items.stream().map(ItemsResponse::of__v12).toList();
-    }
-
-    /**
-     * @description 테스트를 위한 메서드입니다.
-     */
-    @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems__v2(ItemsRequest itemsRequest, Pageable pageable) {
-        List<Item> items = itemCustomRepository.findItems__v2(
-                itemsRequest.getId(),
-                itemsRequest.getS(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
-                pageable
-        );
-        return items.stream().map(ItemsResponse::of__v12).toList();
-    }
-
-    /**
-     * Redis 에 item count 정보를 먼저 요청하고 없으면 count 쿼리 생성
-     */
     @Transactional(readOnly = true)
     public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
         return switch (itemsRequest.getS()) {
             case 1 -> getItemsSortByIdDesc(itemsRequest, pageable);
             case 2 -> getItemsSortByPopularity(itemsRequest, pageable);
             case 3 -> getItemsSortByExpireAt(itemsRequest, pageable);
-            default -> itemCustomRepository.findItemsDefault(
+            default -> itemCustomRepository.findItemsLegacy(
                     pageable,
                     itemsRequest.getS(),
                     itemsRequest.getQ(),
@@ -179,7 +147,7 @@ public class ItemService {
      * @description No offset 적용
      */
     private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
-        return itemCustomRepository.findItemsNoOffset(
+        return itemCustomRepository.findItemsSortByIdDesc(
                 itemsRequest.getId(),
                 itemsRequest.getQ(),
                 itemsRequest.isFilter(),
