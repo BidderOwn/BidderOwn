@@ -446,7 +446,7 @@
                     return;
                 }
 
-                if ((this.maxPrice !== 0 && this.maxPrice !== null) && this.item.minimumPrice / 10 < this.bidPrice - this.maxPrice) {
+                if ((this.maxPrice !== 0 && this.maxPrice !== null) && this.item.minimumPrice / 10 < this.bidPrice - this.item.minimumPrice) {
                     Swal.fire({
                         title: '최대 입찰가는 제시가격의 10%를 넘을 수 없습니다.',
                         text: '다시 입력해주세요',

@@ -149,20 +149,23 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1", "test1", 10000);
+
+        int itemPrice = 10000;
+        Item item = createItem(seller, "test1", "test1", itemPrice);
 
         Bid bid = createBid(bidder, item);
         Long bidId = bid.getId();
         int bidPrice = bid.getPrice();
+        int updatedBidPrice = itemPrice + (itemPrice / 10);
 
-        BidRequest bidRequest = BidRequest.of(item.getId(), 20000);
+        BidRequest bidRequest = BidRequest.of(item.getId(), updatedBidPrice);
 
         //when
         Long bidTestId = bidService.handleBid(bidRequest, bidder.getName());
 
         //then
         assertThat(bidTestId).isEqualTo(bidId);
-        assertThat(bidRepository.findById(bidId).get().getPrice()).isNotEqualTo(bidPrice).isEqualTo(20000);
+        assertThat(bidRepository.findById(bidId).get().getPrice()).isNotEqualTo(bidPrice).isEqualTo(updatedBidPrice);
     }
 
     /**
