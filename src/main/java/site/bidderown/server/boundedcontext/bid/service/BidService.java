@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
+import site.bidderown.server.base.exception.custom_exception.LowerBidPriceException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidDetails;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidRequest;
@@ -44,7 +45,11 @@ public class BidService {
         Item item = itemService.getItem(bidRequest.getItemId());
 
         if (!availableBid(item)) {
-            throw new BidEndItemException("입찰이 종료된 아이템입니다.", item.getId() + "");
+            throw new BidEndItemException(item.getId());
+        }
+
+        if (item.getMinimumPrice() >= bidRequest.getItemPrice()) {
+            throw new LowerBidPriceException(item.getId());
         }
 
         Member bidder = memberService.getMember(username);
@@ -60,15 +65,16 @@ public class BidService {
         return bid.getId();
     }
 
-    public Bid getBid(Long bidId){
-        return  bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
+    public Bid getBid(Long bidId) {
+        return bidRepository.findById(bidId).orElseThrow(() -> new NotFoundException("존재하지 않는 입찰입니다.", bidId + ""));
     }
 
     @Transactional
     public Long create(int price, Item item, Member bidder) {
-        if(isMyItem(item, bidder.getName())) {
+        if (isMyItem(item, bidder.getName())) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
+
         Bid bid = Bid.of(price, bidder, item);
         return bidRepository.save(bid).getId();
     }
@@ -83,7 +89,7 @@ public class BidService {
     public void delete(Long bidId, String bidderName) {
         Bid bid = getBid(bidId);
 
-        if(!hasAuthorization(bid, bidderName)) {
+        if (!hasAuthorization(bid, bidderName)) {
             throw new ForbiddenException("입찰 삭제 권한이 없습니다.");
         }
 

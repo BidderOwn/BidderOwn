@@ -416,6 +416,16 @@
                     }).catch();
             },
             submitPrice() {
+                if (this.item.minimumPrice >= this.bidPrice) {
+                    Swal.fire({
+                        title: '더 낮은 가격을 제시할 수 없습니다.',
+                        text: '다시 입력해주세요',
+                        icon: 'warning'
+                    });
+                    setTimeout(() => {Swal.close()}, 1000);
+                    return;
+                }
+
                 if (this.bidPrice < 100) {
                     Swal.fire({
                         title: '최소 100원부터 가능합니다.',
@@ -424,6 +434,7 @@
                     });
                     return;
                 }
+
                 const priceStr = this.bidPrice.toString();
                 if (priceStr.slice(-2, priceStr.length) !== '00') {
                     Swal.fire({
