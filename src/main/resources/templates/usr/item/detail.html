@@ -36,7 +36,7 @@
                             <label>
                                 <input v-on:keyup.enter="submitPrice" class="w-[354px] text-[14px]" type="number"
                                        step="100"
-                                       placeholder="입찰할 가격을 입력해주세요 (단위 100원)" v-model="bidPrice">
+                                       placeholder="입찰할 가격을 100원 단위로 입력해주세요. (상품 가격의 10%를 넘을 수 없습니다.)" v-model="bidPrice">
                             </label>
                             <input type="submit" v-on:click="submitPrice"
                                    class="flex text-[#496AFF] text-[14px] cursor-pointer" value="입찰하기">

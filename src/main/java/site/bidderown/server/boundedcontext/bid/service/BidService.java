@@ -22,6 +22,7 @@ import site.bidderown.server.boundedcontext.member.entity.Member;
 import site.bidderown.server.boundedcontext.member.service.MemberService;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -123,7 +124,17 @@ public class BidService {
                 (itemRedisService.containsKey(item));
     }
 
+    /**
+     * 입찰 가격 기준
+     * 1. 기본 상품 값보다 커야합니다.
+     * 2. 최근에 입찰가가 제시된 가격보다 높아야 합니다.
+     * 3. 입찰가 증가는 원래 상품 가격의 10%보다 클 수 없습니다.
+     */
     private boolean availableBid(Item item, Integer maxPrice, int bidPrice) {
-        return item.getMinimumPrice() <= bidPrice && maxPrice <= bidPrice;
+        if (Objects.isNull(maxPrice)) {
+            return item.getMinimumPrice() <= bidPrice;
+        }
+        return  (maxPrice <= bidPrice) &&
+                ((item.getMinimumPrice() / 10) >= bidPrice - maxPrice);
     }
 }
