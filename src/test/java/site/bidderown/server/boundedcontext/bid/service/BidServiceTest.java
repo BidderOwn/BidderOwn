@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
+import site.bidderown.server.base.exception.custom_exception.LowerBidPriceException;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidRequest;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidResponse;
 import site.bidderown.server.boundedcontext.bid.entity.Bid;
@@ -26,7 +27,8 @@ import site.bidderown.server.boundedcontext.member.service.MemberService;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -62,12 +64,13 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        int price = 10000;
+        int itemPrice = 10000;
+        int bidPrice = 11000;
 
-        Item item = createItem(seller, "test1","test1", price);
+        Item item = createItem(seller, "test1", "test1", itemPrice);
 
         //when
-        Long bidId = bidService.create(price, item, bidder);
+        Long bidId = bidService.handleBid(BidRequest.of(item.getId(), bidPrice), bidder.getName());
 
         //then
         Bid bid = bidService.getBid(bidId);
@@ -80,11 +83,11 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
-        int price = 100000;
+        Item item = createItem(seller, "test1", "test1", 10000);
+        int price = 11000;
 
         //when
-        Long bidId = bidService.create(price, item, bidder);
+        Long bidId = bidService.handleBid(BidRequest.of(item.getId(), price), bidder.getName());
 
         //then
         Bid bid = bidService.getBid(bidId);
@@ -101,7 +104,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         int price = 10000;
-        Item item = createItem(seller, "test1","test1", price);
+        Item item = createItem(seller, "test1", "test1", price);
 
         //when
         Throwable exception = Assertions.assertThrows(
@@ -123,8 +126,8 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
-        BidRequest bidRequest = BidRequest.of(item.getId(), 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
+        BidRequest bidRequest = BidRequest.of(item.getId(), 11000);
 
         //when
         Long bidTestId = bidService.handleBid(bidRequest, bidder.getName());
@@ -146,7 +149,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
 
         Bid bid = createBid(bidder, item);
         Long bidId = bid.getId();
@@ -172,7 +175,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
         itemService.soldOut(item.getId(), seller.getName());
         BidRequest bidRequest = BidRequest.of(item.getId(), 10000);
 
@@ -195,7 +198,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
         Bid bid = createBid(bidder, item);
 
         //when
@@ -216,7 +219,7 @@ class BidServiceTest {
         Member seller = createUser("seller");
         Member bidder1 = createUser("bidder1");
         Member bidder2 = createUser("bidder2");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
         createBid(bidder1, item);
         createBid(bidder2, item);
 
@@ -237,7 +240,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
         Bid bid = createBid(bidder, item);
 
         //when
@@ -259,7 +262,7 @@ class BidServiceTest {
         //given
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
-        Item item = createItem(seller, "test1","test1", 10000);
+        Item item = createItem(seller, "test1", "test1", 10000);
         Bid bid = createBid(bidder, item);
 
         //when
@@ -283,9 +286,9 @@ class BidServiceTest {
         Member seller = createUser("seller");
         Member bidder = createUser("bidder");
 
-        Item item1 = createItem(seller, "test1","test1", 10000);
-        Item item2 = createItem(seller, "test2","test2", 10000);
-        Item item3 = createItem(seller, "test3","test3", 10000);
+        Item item1 = createItem(seller, "test1", "test1", 10000);
+        Item item2 = createItem(seller, "test2", "test2", 10000);
+        Item item3 = createItem(seller, "test3", "test3", 10000);
 
         createBid(bidder, item1);
         createBid(bidder, item2);
@@ -298,18 +301,36 @@ class BidServiceTest {
         assertThat(bidItemIds.size()).isEqualTo(3);
     }
 
-    Member createUser(String username){
-        return memberService.join(username,"1234");
+    @Test
+    @DisplayName("입찰 생성 시 제시한 가격이 낮은 가격 혹은 같은 가격 400 오류")
+    void t013() {
+        //given
+        Member seller = createUser("seller");
+        Member bidder = createUser("bidder");
+        Item item = createItem(seller, "test1", "test1", 10000);
+        int price = 9000; // 같은 가격
+
+        //when
+        Throwable exception = assertThrows(
+                LowerBidPriceException.class,
+                () -> bidService.handleBid(BidRequest.of(item.getId(), price), bidder.getName())
+        );
+
+        assertThat(exception).isInstanceOf(LowerBidPriceException.class);
     }
 
-    Item createItem(Member member, String itemTitle, String itemDescription, Integer minimumPrice){
+    Member createUser(String username) {
+        return memberService.join(username, "1234");
+    }
+
+    Item createItem(Member member, String itemTitle, String itemDescription, Integer minimumPrice) {
         Item item = itemRepository.save(
                 Item.of(ItemRequest.builder()
-                                .title(itemTitle)
-                                .description(itemDescription)
-                                .period(3)
-                                .minimumPrice(minimumPrice)
-                                .build(), member));
+                        .title(itemTitle)
+                        .description(itemDescription)
+                        .period(3)
+                        .minimumPrice(minimumPrice)
+                        .build(), member));
         itemRedisService.createWithExpire(item, 3);
         imageService.create(item, List.of("image1.jpeg"));
         return item;
