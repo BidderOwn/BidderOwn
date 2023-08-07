@@ -96,6 +96,7 @@ public class BidService {
         bidRepository.delete(bid);
     }
 
+    @Transactional(readOnly = true)
     public BidResponses getBidListWithStatistics(Long itemId) {
         BidDetails bidDetails = getBidStatistics(itemId);
         List<BidResponse> bids = getBids(itemId);
@@ -104,7 +105,7 @@ public class BidService {
 
     private BidDetails getBidStatistics(Long itemId) {
         Item item = itemService.getItem(itemId);
-        return BidDetails.of(item, bidRepository.findMaxPrice(item), bidRepository.findMinPrice(item), bidRepository.findAvgPrice(item));
+        return BidDetails.of(item, bidRepository.findMaxPrice(item));
     }
 
     public List<Long> getBidItemIds(String username) {

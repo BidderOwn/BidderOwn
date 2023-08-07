@@ -18,10 +18,6 @@ public class BidDetails {
     private int desiredPrice;
     @Schema(description = "입찰 최고가")
     private Integer maxPrice;
-    @Schema(description = "입찰 최저가")
-    private Integer minPrice;
-    @Schema(description = "입찰 평균가")
-    private Integer avgPrice;
     @Schema(description = "상품 제목")
     private String itemTitle;
     @Schema(description = "판매자 이름")
@@ -37,8 +33,6 @@ public class BidDetails {
     public BidDetails(String imgName, String sellerName, int desiredPrice, Integer maxPrice, Integer minPrice, Integer avgPrice, String itemTitle, String expireAt, ItemStatus itemStatus) {
         this.desiredPrice = desiredPrice;
         this.maxPrice = maxPrice;
-        this.minPrice = minPrice;
-        this.avgPrice = avgPrice;
         this.itemTitle = itemTitle;
         this.sellerName = sellerName;
         this.imgName = imgName;
@@ -46,20 +40,17 @@ public class BidDetails {
         this.itemStatus = itemStatus;
     }
 
-    public static BidDetails of(Item item, Integer maxPrice, Integer minPrice, Integer avgPrice) {
+    public static BidDetails of(Item item, Integer maxPrice) {
         String image = "";
         if (item.getImages().size() > 0) {
             image = item.getImages().get(0).getFileName();
         }
         String expireAt = TimeUtils.getRemainingTime(LocalDateTime.now(), item.getExpireAt());
 
-
         return BidDetails.builder()
                 .sellerName(item.getMember().getName())
                 .desiredPrice(item.getMinimumPrice())
                 .maxPrice(maxPrice)
-                .minPrice(minPrice)
-                .avgPrice(avgPrice)
                 .itemTitle(item.getTitle())
                 .imgName(image)
                 .expireAt(expireAt)
