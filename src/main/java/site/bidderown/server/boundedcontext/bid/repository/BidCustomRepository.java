@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import site.bidderown.server.boundedcontext.bid.entity.Bid;
+import site.bidderown.server.boundedcontext.item.entity.Item;
 import site.bidderown.server.boundedcontext.item.entity.ItemStatus;
 
 import java.util.List;
@@ -34,6 +35,15 @@ public class BidCustomRepository {
         return bids.stream()
                 .map(bid -> bid.getItem().getId())
                 .collect(Collectors.toList());
+    }
+
+    public List<Bid> findBidsByItem(Item item) {
+        return jpaQueryFactory.selectFrom(bid)
+                .join(bid.bidder)
+                .fetchJoin()
+                .where(bid.item.eq(item))
+                .orderBy(bid.price.desc())
+                .fetch();
     }
 
     private BooleanExpression eqToMember(String memberName) {

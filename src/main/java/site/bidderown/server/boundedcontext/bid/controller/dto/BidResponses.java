@@ -9,21 +9,17 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class BidResponses {
-    @Schema(description = "입찰 상세")
-    private BidDetails bidDetails;
+    @Schema(description = "입찰 최고가")
+    private Integer maxPrice;
     @Schema(description = "입찰 리스트")
     private List<BidResponse> bids;
 
-    @Builder
-    public BidResponses(BidDetails bidDetails, List<BidResponse> bids) {
-        this.bidDetails = bidDetails;
-        this.bids = bids;
-    }
-
-    public static BidResponses of(BidDetails bidDetails, List<BidResponse> bids) {
+    public static BidResponses of(Integer maxPrice, List<BidResponse> bids) {
         return BidResponses.builder()
-                .bidDetails(bidDetails)
+                .maxPrice(maxPrice)
                 .bids(bids)
                 .build();
     }

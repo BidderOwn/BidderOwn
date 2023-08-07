@@ -13,16 +13,8 @@ import java.util.Optional;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
 
-    List<Bid> findByItemOrderByUpdatedAtDesc(Item item);
-
     Optional<Bid> findByItemAndBidder(Item item, Member bidder);
 
     @Query("SELECT MAX(b.price) FROM Bid b where b.item = :item")
     Integer findMaxPrice(@Param("item") Item item);
-
-    @Query("SELECT MIN (b.price) FROM Bid b where b.item = :item")
-    Integer findMinPrice(@Param("item") Item item);
-
-    @Query("SELECT AVG (b.price) FROM Bid b where b.item = :item")
-    Integer findAvgPrice(@Param("item") Item item);
 }

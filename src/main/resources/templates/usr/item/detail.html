@@ -36,7 +36,7 @@
                             <label>
                                 <input v-on:keyup.enter="submitPrice" class="w-[354px] text-[14px]" type="number"
                                        step="100"
-                                       placeholder="입찰할 가격을 입력해주세요 (단위 100원)" v-model="bidPrice">
+                                       placeholder="입찰할 가격을 100원 단위로 입력해주세요. (상품 가격의 10%를 넘을 수 없습니다.)" v-model="bidPrice">
                             </label>
                             <input type="submit" v-on:click="submitPrice"
                                    class="flex text-[#496AFF] text-[14px] cursor-pointer" value="입찰하기">
@@ -50,8 +50,8 @@
                 <div class="flex justify-between items-center mb-[17px]">
                     <div class="flex items-baseline">
                         <span class="text-[18px] font-semibold mr-[8px]">입찰내역</span>
-                        <span class="text-[12px] text-[#515151] mr-[4px]">평균가</span>
-                        <span class="text-[12px] text-[#515151]">{{ avgPrice }}원</span>
+                        <span class="text-[12px] text-[#515151] mr-[4px]">입찰 최고가</span>
+                        <span class="text-[12px] text-[#515151]">{{ maxPrice }}원</span>
                     </div>
                     <button v-if="isMe" v-on:click="closeBidModal()" class="text-[12px] text-[#515151]">
                         <img src="https://kr.object.ncloudstorage.com/s3bucket/close_x.png"
@@ -133,11 +133,8 @@
                 <div class="text-[18px] font-semibold">{{ item.minimumPrice }}원</div>
             </div>
             <div class="flex w-[588px] items-center mt-[-2px]">
-                <div class="text-[14px] text-[#515151] mr-[10px]">입찰가</div>
+                <div class="text-[14px] text-[#515151] mr-[10px]">입찰 최고가</div>
                 <div>
-                    <!--                    <span class="text-[14px] text-[#496AFF]" v-if="item.minPrice != null">{{ item.minPrice }}원&nbsp~</span>-->
-                    <span class="text-[14px]" v-if="item.minPrice != null">{{ item.minPrice }}원&nbsp~</span>
-                    <span class="text-[14px]" v-if="item.minPrice === null">~</span>
                     <span class="text-[14px]" v-if="item.maxPrice != null">&nbsp{{ item.maxPrice }}원</span>
                 </div>
             </div>
@@ -272,7 +269,6 @@
             isModal: false,
             bidPrice: '',
             bids: [],
-            avgPrice: 0,
             isMe: false,
         },
         created() {
@@ -412,18 +408,54 @@
                     .then(response => {
                         this.bids = [];
                         this.bids = response.data.bids;
-                        this.avgPrice = response.data.bidDetails.avgPrice;
+                        this.maxPrice = response.data.maxPrice;
                     }).catch();
             },
             submitPrice() {
+                if (this.item.minimumPrice >= this.bidPrice) {
+                    Swal.fire({
+                        title: '더 낮은 가격을 제시할 수 없습니다.',
+                        text: '다시 입력해주세요',
+                        icon: 'warning'
+                    });
+                    setTimeout(() => {Swal.close()}, 1000);
+                    return;
+                }
+
                 if (this.bidPrice < 100) {
                     Swal.fire({
                         title: '최소 100원부터 가능합니다.',
                         text: '다시 입력해주세요',
                         icon: 'warning'
                     });
+                    setTimeout(() => {Swal.close()}, 1000);
                     return;
                 }
+
+                console.log(this.item.minimumPrice / 10);
+                console.log(this.bidPrice - this.item.minimumPrice);
+                console.log(this.bidPrice - this.maxPrice);
+                console.log(this.maxPrice);
+                if ((this.maxPrice === null || this.maxPrice === 0) && (this.item.minimumPrice / 10) < (this.bidPrice - this.item.minimumPrice)) {
+                    Swal.fire({
+                        title: '최대 입찰가는 제시가격의 10%를 넘을 수 없습니다.',
+                        text: '다시 입력해주세요',
+                        icon: 'warning'
+                    });
+                    setTimeout(() => {Swal.close()}, 1000);
+                    return;
+                }
+
+                if ((this.maxPrice !== 0 && this.maxPrice !== null) && this.item.minimumPrice / 10 < this.bidPrice - this.item.minimumPrice) {
+                    Swal.fire({
+                        title: '최대 입찰가는 제시가격의 10%를 넘을 수 없습니다.',
+                        text: '다시 입력해주세요',
+                        icon: 'warning'
+                    });
+                    setTimeout(() => {Swal.close()}, 1000);
+                    return;
+                }
+
                 const priceStr = this.bidPrice.toString();
                 if (priceStr.slice(-2, priceStr.length) !== '00') {
                     Swal.fire({
@@ -431,6 +463,7 @@
                         text: '다시 입력해주세요',
                         icon: 'warning'
                     });
+                    setTimeout(() => {Swal.close()}, 1000);
                     return;
                 }
                 axios.post('/api/v1/bid', {

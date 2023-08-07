@@ -241,9 +241,12 @@ class NotificationServiceTest {
         Member bidder1 = createUser("member2");
         Member bidder2 = createUser("member3");
 
+        int updatedPrice1 = item.getMinimumPrice() + (item.getMinimumPrice() / 10);
+        int updatedPrice2 = updatedPrice1 + (item.getMinimumPrice() / 10);
+
         //when
-        bidService.handleBid(BidRequest.of(item.getId(), 10000), bidder1.getName());
-        bidService.handleBid(BidRequest.of(item.getId(), 20000), bidder2.getName());
+        bidService.handleBid(BidRequest.of(item.getId(), updatedPrice1), bidder1.getName());
+        bidService.handleBid(BidRequest.of(item.getId(), updatedPrice2), bidder2.getName());
 
         List<Notification> soldOutNotifications = notificationService.createSoldOutNotification(item.getId());
         List<String> receivers = soldOutNotifications.stream()
