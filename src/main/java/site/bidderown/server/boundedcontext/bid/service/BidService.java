@@ -8,7 +8,6 @@ import site.bidderown.server.base.exception.custom_exception.BidEndItemException
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.LowerBidPriceException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
-import site.bidderown.server.boundedcontext.bid.controller.dto.BidDetails;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidRequest;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidResponse;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidResponses;
@@ -44,11 +43,14 @@ public class BidService {
     public Long handleBid(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
 
-        if (!availableBid(item)) {
+        if (!isBidding(item)) {
             throw new BidEndItemException(item.getId());
         }
 
-        if (item.getMinimumPrice() >= bidRequest.getItemPrice()) {
+        Integer maxPrice = bidRepository.findMaxPrice(item);
+        int bidPrice = bidRequest.getItemPrice();
+
+        if (!availableBid(item, maxPrice, bidPrice)) {
             throw new LowerBidPriceException(item.getId());
         }
 
@@ -56,11 +58,11 @@ public class BidService {
         Optional<Bid> opBid = bidRepository.findByItemAndBidder(item, bidder);
 
         if (opBid.isEmpty()) {
-            return create(bidRequest.getItemPrice(), item, bidder);
+            return create(bidPrice, item, bidder);
         }
 
         Bid bid = opBid.get();
-        bid.updatePrice(bidRequest.getItemPrice());
+        bid.updatePrice(bidPrice);
 
         return bid.getId();
     }
@@ -79,10 +81,9 @@ public class BidService {
         return bidRepository.save(bid).getId();
     }
 
-    public List<BidResponse> getBids(Long itemId) {
-        Item item = itemService.getItem(itemId);
-        return bidRepository.findByItemOrderByUpdatedAtDesc(item).stream()
-                .map(bid -> BidResponse.of(bid, item))
+    public List<BidResponse> getBids(Item item) {
+        return bidCustomRepository.findBidsByItem(item).stream()
+                .map(BidResponse::of)
                 .collect(Collectors.toList());
     }
 
@@ -97,15 +98,12 @@ public class BidService {
     }
 
     @Transactional(readOnly = true)
-    public BidResponses getBidListWithStatistics(Long itemId) {
-        BidDetails bidDetails = getBidStatistics(itemId);
-        List<BidResponse> bids = getBids(itemId);
-        return BidResponses.of(bidDetails, bids);
-    }
-
-    private BidDetails getBidStatistics(Long itemId) {
+    public BidResponses getBidListWithMaxPrice(Long itemId) {
         Item item = itemService.getItem(itemId);
-        return BidDetails.of(item, bidRepository.findMaxPrice(item));
+        Integer maxPrice = bidRepository.findMaxPrice(item);
+        List<BidResponse> bids = getBids(item);
+
+        return BidResponses.of(maxPrice, bids);
     }
 
     public List<Long> getBidItemIds(String username) {
@@ -120,9 +118,12 @@ public class BidService {
         return item.getMember().getName().equals(bidderName);
     }
 
-    private boolean availableBid(Item item) {
-        return (item.getItemStatus() != ItemStatus.BID_END) &&
-                (item.getItemStatus() != ItemStatus.SOLDOUT) &&
+    private boolean isBidding(Item item) {
+        return (item.getItemStatus().equals(ItemStatus.BIDDING)) &&
                 (itemRedisService.containsKey(item));
+    }
+
+    private boolean availableBid(Item item, Integer maxPrice, int bidPrice) {
+        return item.getMinimumPrice() <= bidPrice && maxPrice <= bidPrice;
     }
 }

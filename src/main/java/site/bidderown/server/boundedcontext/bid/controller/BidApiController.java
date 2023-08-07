@@ -30,7 +30,7 @@ public class BidApiController {
     @Operation(summary = "입찰 목록", description = "상품의 id를 통해 입찰 목록을 보여줍니다.")
     @GetMapping("/list")
     public BidResponses bidListApi(@RequestParam Long itemId){
-        return bidService.getBidListWithStatistics(itemId);
+        return bidService.getBidListWithMaxPrice(itemId);
     }
 
     @Operation(summary = "입찰 취소", description = "입찰을 취소하고 싶을 때 입찰 id와 유저이름을 비교해 취소합니다.")

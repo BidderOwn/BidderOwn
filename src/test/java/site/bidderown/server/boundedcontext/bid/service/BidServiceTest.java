@@ -224,7 +224,7 @@ class BidServiceTest {
         createBid(bidder2, item);
 
         //when
-        List<BidResponse> bids = bidService.getBids(item.getId());
+        List<BidResponse> bids = bidService.getBids(item);
 
         //then
         assertThat(bids.size()).isEqualTo(2);

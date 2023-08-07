@@ -408,7 +408,7 @@
                     .then(response => {
                         this.bids = [];
                         this.bids = response.data.bids;
-                        this.maxPrice = response.data.bidDetails.maxPrice;
+                        this.maxPrice = response.data.maxPrice;
                     }).catch();
             },
             submitPrice() {
