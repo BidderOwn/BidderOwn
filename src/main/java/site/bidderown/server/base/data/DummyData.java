@@ -17,7 +17,7 @@ public class DummyData {
     }
 
     private void initMembers() {
-        memberService.join("user" + 1, "1234");
-        memberService.join("user" + 2, "1234");
+        memberService.join("user1", "1234");
+        memberService.join("user2", "1234");
     }
 }

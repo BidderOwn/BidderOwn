@@ -2,11 +2,13 @@ package site.bidderown.server.boundedcontext.bid.service;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.aop.lock.DistributedLock;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.base.exception.custom_exception.LowerBidPriceException;
+import site.bidderown.server.base.exception.custom_exception.WrongBidPriceException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidRequest;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidResponse;
@@ -26,8 +28,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class BidService {
     private final BidRepository bidRepository;
     private final BidCustomRepository bidCustomRepository;
@@ -37,11 +40,13 @@ public class BidService {
 
     /**
      * 입찰가 제시
+     * 분산락을 사용하여 동시성 제어
      * 1. 중복 -> 가격 변경
      * 2. 없으면 새로 생성
+     * @annotation LOCK:{itemId} 형식으로 lock이름 생성
      */
-    @Transactional
-    public Long handleBid(BidRequest bidRequest, String username) {
+    @DistributedLock(key = "#bidRequest.getItemId()")
+    public Bid handleBid(BidRequest bidRequest, String username) {
         Item item = itemService.getItem(bidRequest.getItemId());
 
         if (!isBidding(item)) {
@@ -52,7 +57,7 @@ public class BidService {
         int bidPrice = bidRequest.getItemPrice();
 
         if (!availableBid(item, maxPrice, bidPrice)) {
-            throw new LowerBidPriceException(item.getId());
+            throw new WrongBidPriceException(item.getId());
         }
 
         Member bidder = memberService.getMember(username);
@@ -65,7 +70,7 @@ public class BidService {
         Bid bid = opBid.get();
         bid.updatePrice(bidPrice);
 
-        return bid.getId();
+        return bid;
     }
 
     public Bid getBid(Long bidId) {
@@ -73,13 +78,13 @@ public class BidService {
     }
 
     @Transactional
-    public Long create(int price, Item item, Member bidder) {
+    public Bid create(int price, Item item, Member bidder) {
         if (isMyItem(item, bidder.getName())) {
             throw new ForbiddenException("자신의 상품에는 입찰을 할 수 없습니다.");
         }
 
         Bid bid = Bid.of(price, bidder, item);
-        return bidRepository.save(bid).getId();
+        return bidRepository.save(bid);
     }
 
     public List<BidResponse> getBids(Item item) {
@@ -111,11 +116,11 @@ public class BidService {
         return bidCustomRepository.findBidItemIds(username);
     }
 
-    public boolean hasAuthorization(Bid bid, String bidderName) {
+    private boolean hasAuthorization(Bid bid, String bidderName) {
         return bid.getBidder().getName().equals(bidderName);
     }
 
-    public boolean isMyItem(Item item, String bidderName) {
+    private boolean isMyItem(Item item, String bidderName) {
         return item.getMember().getName().equals(bidderName);
     }
 
@@ -132,9 +137,10 @@ public class BidService {
      */
     private boolean availableBid(Item item, Integer maxPrice, int bidPrice) {
         if (Objects.isNull(maxPrice)) {
-            return item.getMinimumPrice() <= bidPrice;
+            return item.getMinimumPrice() < bidPrice &&
+                    (item.getMinimumPrice() / 10) >= bidPrice - item.getMinimumPrice();
         }
-        return  (maxPrice <= bidPrice) &&
-                ((item.getMinimumPrice() / 10) >= bidPrice - maxPrice);
+        return maxPrice < bidPrice &&
+                (item.getMinimumPrice() / 10) >= bidPrice - maxPrice;
     }
 }

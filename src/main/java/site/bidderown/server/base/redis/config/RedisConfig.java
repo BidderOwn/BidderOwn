@@ -2,24 +2,26 @@ package site.bidderown.server.base.redis.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
+import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.PatternTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import site.bidderown.server.base.redis.listener.ExpirationListener;
 
 @RequiredArgsConstructor
 @Slf4j
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
+@DependsOn(value = {"EmbeddedRedisConfig"})
 public class RedisConfig {
 
     @Value("${spring.redis.host}")
@@ -28,9 +30,18 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int redisPort;
 
+    private static final String REDISSON_HOST_PREFIX = "redis://";
+
     @Bean
-    public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer().setAddress(REDISSON_HOST_PREFIX + redisHost + ":" + redisPort);
+        return Redisson.create(config);
+    }
+
+    @Bean
+    public RedissonConnectionFactory redissonConnectionFactory(RedissonClient redisson) {
+        return new RedissonConnectionFactory(redisson);
     }
 
     @Bean
@@ -39,20 +50,6 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         return redisTemplate;
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(
-            RedisConnectionFactory connectionFactory,
-            ExpirationListener expirationListener
-    ) {
-        RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
-        redisMessageListenerContainer.setConnectionFactory(connectionFactory);
-        redisMessageListenerContainer.addMessageListener(expirationListener, new PatternTopic("__keyevent@*__:expired"));
-        redisMessageListenerContainer.setErrorHandler(e -> log.error("RedisMessageListenerContainer error {}", e.getMessage()));
-        return redisMessageListenerContainer;
     }
 }

@@ -432,10 +432,6 @@
                     return;
                 }
 
-                console.log(this.item.minimumPrice / 10);
-                console.log(this.bidPrice - this.item.minimumPrice);
-                console.log(this.bidPrice - this.maxPrice);
-                console.log(this.maxPrice);
                 if ((this.maxPrice === null || this.maxPrice === 0) && (this.item.minimumPrice / 10) < (this.bidPrice - this.item.minimumPrice)) {
                     Swal.fire({
                         title: '최대 입찰가는 제시가격의 10%를 넘을 수 없습니다.',
@@ -477,6 +473,13 @@
                     });
                     this.bidPrice = '';
                 }).catch(error => {
+                    if (error.response.status === 409) {
+                        Swal.fire({
+                            title: '입찰가가 중복되었습니다.',
+                            text: '다시 입력해주세요',
+                            icon: 'warning'
+                        });
+                    }
                     console.log(error)
                 });
                 socket = new SockJS("/ws-stomp");

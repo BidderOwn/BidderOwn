@@ -10,7 +10,7 @@ public enum ErrorCode {
     DUFLICATION(HttpStatus.BAD_REQUEST, "데이터 중복"),
     BID_END(HttpStatus.BAD_REQUEST, "입찰이 종료된 경우"),
     SOLDOUT(HttpStatus.BAD_REQUEST, "판매가 종료된 경우"),
-    LOWER_BID_PRICE(HttpStatus.BAD_REQUEST, "현재 입찰가보다 낮은 가격을 제시한 경우");
+    LOWER_BID_PRICE(HttpStatus.CONFLICT, "현재 입찰가보다 낮은 가격을 제시한 경우");
 
     private final HttpStatus status;
     private final String description;

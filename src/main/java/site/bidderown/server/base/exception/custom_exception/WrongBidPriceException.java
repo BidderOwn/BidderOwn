@@ -3,10 +3,10 @@ package site.bidderown.server.base.exception.custom_exception;
 import site.bidderown.server.base.exception.CustomException;
 import site.bidderown.server.base.exception.ErrorCode;
 
-public class LowerBidPriceException extends CustomException {
+public class WrongBidPriceException extends CustomException {
     private static final ErrorCode errorCode = ErrorCode.LOWER_BID_PRICE;
 
-    public LowerBidPriceException(Long id){
+    public WrongBidPriceException(Long id){
         super(errorCode, "잘못된 입찰가 제시", "Bid with a wrong price. item id: " + id);
     }
 }

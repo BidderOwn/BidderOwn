@@ -25,9 +25,6 @@ spring:
   redis:
     host: localhost
     port: 6379
-  batch:
-    job:
-      names: ${job.name:NONE}
   devtools:
     livereload:
       enabled=true:

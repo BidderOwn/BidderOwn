@@ -109,8 +109,7 @@ public class ItemServiceTest {
         //when
         List<ItemsResponse> items = itemService.getItems(itemsRequest, pageRequest);
 
-        List<Long> itemIds = itemRedisService.getItemIdsByRanking(pageRequest);
-        System.out.println(itemIds);
+        itemRedisService.getItemIdsByRanking(pageRequest);
 
         //then
         assertThat(items.size()).isEqualTo(PAGE_SIZE);
