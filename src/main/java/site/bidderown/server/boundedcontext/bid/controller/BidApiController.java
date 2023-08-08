@@ -22,9 +22,9 @@ public class BidApiController {
 
     @Operation(summary = "입찰 등록", description = "원하는 상품에 입찰가를 제시합니다.")
     @PostMapping
-    public Long registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user){
+    public void registerBid(@RequestBody BidRequest bidRequest, @AuthenticationPrincipal User user) throws InterruptedException {
         if(user == null) throw new ForbiddenException("로그인 후 접근이 가능합니다.");
-        return bidService.handleBid(bidRequest, user.getUsername());
+        bidService.handleBid(bidRequest, user.getUsername());
     }
 
     @Operation(summary = "입찰 목록", description = "상품의 id를 통해 입찰 목록을 보여줍니다.")

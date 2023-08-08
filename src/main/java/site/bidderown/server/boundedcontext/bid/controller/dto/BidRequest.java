@@ -22,6 +22,7 @@ public class BidRequest {
     public static BidRequest of(Long itemId, int itemPrice){
         return BidRequest.builder()
                 .itemId(itemId)
-                .itemPrice(itemPrice).build();
+                .itemPrice(itemPrice)
+                .build();
     }
 }
