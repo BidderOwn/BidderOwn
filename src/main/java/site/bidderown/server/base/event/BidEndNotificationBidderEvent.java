@@ -3,7 +3,7 @@ package site.bidderown.server.base.event;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import site.bidderown.server.bounded_context.notification.entity.Notification;
+import site.bidderown.server.boundedcontext.notification.entity.Notification;
 
 import java.util.List;
 import java.util.stream.Collectors;
