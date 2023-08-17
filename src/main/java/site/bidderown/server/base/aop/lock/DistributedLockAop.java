@@ -9,6 +9,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
+import site.bidderown.server.base.annotation.DistributedLock;
 import site.bidderown.server.base.aop.AopForTransaction;
 import site.bidderown.server.base.parser.CustomSpringELParser;
 
@@ -24,7 +25,7 @@ public class DistributedLockAop {
     private final RedissonClient redissonClient;
     private final AopForTransaction aopForTransaction;
 
-    @Around("@annotation(site.bidderown.server.base.aop.lock.DistributedLock)")
+    @Around("@annotation(site.bidderown.server.base.annotation.DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature(); // 호출된 메서드 정보
         Method method = signature.getMethod();

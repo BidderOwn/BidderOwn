@@ -3,11 +3,13 @@ package site.bidderown.server.boundedcontext.item.service;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import site.bidderown.server.base.annotation.CacheEvictByKeyPattern;
 import site.bidderown.server.base.event.BidEndEvent;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
@@ -18,6 +20,7 @@ import site.bidderown.server.boundedcontext.image.service.ImageService;
 import site.bidderown.server.boundedcontext.item.controller.dto.*;
 import site.bidderown.server.boundedcontext.item.entity.Item;
 import site.bidderown.server.boundedcontext.item.repository.ItemCustomRepository;
+import site.bidderown.server.boundedcontext.item.repository.ItemRedisRepository;
 import site.bidderown.server.boundedcontext.item.repository.ItemRepository;
 import site.bidderown.server.boundedcontext.member.entity.Member;
 import site.bidderown.server.boundedcontext.member.service.MemberService;
@@ -40,6 +43,10 @@ public class ItemService {
     private final HeartRepository heartRepository;
     private final ApplicationEventPublisher itemEventPublisher;
 
+    private final String ITEMS_CACHE_KEY = "ItemsResponse:sort-by";
+
+    @Transactional
+    @CacheEvictByKeyPattern(keyPattern = ITEMS_CACHE_KEY)
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -59,16 +66,17 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
-        return switch (itemsRequest.getS()) {
-            case 1 -> getItemsSortByIdDesc(itemsRequest, pageable);
-            case 2 -> getItemsSortByPopularity(itemsRequest, pageable);
-            case 3 -> getItemsSortByExpireAt(itemsRequest, pageable);
+    @Cacheable(value = ITEMS_CACHE_KEY, key = "#request.getS()", cacheManager = "cacheManager")
+    public List<ItemsResponse> getItems(ItemsRequest request, Pageable pageable) {
+        return switch (request.getS()) {
+            case 1 -> getItemsSortByIdDesc(request, pageable);
+            case 2 -> getItemsSortByPopularity(request, pageable);
+            case 3 -> getItemsSortByExpireAt(request, pageable);
             default -> itemCustomRepository.findItemsLegacy(
                     pageable,
-                    itemsRequest.getS(),
-                    itemsRequest.getQ(),
-                    itemsRequest.isFilter()
+                    request.getS(),
+                    request.getQ(),
+                    request.isFilter()
             );
         };
     }
@@ -219,12 +227,14 @@ public class ItemService {
             return i2.getId().compareTo(i1.getId());
         });
     }
+
     private int getExpireDay(Item item) {
         return Period.between(
                 item.getCreatedAt().toLocalDate(),
                 item.getExpireAt().toLocalDate()
         ).getDays();
     }
+
     public void expireBidEndItems(){
         List<Long> idsByExpiredItems = itemCustomRepository.findIdsByExpiredItems();
         idsByExpiredItems.stream().
