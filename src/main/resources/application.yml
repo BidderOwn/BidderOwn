@@ -18,6 +18,12 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+  cloud:
+    aws:
+      s3:
+        bucket: leuibucket
+      region:
+        static: ap-northeast-2
   data:
     redis:
       repositories:

@@ -13,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
-import site.bidderown.server.base.util.ImageUtils;
 import site.bidderown.server.boundedcontext.bid.controller.dto.BidRequest;
 import site.bidderown.server.boundedcontext.bid.service.BidService;
 import site.bidderown.server.boundedcontext.image.service.ImageService;
@@ -48,9 +47,6 @@ public class ItemServiceTest {
 
     @Autowired
     private MemberService memberService;
-
-    @Autowired
-    private ImageUtils imageUtils;
 
     @Autowired
     private ImageService imageService;
@@ -377,13 +373,6 @@ public class ItemServiceTest {
      * 기존 테스트 로직을 유지하되 s3버킷에 저장하고 삭제하는 로직만 제외합니다.
      */
     private Item createTestItem(ItemRequest request, Member member) {
-        Item item = itemRepository.save(Item.of(request, member));
-
-        List<String> fileNames = request.getImages().stream()
-                .map(image -> imageUtils.createFileName(image.getOriginalFilename(), "test"))
-                .collect(Collectors.toList());
-
-        imageService.create(item, fileNames);
-        return item;
+        return itemRepository.save(Item.of(request, member));
     }
 }
