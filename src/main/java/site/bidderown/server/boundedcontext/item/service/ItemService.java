@@ -225,7 +225,7 @@ public class ItemService {
                 item.getExpireAt().toLocalDate()
         ).getDays();
     }
-    public void bidEndForExpiredItems(){
+    public void expireBidEndItems(){
         List<Long> idsByExpiredItems = itemCustomRepository.findIdsByExpiredItems();
         idsByExpiredItems.stream().
                 forEach(itemId -> itemEventPublisher.publishEvent(BidEndEvent.of(itemId)));

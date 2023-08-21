@@ -23,7 +23,7 @@ public class SchedulerRunner {
     public void bidEndProcessor()
     {
         log.info("bidEndProcessor run");
-        itemService.bidEndForExpiredItems();
+        itemService.expireBidEndItems();
     }
 
 }
