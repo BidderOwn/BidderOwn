@@ -13,7 +13,12 @@ import java.time.Period;
 @NoArgsConstructor
 public class ItemEntityListener {
 
-/*
+    @PostPersist
+    public void postPersist(Item item) {
+        ItemRedisService itemRedisService = BeanUtils.getBean(ItemRedisService.class);
+        itemRedisService.createWithExpire(item, genExpireDay(item));
+    }
+
     @PostUpdate
     public void postUpdate(Item item) {
         if (!item.getItemStatus().equals(ItemStatus.BIDDING)) {
@@ -21,6 +26,11 @@ public class ItemEntityListener {
             itemRedisService.removeBidRankingKey(item.getId());
         }
     }
-*/
 
+    private int genExpireDay(Item item) {
+        return Period.between(
+                item.getCreatedAt().toLocalDate(),
+                item.getExpireAt().toLocalDate()
+        ).getDays();
+    }
 }

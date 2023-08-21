@@ -3,12 +3,10 @@ package site.bidderown.server.boundedcontext.item.service;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import site.bidderown.server.base.event.BidEndEvent;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.boundedcontext.bid.entity.Bid;
@@ -22,7 +20,6 @@ import site.bidderown.server.boundedcontext.item.repository.ItemRepository;
 import site.bidderown.server.boundedcontext.member.entity.Member;
 import site.bidderown.server.boundedcontext.member.service.MemberService;
 
-import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,9 +35,8 @@ public class ItemService {
     private final MemberService memberService;
     private final ImageService imageService;
     private final HeartRepository heartRepository;
-    private final ApplicationEventPublisher itemEventPublisher;
 
-
+    @Transactional
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -191,10 +187,8 @@ public class ItemService {
         );
     }
 
-    @Transactional
-    public Item create(ItemRequest request, Member member) {
+    private Item create(ItemRequest request, Member member) {
         Item item = itemRepository.save(Item.of(request, member));
-        itemRedisService.createWithExpire(item, getExpireDay(item));
         String thumbnailImageFileName = saveAndGetThumbnailImageFileName(request.getImages(), item);
         item.setThumbnailImageFileName(thumbnailImageFileName);
 
@@ -219,17 +213,5 @@ public class ItemService {
             }
             return i2.getId().compareTo(i1.getId());
         });
-    }
-    private int getExpireDay(Item item) {
-        return Period.between(
-                item.getCreatedAt().toLocalDate(),
-                item.getExpireAt().toLocalDate()
-        ).getDays();
-    }
-    public void bidEndForExpiredItems(){
-        List<Long> idsByExpiredItems = itemCustomRepository.findIdsByExpiredItems();
-        idsByExpiredItems.stream().
-                forEach(itemId -> itemEventPublisher.publishEvent(BidEndEvent.of(itemId)));
-
     }
 }
