@@ -1,4 +1,4 @@
-package site.bidderown.server.base.annotation;
+package site.bidderown.server.base.annotation.cache;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,6 +8,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CacheEvictByKeyPattern {
-    String keyPattern();
-    String id() default "";
+    String pattern();
 }

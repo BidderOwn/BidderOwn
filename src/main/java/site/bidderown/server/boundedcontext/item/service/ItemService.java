@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import site.bidderown.server.base.annotation.cache.CacheEvictByKeyPattern;
 import site.bidderown.server.base.annotation.CacheEvictByKeyPattern;
 import site.bidderown.server.base.event.BidEndEvent;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
@@ -22,7 +23,6 @@ import site.bidderown.server.boundedcontext.image.service.ImageService;
 import site.bidderown.server.boundedcontext.item.controller.dto.*;
 import site.bidderown.server.boundedcontext.item.entity.Item;
 import site.bidderown.server.boundedcontext.item.repository.ItemCustomRepository;
-import site.bidderown.server.boundedcontext.item.repository.ItemRedisRepository;
 import site.bidderown.server.boundedcontext.item.repository.ItemRepository;
 import site.bidderown.server.boundedcontext.member.entity.Member;
 import site.bidderown.server.boundedcontext.member.service.MemberService;
@@ -46,8 +46,10 @@ public class ItemService {
     private final ApplicationEventPublisher itemEventPublisher;
 
     private final String ITEM_CACHE_KEY = "item:cache";
+    private final String ITEMS_CACHE_KEY = "items:cache";
 
     @Transactional
+    @CacheEvictByKeyPattern(pattern = ITEMS_CACHE_KEY)
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -67,7 +69,11 @@ public class ItemService {
         return item;
     }
 
-    @Transactional(readOnly = true)
+    @Cacheable(
+            value = ITEMS_CACHE_KEY,
+            key = "#request.getS() + '-' + (#request.getId() != null ? #request.getId() : #pageable.getPageNumber())",
+            cacheManager = "cacheManager"
+    )
     public List<ItemsResponse> getItems(ItemsRequest request, Pageable pageable) {
         return switch (request.getS()) {
             case 1 -> getItemsSortByIdDesc(request, pageable);
@@ -109,6 +115,7 @@ public class ItemService {
         }
         item.updateDeleted();
     }
+
 
     @Transactional
     @CacheEvict(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
