@@ -3,6 +3,8 @@ package site.bidderown.server.boundedcontext.item.service;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
@@ -43,10 +45,9 @@ public class ItemService {
     private final HeartRepository heartRepository;
     private final ApplicationEventPublisher itemEventPublisher;
 
-    private final String ITEMS_CACHE_KEY = "ItemsResponse:sort-by";
+    private final String ITEM_CACHE_KEY = "item:cache";
 
     @Transactional
-    @CacheEvictByKeyPattern(keyPattern = ITEMS_CACHE_KEY)
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -57,16 +58,16 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
     }
 
-    public ItemDetailResponse getItemDetail(Long id) {
-        ItemDetailResponse item = itemCustomRepository.findItemById(id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
+    @Cacheable(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
+    public ItemDetailResponse getItemDetail(Long itemId) {
+        ItemDetailResponse item = itemCustomRepository.findItemById(itemId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", itemId + ""));
         item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
         item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
         return item;
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = ITEMS_CACHE_KEY, key = "#request.getS()", cacheManager = "cacheManager")
     public List<ItemsResponse> getItems(ItemsRequest request, Pageable pageable) {
         return switch (request.getS()) {
             case 1 -> getItemsSortByIdDesc(request, pageable);
@@ -86,6 +87,7 @@ public class ItemService {
     }
 
     @Transactional
+    @CachePut(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
     public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -98,6 +100,7 @@ public class ItemService {
     }
 
     @Transactional
+    @CacheEvict(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
     public void updateDeleted(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -108,6 +111,7 @@ public class ItemService {
     }
 
     @Transactional
+    @CacheEvict(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
     public void soldOut(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -157,11 +161,11 @@ public class ItemService {
      * 최신순 정렬
      * @description No offset 적용
      */
-    private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
+    public List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest request, Pageable pageable) {
         return itemCustomRepository.findItemsSortByIdDesc(
-                itemsRequest.getId(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
+                request.getId(),
+                request.getQ(),
+                request.isFilter(),
                 pageable.getPageSize()
         );
     }
@@ -170,13 +174,13 @@ public class ItemService {
      * 인기순 정렬(입찰 중인 상품만 보여준다.)
      * @description Redis ranking 사용, 검색어 혹은 레디스에 데이터가 없을 때 기존 방식 사용 findItemLegacy()
      */
-    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest itemsRequest, Pageable pageable) {
+    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest request, Pageable pageable) {
         List<Long> ids = itemRedisService.getItemIdsByRanking(pageable);
 
-        if (!StringUtils.isEmpty(itemsRequest.getQ()) || ids.size() == 0) {
+        if (!StringUtils.isEmpty(request.getQ()) || ids.size() == 0) {
             ids = itemCustomRepository.findItemIdsSortByPopularity(
                     pageable,
-                    itemsRequest.getQ()
+                    request.getQ()
             );
         }
 
@@ -190,10 +194,10 @@ public class ItemService {
      * 경매마감순
      * @description 커버링 인덱스 적용
      */
-    private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest itemsRequest, Pageable pageable) {
+    private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest request, Pageable pageable) {
         return itemCustomRepository.findItemsSortByExpireAt(
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
+                request.getQ(),
+                request.isFilter(),
                 pageable
         );
     }
