@@ -38,8 +38,6 @@ public class CacheAop {
                             cacheEvict.key()
                     )
             );
-            System.out.println(resolveKey(cacheEvict.value(), key));
-
             redisCacheListUtils.removeKey(resolveKey(cacheEvict.value(), key));
         }
 
