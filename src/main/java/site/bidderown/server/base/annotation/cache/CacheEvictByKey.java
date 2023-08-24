@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CacheEvictByKeyPattern {
-    String pattern();
+public @interface CacheEvictByKey {
+    String pattern(); // 패턴으로 삭제
+    String value() default "";
+    String key() default ""; // 패턴이 아닌 구체적으로 지우고 싶은 키
 }

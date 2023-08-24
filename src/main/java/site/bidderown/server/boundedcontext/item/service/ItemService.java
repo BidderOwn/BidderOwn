@@ -3,7 +3,6 @@ package site.bidderown.server.boundedcontext.item.service;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import site.bidderown.server.base.annotation.cache.CacheEvictByKeyPattern;
-import site.bidderown.server.base.annotation.CacheEvictByKeyPattern;
-import site.bidderown.server.base.event.BidEndEvent;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
 import site.bidderown.server.boundedcontext.bid.entity.Bid;
@@ -49,7 +46,7 @@ public class ItemService {
     private final String ITEMS_CACHE_KEY = "items:cache";
 
     @Transactional
-    @CacheEvictByKeyPattern(pattern = ITEMS_CACHE_KEY)
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY)
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -106,7 +103,7 @@ public class ItemService {
     }
 
     @Transactional
-    @CacheEvict(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY, value = ITEM_CACHE_KEY, key = "#itemId")
     public void updateDeleted(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -118,7 +115,7 @@ public class ItemService {
 
 
     @Transactional
-    @CacheEvict(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY, value = ITEM_CACHE_KEY, key = "#itemId")
     public void soldOut(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
