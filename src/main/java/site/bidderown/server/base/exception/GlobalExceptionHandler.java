@@ -1,6 +1,7 @@
 package site.bidderown.server.base.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +43,13 @@ public class GlobalExceptionHandler {
                 .forEach(c -> errors.put(((FieldError) c).getField(), c.getDefaultMessage()));
         log.warn(ex.getMessage());
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<ErrorResponse> handleRedisConnectionFailureExceptions(RedisConnectionFailureException e){
+        ErrorResponse errorResponse = new ErrorResponse("서버 장애로 요청이 실패했습니다. 잠시 후 다시 시도해주세요!");
+        log.error(e.getMessage());
+        return ResponseEntity.status(500).body(errorResponse);
     }
 
 }
