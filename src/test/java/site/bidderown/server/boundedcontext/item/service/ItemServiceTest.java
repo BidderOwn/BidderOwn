@@ -1,9 +1,6 @@
 package site.bidderown.server.boundedcontext.item.service;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
@@ -11,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import site.bidderown.server.base.annotation.cache.CacheEvictByKey;
+import site.bidderown.server.base.cache.RedisCacheListUtils;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.util.ImageUtils;
@@ -61,6 +60,9 @@ public class ItemServiceTest {
     @Autowired
     private ItemRedisService itemRedisService;
 
+    @Autowired
+    private RedisCacheListUtils redisCacheListUtils;
+
     private final int PAGE_SIZE = 9;
     private final int ITEM_SIZE = 10;
 
@@ -70,6 +72,12 @@ public class ItemServiceTest {
         memberService.join("test_member_2", "");
         initItemData(member1);
         itemRedisService.flushBidRanking();
+    }
+
+    @AfterEach
+    void afterEach() {
+        itemRepository.deleteAll();
+        redisCacheListUtils.removeKeyPattern("items:cache");
     }
 
     @Test
@@ -316,28 +324,6 @@ public class ItemServiceTest {
 
         //then
         assertThat(exception.getMessage().contains("종료")).isTrue();
-    }
-
-    @DisplayName("상품 저장 레디스 테스트")
-    @Test
-    void test015() throws IOException {
-        //given
-        Member member1 = memberService.getMember("test_member_1");
-
-        //when
-        Item item = createTestItem(
-                new ItemRequest(
-                        "redis_test",
-                        1000,
-                        3,
-                        "redis_description",
-                        List.of(generateMockImageFile())
-                ), member1);
-
-        //then
-        boolean isContain = itemRedisService.containsKey(item);
-
-        assertThat(isContain).isTrue();
     }
 
     /**

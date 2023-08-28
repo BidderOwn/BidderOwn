@@ -183,12 +183,13 @@ class NotificationServiceTest {
     void t05() {
         //given
         Member seller = createUser("member1");
-        Item item = createItem(seller, "item1", "itemDescription", 10000);
+        int price = 10000;
+        Item item = createItem(seller, "item1", "itemDescription", price);
         Member bidder1 = createUser("member2");
         Member bidder2 = createUser("member3");
 
         //when
-        bidService.handleBid(BidRequest.of(item.getId(), 10000), bidder1.getName());
+        bidService.handleBid(BidRequest.of(item.getId(), price + (price / 10)), bidder1.getName());
         List<Notification> newBidNotifications = notificationService.createNewBidNotification(
                 NewBidNotificationRequest.of(
                         item.getId(),
