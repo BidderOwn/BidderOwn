@@ -50,14 +50,14 @@ public class BidService {
         Item item = itemService.getItem(bidRequest.getItemId());
 
         if (!isBidding(item)) {
-            throw new BidEndItemException(item.getId());
+            throw new BidEndItemException(item.getId() + "");
         }
 
         Integer maxPrice = bidRepository.findMaxPrice(item);
         int bidPrice = bidRequest.getItemPrice();
 
         if (!availableBid(item, maxPrice, bidPrice)) {
-            throw new WrongBidPriceException(item.getId());
+            throw new WrongBidPriceException(item.getId() + "");
         }
 
         Member bidder = memberService.getMember(username);
