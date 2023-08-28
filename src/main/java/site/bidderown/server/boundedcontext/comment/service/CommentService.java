@@ -1,6 +1,8 @@
 package site.bidderown.server.boundedcontext.comment.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,9 @@ public class CommentService {
     private final ItemService itemService;
     private final MemberService memberService;
 
+    private final String COMMENTS_CACHE = "comments:cache";
+
+    @CacheEvict(value = COMMENTS_CACHE, key = "#itemId", cacheManager = "cacheManager")
     @Transactional
     public Comment create(CommentRequest request, Long itemId, String writerName) {
         Item item = itemService.getItem(itemId);
@@ -40,6 +45,7 @@ public class CommentService {
                 .orElseThrow(() -> new NotFoundException("댓글이 존재하지 않습니다.", commentId + ""));
     }
 
+    @Cacheable(value = COMMENTS_CACHE, key = "#itemId", cacheManager = "cacheManager")
     public List<CommentDetailResponse> getComments(Long itemId, Pageable pageable) {
         return commentCustomRepository.getComments(itemId, pageable);
     }

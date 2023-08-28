@@ -3,11 +3,14 @@ package site.bidderown.server.boundedcontext.item.service;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import site.bidderown.server.base.annotation.cache.CacheEvictByKey;
 import site.bidderown.server.base.event.BidEndEvent;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.NotFoundException;
@@ -40,6 +43,11 @@ public class ItemService {
     private final HeartRepository heartRepository;
     private final ApplicationEventPublisher itemEventPublisher;
 
+    private final String ITEM_CACHE_KEY = "item:cache";
+    private final String ITEMS_CACHE_KEY = "items:cache";
+
+    @Transactional
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY)
     public Item create(ItemRequest request, String memberString) {
         Member member = memberService.getMember(memberString);
         return create(request, member);
@@ -50,25 +58,30 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
     }
 
-    public ItemDetailResponse getItemDetail(Long id) {
-        ItemDetailResponse item = itemCustomRepository.findItemById(id)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", id + ""));
+    @Cacheable(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
+    public ItemDetailResponse getItemDetail(Long itemId) {
+        ItemDetailResponse item = itemCustomRepository.findItemById(itemId)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 상품입니다.", itemId + ""));
         item.setMaxPrice(itemCustomRepository.findItemBidMaxPriceByItemId(item.getId()));
         item.setMinPrice(itemCustomRepository.findItemBidMinPriceByItemId(item.getId()));
         return item;
     }
 
-    @Transactional(readOnly = true)
-    public List<ItemsResponse> getItems(ItemsRequest itemsRequest, Pageable pageable) {
-        return switch (itemsRequest.getS()) {
-            case 1 -> getItemsSortByIdDesc(itemsRequest, pageable);
-            case 2 -> getItemsSortByPopularity(itemsRequest, pageable);
-            case 3 -> getItemsSortByExpireAt(itemsRequest, pageable);
+    @Cacheable(
+            value = ITEMS_CACHE_KEY,
+            key = "#request.getS() + '-' + (#request.getId() != null ? #request.getId() : #pageable.getPageNumber())",
+            cacheManager = "cacheManager"
+    )
+    public List<ItemsResponse> getItems(ItemsRequest request, Pageable pageable) {
+        return switch (request.getS()) {
+            case 1 -> getItemsSortByIdDesc(request, pageable);
+            case 2 -> getItemsSortByPopularity(request, pageable);
+            case 3 -> getItemsSortByExpireAt(request, pageable);
             default -> itemCustomRepository.findItemsLegacy(
                     pageable,
-                    itemsRequest.getS(),
-                    itemsRequest.getQ(),
-                    itemsRequest.isFilter()
+                    request.getS(),
+                    request.getQ(),
+                    request.isFilter()
             );
         };
     }
@@ -78,6 +91,7 @@ public class ItemService {
     }
 
     @Transactional
+    @CachePut(value = ITEM_CACHE_KEY, key = "#itemId", cacheManager = "cacheManager")
     public Item updateById(ItemUpdateRequest request, Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -90,6 +104,7 @@ public class ItemService {
     }
 
     @Transactional
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY, value = ITEM_CACHE_KEY, key = "#itemId")
     public void updateDeleted(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -99,7 +114,9 @@ public class ItemService {
         item.updateDeleted();
     }
 
+
     @Transactional
+    @CacheEvictByKey(pattern = ITEMS_CACHE_KEY, value = ITEM_CACHE_KEY, key = "#itemId")
     public void soldOut(Long itemId, String memberName) {
         Item item = getItem(itemId);
 
@@ -149,11 +166,11 @@ public class ItemService {
      * 최신순 정렬
      * @description No offset 적용
      */
-    private List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest itemsRequest, Pageable pageable) {
+    public List<ItemsResponse> getItemsSortByIdDesc(ItemsRequest request, Pageable pageable) {
         return itemCustomRepository.findItemsSortByIdDesc(
-                itemsRequest.getId(),
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
+                request.getId(),
+                request.getQ(),
+                request.isFilter(),
                 pageable.getPageSize()
         );
     }
@@ -162,13 +179,13 @@ public class ItemService {
      * 인기순 정렬(입찰 중인 상품만 보여준다.)
      * @description Redis ranking 사용, 검색어 혹은 레디스에 데이터가 없을 때 기존 방식 사용 findItemLegacy()
      */
-    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest itemsRequest, Pageable pageable) {
+    private List<ItemsResponse> getItemsSortByPopularity(ItemsRequest request, Pageable pageable) {
         List<Long> ids = itemRedisService.getItemIdsByRanking(pageable);
 
-        if (!StringUtils.isEmpty(itemsRequest.getQ()) || ids.size() == 0) {
+        if (!StringUtils.isEmpty(request.getQ()) || ids.size() == 0) {
             ids = itemCustomRepository.findItemIdsSortByPopularity(
                     pageable,
-                    itemsRequest.getQ()
+                    request.getQ()
             );
         }
 
@@ -182,10 +199,10 @@ public class ItemService {
      * 경매마감순
      * @description 커버링 인덱스 적용
      */
-    private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest itemsRequest, Pageable pageable) {
+    private List<ItemsResponse> getItemsSortByExpireAt(ItemsRequest request, Pageable pageable) {
         return itemCustomRepository.findItemsSortByExpireAt(
-                itemsRequest.getQ(),
-                itemsRequest.isFilter(),
+                request.getQ(),
+                request.isFilter(),
                 pageable
         );
     }
@@ -219,12 +236,14 @@ public class ItemService {
             return i2.getId().compareTo(i1.getId());
         });
     }
+
     private int getExpireDay(Item item) {
         return Period.between(
                 item.getCreatedAt().toLocalDate(),
                 item.getExpireAt().toLocalDate()
         ).getDays();
     }
+
     public void expireBidEndItems(){
         List<Long> idsByExpiredItems = itemCustomRepository.findIdsByExpiredItems();
         idsByExpiredItems.stream().
