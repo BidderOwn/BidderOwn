@@ -219,7 +219,7 @@ class NotificationServiceTest {
         Member buyer = createUser("member2");
 
         //when
-        Notification newCommentNotification = notificationService.createNewCommentNotification(item.getId(), buyer.getName());
+        Notification newCommentNotification = notificationService.createAndSendNewCommentNotification(item.getId(), buyer.getName());
 
         //then
         assertThat(newCommentNotification.getReceiver().getName()).isEqualTo("member1");
