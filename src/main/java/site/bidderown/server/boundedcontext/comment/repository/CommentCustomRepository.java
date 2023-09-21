@@ -23,7 +23,9 @@ public class CommentCustomRepository {
                         comment.id,
                         member.id,
                         member.name,
-                        comment.content
+                        comment.content,
+                        comment.createdAt,
+                        comment.updatedAt
                 ))
                 .from(comment)
                 .join(comment.writer, member)

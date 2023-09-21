@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import site.bidderown.server.base.annotation.lock.DistributedLock;
+import site.bidderown.server.base.aop.lock.DistributedLock;
 import site.bidderown.server.base.exception.custom_exception.BidEndItemException;
 import site.bidderown.server.base.exception.custom_exception.ForbiddenException;
 import site.bidderown.server.base.exception.custom_exception.WrongBidPriceException;
@@ -50,14 +50,14 @@ public class BidService {
         Item item = itemService.getItem(bidRequest.getItemId());
 
         if (!isBidding(item)) {
-            throw new BidEndItemException(item.getId() + "");
+            throw new BidEndItemException(item.getId());
         }
 
         Integer maxPrice = bidRepository.findMaxPrice(item);
         int bidPrice = bidRequest.getItemPrice();
 
         if (!availableBid(item, maxPrice, bidPrice)) {
-            throw new WrongBidPriceException(item.getId() + "");
+            throw new WrongBidPriceException(item.getId());
         }
 
         Member bidder = memberService.getMember(username);
