@@ -1,4 +1,4 @@
-package site.bidderown.server.base.aop.lock;
+package site.bidderown.server.base.annotation.lock;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -15,6 +15,7 @@ import site.bidderown.server.boundedcontext.item.controller.dto.ItemDetailRespon
 import site.bidderown.server.boundedcontext.item.controller.dto.ItemsResponse;
 import site.bidderown.server.boundedcontext.item.entity.ItemStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -206,6 +207,25 @@ public class ItemCustomRepository {
                 .from(bid)
                 .where(bid.item.id.eq(itemId))
                 .fetchOne();
+    }
+
+    public List<Long> findIdsByExpiredItems() {
+        return queryFactory
+                .select(item.id)
+                .from(item)
+                .where(
+                        ltExpiredAt(LocalDateTime.now()),
+                        eqBidding()
+                )
+                .fetch();
+    }
+
+    private BooleanExpression eqBidding() {
+        return item.itemStatus.eq(ItemStatus.BIDDING);
+    }
+
+    private BooleanExpression ltExpiredAt(LocalDateTime now) {
+        return item.expireAt.lt(now);
     }
 
     private BooleanExpression ltItemId(Long itemId) {
