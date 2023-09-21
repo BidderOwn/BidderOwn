@@ -189,11 +189,10 @@ class NotificationServiceTest {
 
         //when
         bidService.handleBid(BidRequest.of(item.getId(), 10000), bidder1.getName());
-        List<Notification> newBidNotifications = notificationService.createNewBidNotification(
-                NewBidNotificationRequest.of(
+        List<Notification> newBidNotifications = notificationService.createAndSendNewBidNotification(
                         item.getId(),
                         bidder1.getName()
-                )
+
         );
 
         List<String> receivers = newBidNotifications.stream()
@@ -220,7 +219,7 @@ class NotificationServiceTest {
         Member buyer = createUser("member2");
 
         //when
-        Notification newCommentNotification = notificationService.createNewCommentNotification(item.getId(), buyer.getName());
+        Notification newCommentNotification = notificationService.createAndSendNewCommentNotification(item.getId(), buyer.getName());
 
         //then
         assertThat(newCommentNotification.getReceiver().getName()).isEqualTo("member1");
@@ -248,7 +247,7 @@ class NotificationServiceTest {
         bidService.handleBid(BidRequest.of(item.getId(), updatedPrice1), bidder1.getName());
         bidService.handleBid(BidRequest.of(item.getId(), updatedPrice2), bidder2.getName());
 
-        List<Notification> soldOutNotifications = notificationService.createSoldOutNotification(item.getId());
+        List<Notification> soldOutNotifications = notificationService.createAndSendSoldOutNotification(item.getId());
         List<String> receivers = soldOutNotifications.stream()
                 .map(notification -> notification.getReceiver().getName())
                 .collect(Collectors.toList());
