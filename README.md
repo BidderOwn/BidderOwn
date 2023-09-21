@@ -51,6 +51,8 @@
 
 <br>
 
+## 📱 서비스 화면 
+
 | **메인 페이지** | **상품 등록** | **마이페이지** |
 | :---: |  :---: | :---: |
 | ![메인페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/ef01d54c-06b6-40ef-8783-f8712e91c667) | ![녹화_2023_07_18_17_52_44_831](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/d3657e9c-e532-4ec0-a49b-8dd1e9790116) | ![마이페이지](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/7eb6578b-93db-4781-ae88-a3a0d4323658) | 
@@ -99,6 +101,22 @@
 
 <br>
 
+<br>
+
 ## ⚙️ 프로젝트 구조도
-![구조도](https://github.com/BidderOwn/BidderOwn_BE/assets/83222282/1d064e44-ba80-4310-86f7-1f0165cced3d)
+![BidderOwn](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/dc201e09-91e8-407d-9bd7-de16ca11dd42)
+
+<br>
+
+## ⚙️ 주요 기능 흐름
+
+**알림 기능**
+
+![댓글, 판매 알림 시퀀스 다이어그램](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/8d4e6de2-35fb-4a42-a2b4-1d82caaaac00)
+
+<br>
+
+**채팅 기능**
+
+![채팅 시퀀스 다이어그램](https://github.com/BidderOwn/BidderOwn_BE/assets/77851079/203019a3-6716-468a-afff-bc8051a24361)
 
