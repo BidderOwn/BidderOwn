@@ -24,16 +24,16 @@ public class NotificationController {
 
     @MessageMapping("/notification/new-bid")
     public void noticeNewBid(NewBidNotificationRequest newBidNotificationRequest) {
-        notificationService.createAndSendNewBidNotification(newBidNotificationRequest.getItemId(), newBidNotificationRequest.getMemberName());
+        notificationService.createNewBidNotification(newBidNotificationRequest);
     }
 
     @MessageMapping("/notification/new-comment")
     public void noticeNewComment(NewCommentNotificationRequest newCommentNotificationRequest) {
-        notificationService.createAndSendNewCommentNotification(newCommentNotificationRequest.getItemId(), newCommentNotificationRequest.getWriterName());
+        notificationService.createNewCommentNotification(newCommentNotificationRequest.getItemId(), newCommentNotificationRequest.getWriterName());
     }
 
     @MessageMapping("/notification/sold-out")
     public void noticeBidEnd(SoldOutNotificationRequest soldOutNotificationRequest) {
-        notificationService.createAndSendSoldOutNotification(soldOutNotificationRequest.getItemId());
+        notificationService.createSoldOutNotification(soldOutNotificationRequest.getItemId());
     }
 }

@@ -1,9 +1,5 @@
 package site.bidderown.server.boundedcontext.item.entity;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import site.bidderown.server.base.baseentity.BaseEntity;
@@ -47,8 +43,6 @@ public class Item extends BaseEntity {
     @JoinColumn(nullable = false)
     private Member member;
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime expireAt;
 
     @ColumnDefault("false")

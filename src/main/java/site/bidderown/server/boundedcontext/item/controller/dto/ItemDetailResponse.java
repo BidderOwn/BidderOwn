@@ -1,9 +1,5 @@
 package site.bidderown.server.boundedcontext.item.controller.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import site.bidderown.server.boundedcontext.item.entity.ItemStatus;
@@ -41,8 +37,6 @@ public class ItemDetailResponse {
     @Schema(description = "상품 상태", allowableValues = {"BIDDING","SOLDOUT","BID_END"})
     private ItemStatus itemStatus;
     @Schema(description = "만료일자")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime expireAt;
 
     @Builder

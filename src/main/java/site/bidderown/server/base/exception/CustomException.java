@@ -7,15 +7,20 @@ public abstract class CustomException extends RuntimeException{
     private final ErrorCode errorCode;
     private String logMessage;
 
-    protected CustomException(ErrorCode errorCode, String message, String id){
+    protected CustomException(ErrorCode errorCode, String message, String logMessage){
         super(message);
         this.errorCode = errorCode;
-        this.logMessage = message + " (" + id + ")";
+        this.logMessage = message + " (" + logMessage + ")";
     }
 
     protected CustomException(ErrorCode errorCode, String message){
         super(message);
         this.errorCode = errorCode;
-        this.logMessage = message;
+    }
+
+    protected CustomException(ErrorCode errorCode, String message, Long id){
+        super(message);
+        this.errorCode = errorCode;
+        this.logMessage = message + " (" + id + ")";
     }
 }

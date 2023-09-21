@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import site.bidderown.server.base.event.BidEndEvent;
+import site.bidderown.server.base.event.BidEndNotificationBidderEvent;
+import site.bidderown.server.base.event.BidEndNotificationSellerEvent;
 import site.bidderown.server.boundedcontext.bid.entity.Bid;
 import site.bidderown.server.boundedcontext.item.entity.Item;
 import site.bidderown.server.boundedcontext.item.service.ItemService;
@@ -36,8 +38,37 @@ public class NotificationEventHandler {
 
     @EventListener
     @Async
+    public void listen(BidEndNotificationBidderEvent bidEndNotificationBidderEvent) {
+        bidEndNotificationBidderEvent.getReceiverIds()
+                .forEach(bidderId -> messagingTemplate.convertAndSend(socketPath + bidderId, ALARM_TYPE));
+    }
+
+    @EventListener
+    @Async
+    public void listen(BidEndNotificationSellerEvent bidEndNotificationSellerEvent) {
+        List<Notification> notifications = new ArrayList<>();
+
+        bidEndNotificationSellerEvent.getItems()
+                .forEach(item -> {
+                    notifications.add(Notification.of(item, item.getMember(), NotificationType.BID_END));
+                    messagingTemplate.convertAndSend(socketPath + item.getMember().getId(), ALARM_TYPE);
+                });
+        notificationService.create(notifications);
+    }
+
+    @EventListener
+    @Async
     @Transactional
     public void listen(BidEndEvent bidEndEvent) {
-        notificationService.createAndSendBidEndNotification(bidEndEvent.getItemId());
+        Item item = itemService.getItem(bidEndEvent.getItemId());
+        List<Notification> notifications = new ArrayList<>();
+
+        item.getBids().stream()
+                .map(Bid::getBidder)
+                .forEach(bidder -> {
+                    notifications.add(Notification.of(item, bidder, NotificationType.BID_END));
+                    messagingTemplate.convertAndSend(socketPath + bidder.getId(), ALARM_TYPE);
+                });
+        notificationService.create(notifications);
     }
 }

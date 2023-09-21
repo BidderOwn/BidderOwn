@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class NotFoundException extends CustomException {
     private static final ErrorCode errorCode = ErrorCode.NOT_FOUND;
 
-    public NotFoundException(String message, String id){
-        super(errorCode,  message, id);
+    public NotFoundException(String message, String logMessage){
+        super(errorCode,  message, logMessage);
     }
 }
